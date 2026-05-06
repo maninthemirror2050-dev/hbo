@@ -1859,12 +1859,9 @@
                     />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <button class="login-btn" id="localDevBtn" onclick="enterLocalLabMode()" style="display:none;margin-top:8px;background:#3f7b55">
-                    Modo local
+                <button class="login-btn" id="localDevBtn" onclick="enterLocalLabMode()" style="margin-top:8px;background:#3f7b55">
+                    Modo local (análise offline)
                 </button>
-                <div id="localHint" style="display:none;margin-top:6px;font-size:11px;color:#6b8f78;text-align:center">
-                    Atalho: <kbd style="background:#e8f0ec;border:1px solid #b0c8ba;border-radius:3px;padding:1px 5px;font-family:monospace">Ctrl+Shift+L</kbd>
-                </div>
                 <div class="login-err" id="loginErr">
                     E-mail ou senha incorretos.
                 </div>
@@ -2971,14 +2968,7 @@
                 document.getElementById("loginErr").style.display = "none";
                 const localDevBtn = document.getElementById("localDevBtn");
                 if (localDevBtn) {
-                    const isLocalEnv = location.protocol === "file:"
-                        || location.hostname === "localhost"
-                        || location.hostname === "127.0.0.1"
-                        || location.hostname.endsWith(".local")
-                        || new URLSearchParams(location.search).has("local");
-                    localDevBtn.style.display = isLocalEnv ? "block" : "none";
-                    const localHint = document.getElementById("localHint");
-                    if (localHint) localHint.style.display = isLocalEnv ? "block" : "none";
+                    // Modo local sempre disponível — não requer ambiente específico
                 }
                 document
                     .querySelectorAll(".tb-export")
@@ -6479,12 +6469,6 @@
                 nav("overview");
             }
             function enterLocalLabMode() {
-                const isLocalEnv = location.protocol === "file:"
-                    || location.hostname === "localhost"
-                    || location.hostname === "127.0.0.1"
-                    || location.hostname.endsWith(".local")
-                    || new URLSearchParams(location.search).has("local");
-                if (!isLocalEnv) return;
                 S.session = { email: "local@lab", role: "admin", name: "Modo Local" };
                 S.users = [S.session];
                 loadUserProfiles();
@@ -12393,14 +12377,14 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                                     return `<span style="display:inline-flex;align-items:center;gap:4px;background:${bg};color:${color};border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600">${label} <span>${pct > 0 ? "+" : ""}${pct}%</span></span>`;
                                 };
                                 const cal = pastryForecast?.calibration;
-                                const calPill = cal?.ready
-                                    ? (() => {
-                                        const cpct = cal.pct || 0;
-                                        const cclr = cpct > 3 ? "#2d6e4a" : cpct < -3 ? "#a83020" : "#6b5c48";
-                                        const cbg  = cpct > 3 ? "#eaf4ee" : cpct < -3 ? "#faeae7" : "#f0ebe3";
-                                        const lbl  = cal.direction === "calibrado" ? "✓ Calibrado" : cal.direction === "sub-prevendo" ? "↑ Ajuste +" + cpct + "%" : "↓ Ajuste " + cpct + "%";
-                                        return "<span style="display:inline-flex;align-items:center;gap:4px;background:" + cbg + ";color:" + cclr + ";border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600" title="Calibração automática baseada em " + cal.sampleDays + " dias de histórico real">" + lbl + "</span>";
-                                    })() : "";
+                                const _cal = pastryForecast?.calibration;
+                                const _cpct = (_cal && _cal.ready) ? (_cal.pct || 0) : 0;
+                                const _clr = _cpct > 3 ? "#2d6e4a" : _cpct < -3 ? "#a83020" : "#6b5c48";
+                                const _bg  = _cpct > 3 ? "#eaf4ee" : _cpct < -3 ? "#faeae7" : "#f0ebe3";
+                                const _lbl = !_cal || !_cal.ready ? "" : _cal.direction === "calibrado" ? "✓ Calibrado" : _cal.direction === "sub-prevendo" ? "↑ Ajuste +" + _cpct + "%" : "↓ Ajuste " + _cpct + "%";
+                                const calPill = (_cal && _cal.ready && _lbl)
+                                    ? ("<span style='display:inline-flex;align-items:center;gap:4px;background:" + _bg + ";color:" + _clr + ";border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600' title='Calibração: " + _cal.sampleDays + " dias'>" + _lbl + "</span>")
+                                    : "";
                                 return `<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:8px 10px;background:var(--bk3);border-radius:var(--r-sm)">
                                     <span style="font-size:11px;color:var(--bk);font-weight:600;margin-right:2px">✦ Fatores:</span>
                                     ${pill(sfPct, "Sazonalidade")}
@@ -17109,8 +17093,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
             document.addEventListener("keydown", (e) => {
                 if (e.ctrlKey && e.shiftKey && e.key === "L") {
                     e.preventDefault();
-                    const lp = document.getElementById("loginPage");
-                    if (lp && lp.style.display !== "none") enterLocalLabMode();
+                    enterLocalLabMode();
                 }
             });
             document.addEventListener("DOMContentLoaded", async () => {
