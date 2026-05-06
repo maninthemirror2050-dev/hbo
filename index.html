@@ -1836,7 +1836,7 @@
         <!-- LOGIN -->
         <div id="loginPage">
             <div class="login-card">
-                <div class="login-logo">Gestão Financeira <span style="font-size:12px;font-weight:500;color:var(--ink4);margin-left:6px">V1.1</span></div>
+                <div class="login-logo">Gestão Financeira <span style="font-size:12px;font-weight:500;color:var(--ink4);margin-left:6px">V1.0</span></div>
                 <div class="login-sub">Grupo · Três Empresas</div>
                 <div class="login-form-group">
                     <label class="login-label">E-mail</label>
@@ -7109,6 +7109,35 @@
             }
 
             /* ═══ FILTERS ════════════════════════════ */
+            function setQuickDate(mode) {
+                const today = new Date();
+                const pad = (n) => String(n).padStart(2, "0");
+                const fmt4 = (d) => d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+                const modeEl = el("filterMode");
+                const fromEl = el("filterFrom");
+                const toEl   = el("filterTo");
+                const monthEl = el("filterMonth");
+                if (mode === "yesterday") {
+                    const d = new Date(today); d.setDate(d.getDate()-1);
+                    if (modeEl) modeEl.value = "custom";
+                    if (fromEl) fromEl.value = fmt4(d);
+                    if (toEl)   toEl.value   = fmt4(d);
+                } else if (mode === "today") {
+                    if (modeEl) modeEl.value = "today";
+                } else if (mode === "tomorrow") {
+                    const d = new Date(today); d.setDate(d.getDate()+1);
+                    if (modeEl) modeEl.value = "custom";
+                    if (fromEl) fromEl.value = fmt4(d);
+                    if (toEl)   toEl.value   = fmt4(d);
+                } else if (mode === "week") {
+                    if (modeEl) modeEl.value = "week";
+                } else if (mode === "month") {
+                    if (modeEl) modeEl.value = "month";
+                    if (monthEl) monthEl.value = today.getFullYear() + "-" + pad(today.getMonth()+1);
+                }
+                onFilterModeChange();
+                applyFilters();
+            }
             function onFilterModeChange() {
                 const mode = el("filterMode")?.value || "month";
                 const month = el("filterMonth");
@@ -7747,7 +7776,40 @@
                 const rhCount = data.filter((e) => String(e.source_system || "") === "rh-vt").length;
                 const otherCount = data.length - rhCount;
 
-                let h = `<div class="search-wrap"><span style="color:var(--ink4);font-size:14px">🔍</span>
+                const _qMode = el("filterMode")?.value || "month";
+                const _qFrom = el("filterFrom")?.value || "";
+                const _qTo   = el("filterTo")?.value   || "";
+                const _qMonth = el("filterMonth")?.value || "";
+                const today4 = (() => { const d=new Date(); const p=(n)=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); })();
+                const yest4  = (() => { const d=new Date(); d.setDate(d.getDate()-1); const p=(n)=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); })();
+                const tom4   = (() => { const d=new Date(); d.setDate(d.getDate()+1); const p=(n)=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); })();
+                const thisMonthKey = (() => { const d=new Date(); const p=(n)=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+p(d.getMonth()+1); })();
+                const isActive = (mode) => {
+                    if (mode === "yesterday") return _qMode === "custom" && _qFrom === yest4 && _qTo === yest4;
+                    if (mode === "today")    return _qMode === "today";
+                    if (mode === "tomorrow") return _qMode === "custom" && _qFrom === tom4 && _qTo === tom4;
+                    if (mode === "week")     return _qMode === "week";
+                    if (mode === "month")    return _qMode === "month" && _qMonth === thisMonthKey;
+                    return false;
+                };
+                const qpill = (mode, label) => {
+                    const act = isActive(mode);
+                    return "<button onclick=\"setQuickDate('" + mode + "')\" style=\"" +
+                        "padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;" +
+                        "border:1.5px solid " + (act ? "rgba(30,58,47,.55)" : "var(--border)") + ";" +
+                        "background:" + (act ? "rgba(30,58,47,.09)" : "#fff") + ";" +
+                        "color:" + (act ? "var(--bk)" : "var(--ink3)") + ";transition:all .15s\">" + label + "</button>";
+                };
+                let h = `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px;padding:10px 14px;background:#fff;border:1px solid var(--border);border-radius:var(--r)">
+    <span style="font-size:11px;color:var(--ink4);font-weight:600;text-transform:uppercase;letter-spacing:.07em;flex-shrink:0">Ir para:</span>
+    ${qpill("yesterday","Ontem")}
+    ${qpill("today","Hoje")}
+    ${qpill("tomorrow","Amanhã")}
+    <span style="width:1px;height:18px;background:var(--border);flex-shrink:0"></span>
+    ${qpill("week","Esta semana")}
+    ${qpill("month","Este mês")}
+  </div>
+  <div class="search-wrap"><span style="color:var(--ink4);font-size:14px">🔍</span>
     <input type="text" id="paySearch" placeholder="Buscar por descrição, categoria, empresa, valor…" oninput="filterPayTable()"></div>
     <div id="paySearchSummary" style="display:none"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -7805,7 +7867,16 @@
                 ? `<button class="btn sm ghost" onclick="openPayModal(${e.id})" title="Pagar">✓</button>`
                 : `<button class="btn sm ghost" style="color:var(--red);font-size:10px" onclick="unpay(${e.id})" title="Desfazer">↺</button>`
         }
-        ${e.proof_count ? `<button class="btn sm ghost" onclick="openProofsModal(${e.id})" style="margin-left:3px" title="Ver comprovantes">🧾</button>` : ""}
+        ${(() => {
+            const _isPaid = getStatus(e) === "paid";
+            if (_isPaid && !e.proof_count) {
+                return "<button class=\"btn sm\" onclick=\"openProofsModal(" + e.id + ")\" style=\"margin-left:3px;background:rgba(208,170,63,.15);border-color:rgba(208,170,63,.4);color:#7a5c00;font-size:10px;padding:2px 7px\" title=\"Anexar comprovante de pagamento\">📎 Comprovante</button>";
+            }
+            if (e.proof_count) {
+                return "<button class=\"btn sm ghost\" onclick=\"openProofsModal(" + e.id + ")\" style=\"margin-left:3px\" title=\"" + e.proof_count + " comprovante(s)\">🧾 " + e.proof_count + "</button>";
+            }
+            return "";
+        })()}
         ${canEdit() ? `<button class="btn sm ghost" onclick="openEntryModal(${e.id})" style="margin-left:3px" title="Editar">✎</button>` : ""}
         ${canEdit() && st !== "paid" ? `<button class="btn sm ghost" onclick="deleteEntry(${e.id})" style="margin-left:3px;color:var(--red)" title="Excluir lançamento não pago">✕</button>` : ""}
       </td>
@@ -16701,11 +16772,19 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 }
                 return { ...proofRow, public_url: protectedUrl, url: protectedUrl };
             }
-            async function openPayModal(id) {
+            async function openPayModal(id, focusProof) {
                 const e = S.entries.find((x) => x.id === id);
                 if (!e) return;
                 S.pendingPayId = id;
+                S.payProofOnly = !!focusProof;
                 S.payModalEntryStatus = e.status || "pending";
+                // Update modal title based on context
+                const titleEl = document.querySelector("#payModal .modal-title");
+                if (titleEl) {
+                    titleEl.textContent = focusProof
+                        ? "Anexar Comprovante"
+                        : e.status === "paid" ? "Comprovante / Observação" : "Confirmar Pagamento";
+                }
                 html(
                     "payInfo",
                     `<div style="display:flex;justify-content:space-between;align-items:flex-start">
@@ -16749,6 +16828,13 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 el("payModal").classList.add("open");
                 const proofs = await listPaymentProofs(id);
                 renderExistingPayProofs(proofs);
+                // Scroll to proof zone if opened for proof-only attachment
+                if (focusProof) {
+                    setTimeout(() => {
+                        const zone = document.querySelector("#payModal .attach-zone");
+                        if (zone) zone.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }, 120);
+                }
             }
             function closePayModal() {
                 el("payModal").classList.remove("open");
@@ -16835,7 +16921,9 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 }
             }
             function openProofsModal(id) {
-                openPayModal(id);
+                // Abre o modal de pagamento focado no campo de comprovante
+                // para permitir anexar comprovante posteriormente
+                openPayModal(id, true);
             }
             async function unpay(id) {
                 const i = S.entries.findIndex((e) => e.id === id);
