@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Gestão Financeira · Grupo</title>
+        <title>Gestão Financeira · Grupo · v1.1</title>
         <link
             href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Instrument+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
             rel="stylesheet"
@@ -1838,6 +1838,7 @@
             <div class="login-card">
                 <div class="login-logo">Gestão Financeira <span style="font-size:12px;font-weight:500;color:var(--ink4);margin-left:6px">V1.0</span></div>
                 <div class="login-sub">Grupo · Três Empresas</div>
+                <div style="font-size:10px;color:var(--ink4);margin-top:4px;letter-spacing:.05em">v1.1</div>
                 <div class="login-form-group">
                     <label class="login-label">E-mail</label>
                     <input
@@ -1859,9 +1860,7 @@
                     />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <button class="login-btn" id="localDevBtn" onclick="enterLocalLabMode()" style="margin-top:8px;background:#3f7b55">
-                    Modo local (análise offline)
-                </button>
+
                 <div class="login-err" id="loginErr">
                     E-mail ou senha incorretos.
                 </div>
@@ -1875,7 +1874,7 @@
         <div id="app">
             <nav class="sidebar">
                 <div class="sb-brand">
-                    <div class="sb-brand-name">Gestão Financeira <span style="font-size:12px;font-weight:500;color:var(--ink4);margin-left:6px">V1.1</span></div>
+                    <div class="sb-brand-name">Gestão Financeira <span style="font-size:12px;font-weight:500;color:var(--ink4);margin-left:6px">V1.0</span></div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -2966,10 +2965,7 @@
                 document.getElementById("loginEmail").value = "";
                 document.getElementById("loginPwd").value = "";
                 document.getElementById("loginErr").style.display = "none";
-                const localDevBtn = document.getElementById("localDevBtn");
-                if (localDevBtn) {
-                    // Modo local sempre disponível — não requer ambiente específico
-                }
+
                 document
                     .querySelectorAll(".tb-export")
                     .forEach((btn) => (btn.style.display = "none"));
@@ -17196,12 +17192,8 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
             }
 
             /* ═══ INIT ═══════════════════════════════ */
-            document.addEventListener("keydown", (e) => {
-                if (e.ctrlKey && e.shiftKey && e.key === "L") {
-                    e.preventDefault();
-                    enterLocalLabMode();
-                }
-            });
+
+            const APP_VERSION = "1.1";
             document.addEventListener("DOMContentLoaded", async () => {
                 el("f_pay").addEventListener("change", toggleBarcodeField);
                 if (el("filterMonth") && !el("filterMonth").value) {
