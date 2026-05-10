@@ -1977,7 +1977,7 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.161</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.163</div>
                         </div>
                     </div>
                     <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.159</div>
@@ -16266,7 +16266,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 const email = S.session?.email || "";
                 const tenant = S.session?.tenantName || "";
                 const msg = encodeURIComponent(
-                    "Olá! Gostaria de assinar o plano Pro " + (plano === "anual" ? "Anual (R$ 999,90/ano)" : "Mensal (R$ 99,90/mês)") +
+                    "Olá! Gostaria de assinar o plano Pro " + (plano === "anual" ? "Anual (R$ 999,00/ano)" : "Mensal (R$ 99,90/mês)") +
                     " do Gestão Financeira." +
                     (tenant ? " Minha empresa: " + tenant + "." : "") +
                     (email ? " E-mail: " + email + "." : "")
@@ -18173,7 +18173,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
 
             /* ═══ INIT ═══════════════════════════════ */
 
-            const APP_VERSION = "1.161";
+            const APP_VERSION = "1.163";
 
             document.addEventListener("DOMContentLoaded", async () => {
                 el("f_pay").addEventListener("change", toggleBarcodeField);
@@ -18235,6 +18235,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                             <div style="color:var(--ink4);opacity:.5">✗ Módulo de RH</div>
                             <div style="color:var(--ink4);opacity:.5">✗ Exportações e backup</div>
                             <div style="color:var(--ink4);opacity:.5">✗ Múltiplos usuários</div>
+                            <div style="color:var(--ink4);opacity:.5">✗ Múltiplas empresas</div>
                         </div>
                     </div>
 
@@ -18251,6 +18252,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                         <div style="font-size:11px;color:var(--ink4);margin-bottom:12px">Cancele quando quiser</div>
                         <div style="font-size:12px;color:var(--ink3);display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
                             <div>✓ Tudo do plano Free</div>
+                            <div>✓ Múltiplas empresas e visão consolidada</div>
                             <div>✓ Bäckerei Intelligence (análise de NF-e)</div>
                             <div>✓ Assistente de IA integrado</div>
                             <div>✓ Módulo de RH completo</div>
@@ -18268,7 +18270,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                             <div style="text-align:right">
                                 <div style="font-size:11px;color:var(--ink4);text-decoration:line-through">R$ 1.198,80/ano</div>
                                 <div>
-                                    <span style="font-size:24px;font-weight:700;font-family:'Fraunces',serif;color:var(--green)">R$ 999,90</span>
+                                    <span style="font-size:24px;font-weight:700;font-family:'Fraunces',serif;color:var(--green)">R$ 999,00</span>
                                     <span style="font-size:12px;color:var(--ink4)">/ano</span>
                                 </div>
                                 <div style="font-size:11px;color:var(--green);font-weight:600">R$ 83,33/mês · 17% de desconto</div>
@@ -18276,7 +18278,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                         </div>
                         <div style="font-size:11px;color:var(--ink4);margin-bottom:12px">Equivale a mais de 2 meses grátis</div>
                         <div style="font-size:12px;color:var(--ink3);margin-bottom:16px">✓ Tudo do Pro Mensal · Pagamento único anual</div>
-                        <button class="btn" style="width:100%;padding:12px;background:var(--green);color:#fff;border:none" onclick="contactUpgrade('anual')">Assinar por R$ 999,90/ano →</button>
+                        <button class="btn" style="width:100%;padding:12px;background:var(--green);color:#fff;border:none" onclick="contactUpgrade('anual')">Assinar por R$ 999,00/ano →</button>
                     </div>
 
                     <!-- Contact info -->
@@ -18365,6 +18367,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                     <div style="width:100%;background:var(--bg2);border-radius:10px;padding:16px;text-align:left">
                         <div style="font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Plano Pro inclui</div>
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="color:var(--green);font-weight:700">✓</span><span style="font-size:13px;color:var(--ink2)">Bäckerei Intelligence (análise de NF-e)</span></div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="color:var(--green);font-weight:700">✓</span><span style="font-size:13px;color:var(--ink2)">Múltiplas empresas e visão consolidada</span></div>
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="color:var(--green);font-weight:700">✓</span><span style="font-size:13px;color:var(--ink2)">Módulo de RH completo</span></div>
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="color:var(--green);font-weight:700">✓</span><span style="font-size:13px;color:var(--ink2)">Exportações CSV e Excel</span></div>
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="color:var(--green);font-weight:700">✓</span><span style="font-size:13px;color:var(--ink2)">Histórico ilimitado</span></div>
