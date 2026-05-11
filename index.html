@@ -1977,7 +1977,7 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.163</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.164</div>
                         </div>
                     </div>
                     <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.159</div>
@@ -17699,6 +17699,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 );
                 const proofRow = {
                     entry_id: entryId,
+                    tenant_id: S.session?.tenantId,
                     file_name: f.name,
                     storage_path: path,
                     public_url: publicData?.publicUrl || "",
@@ -18173,7 +18174,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
 
             /* ═══ INIT ═══════════════════════════════ */
 
-            const APP_VERSION = "1.163";
+            const APP_VERSION = "1.164";
 
             document.addEventListener("DOMContentLoaded", async () => {
                 el("f_pay").addEventListener("change", toggleBarcodeField);
