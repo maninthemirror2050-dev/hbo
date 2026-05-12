@@ -203,6 +203,106 @@
                 vertical-align: middle;
             }
             @keyframes spin { to { transform: rotate(360deg); } }
+            /* ── Onboarding ── */
+            .onboarding-bar {
+                background: linear-gradient(135deg, #1a1f36 0%, #2d3454 100%);
+                border-radius: var(--r);
+                padding: 20px 24px;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+            .onboarding-title {
+                font-family: 'Fraunces', serif;
+                font-weight: 300;
+                font-size: 18px;
+                color: #fff;
+                letter-spacing: -.3px;
+                margin-bottom: 4px;
+            }
+            .onboarding-sub {
+                font-size: 12px;
+                color: rgba(255,255,255,.4);
+            }
+            .onboarding-steps {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                flex: 1;
+                justify-content: flex-end;
+            }
+            .onboarding-step {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 14px;
+                border-radius: 8px;
+                font-size: 12px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all .2s;
+                text-decoration: none;
+                border: none;
+                background: none;
+            }
+            .onboarding-step.done {
+                background: rgba(29,158,117,.15);
+                color: #4ade80;
+            }
+            .onboarding-step.active {
+                background: #4f6ef7;
+                color: #fff;
+            }
+            .onboarding-step.pending {
+                background: rgba(255,255,255,.08);
+                color: rgba(255,255,255,.4);
+            }
+            .onboarding-step-icon { font-size: 14px; }
+            .onboarding-dismiss {
+                background: none;
+                border: none;
+                color: rgba(255,255,255,.2);
+                cursor: pointer;
+                font-size: 16px;
+                padding: 4px;
+                align-self: flex-start;
+            }
+            .onboarding-dismiss:hover { color: rgba(255,255,255,.5); }
+            /* ── Empty state ── */
+            .empty-state {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 64px 20px;
+                text-align: center;
+                gap: 16px;
+            }
+            .empty-icon {
+                width: 64px;
+                height: 64px;
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 28px;
+                margin-bottom: 4px;
+            }
+            .empty-title {
+                font-family: 'Fraunces', serif;
+                font-weight: 300;
+                font-size: 22px;
+                color: var(--ink);
+                letter-spacing: -.4px;
+            }
+            .empty-sub {
+                font-size: 14px;
+                color: var(--ink4);
+                max-width: 320px;
+                line-height: 1.6;
+            }
             @keyframes shimmer {
                 0% { background-position: -600px 0; }
                 100% { background-position: 600px 0; }
@@ -1866,6 +1966,143 @@
                 }
             }
 
+            @media (max-width: 480px) {
+                /* KPI row — 2 columns on small phones */
+                .kpi-row {
+                    grid-template-columns: 1fr 1fr !important;
+                }
+                /* Company cards — stack on mobile */
+                .g3 {
+                    grid-template-columns: 1fr !important;
+                }
+                /* Overview stats row */
+                .overview-stats {
+                    grid-template-columns: 1fr 1fr;
+                }
+                /* Table — hide less important columns */
+                .tbl .col-obs,
+                .tbl .col-pay,
+                .tbl .col-barcode,
+                .tbl th:nth-child(4),
+                .tbl td:nth-child(4) {
+                    display: none;
+                }
+                /* Topbar — stack filters vertically */
+                .topbar {
+                    flex-wrap: wrap;
+                    gap: 6px;
+                }
+                .topbar-filters {
+                    flex-wrap: wrap;
+                }
+                .topbar-filters select,
+                .topbar-filters input {
+                    flex: 1;
+                    min-width: 100px;
+                }
+                /* Onboarding bar — stack on mobile */
+                .onboarding-bar {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 14px;
+                }
+                .onboarding-steps {
+                    justify-content: flex-start;
+                    width: 100%;
+                }
+                .onboarding-step {
+                    font-size: 11px;
+                    padding: 6px 10px;
+                }
+                /* Modal — full screen on mobile */
+                .modal-overlay {
+                    padding: 0;
+                    align-items: flex-end;
+                }
+                .modal {
+                    border-radius: 16px 16px 0 0;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    width: 100% !important;
+                    max-width: 100% !important;
+                }
+                /* Buttons — full width in forms */
+                .modal .btn-row {
+                    flex-direction: column;
+                }
+                .modal .btn-row .btn {
+                    width: 100%;
+                }
+                /* Admin page — single column */
+                .g2 {
+                    grid-template-columns: 1fr !important;
+                }
+                /* User row — stack */
+                .user-row {
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+                /* Plan cards */
+                .plans {
+                    grid-template-columns: 1fr !important;
+                }
+                /* Quick date buttons */
+                .quick-dates {
+                    flex-wrap: wrap;
+                }
+                /* Page title — smaller */
+                .topbar-title {
+                    font-size: 18px;
+                }
+                /* Content padding */
+                .content {
+                    padding: 10px 10px 60px !important;
+                }
+                /* Sidebar brand — hide tagline on mobile */
+                .sb-version {
+                    display: none;
+                }
+                /* Footer */
+                #appFooter {
+                    flex-wrap: wrap;
+                    font-size: 11px;
+                    gap: 4px;
+                }
+            }
+
+            /* Bottom nav bar for mobile */
+            @media (max-width: 900px) {
+                .sb-bottom {
+                    position: sticky;
+                    bottom: 0;
+                    background: var(--dark, #1a1f36);
+                    border-top: 0.5px solid rgba(255,255,255,.08);
+                    z-index: 10;
+                    padding: 8px 12px;
+                }
+                /* New entry FAB button */
+                .fab-new-entry {
+                    position: fixed;
+                    bottom: 72px;
+                    right: 16px;
+                    width: 52px;
+                    height: 52px;
+                    border-radius: 50%;
+                    background: var(--blue, #4f6ef7);
+                    color: #fff;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                    box-shadow: 0 4px 16px rgba(79,110,247,.4);
+                    z-index: 50;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: transform .2s;
+                }
+                .fab-new-entry:active { transform: scale(.95); }
+            }
+
             ::-webkit-scrollbar {
                 width: 5px;
                 height: 5px;
@@ -1977,7 +2214,7 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.164</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.172</div>
                         </div>
                     </div>
                     <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.159</div>
@@ -2903,9 +3140,7 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-        <script>
+                <script>
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY =
                 "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
@@ -3143,6 +3378,9 @@
                 const sbVer = document.getElementById("sbVersion");
                 if (sbVer) sbVer.textContent = "v" + APP_VERSION;
                 renderSidebarCompanies();
+                // Show FAB on mobile
+                const fab = document.getElementById("fabNewEntry");
+                if (fab) fab.style.display = window.innerWidth <= 900 ? "flex" : "none";
                 document.getElementById("loginPage").style.display = "none";
                 document.getElementById("app").style.display = "block";
                 // Limpa conteúdo stale — evita mostrar dados de sessão anterior
@@ -3215,1651 +3453,7 @@
                 },
             };
 
-            /* ═══ SEED DATA ═════════════════════════ */
-            function xd(n) {
-                const d = new Date((n - 25569) * 86400000);
-                return d.toISOString().slice(0, 10);
-            }
-            const SEED = [
-                {
-                    id: 1,
-                    co: "bk",
-                    desc: "Alimente Alimentos",
-                    cat: "Matéria-Prima",
-                    val: 3732.02,
-                    date: xd(45873),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 2,
-                    co: "bk",
-                    desc: "Rio das Pedras",
-                    cat: "Matéria-Prima",
-                    val: 70,
-                    date: xd(45873),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 3,
-                    co: "bk",
-                    desc: "Brappas Estacionamento",
-                    cat: "Aluguel",
-                    val: 530,
-                    date: xd(45874),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 4,
-                    co: "bk",
-                    desc: "Condominio Brasília Shopping",
-                    cat: "Aluguel",
-                    val: 14750,
-                    date: xd(45874),
-                    pay: "Boleto",
-                    status: "paid",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 5,
-                    co: "bk",
-                    desc: "Oesa",
-                    cat: "Matéria-Prima",
-                    val: 1830.93,
-                    date: xd(45874),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 6,
-                    co: "bk",
-                    desc: "Folha de Pagamento",
-                    cat: "Salários",
-                    val: 9671.69,
-                    date: xd(45875),
-                    pay: "Pix",
-                    status: "paid",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 7,
-                    co: "bk",
-                    desc: "Seguro dos funcionários",
-                    cat: "Seguros",
-                    val: 53.5,
-                    date: xd(45875),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 8,
-                    co: "bk",
-                    desc: "Rio das Pedras",
-                    cat: "Matéria-Prima",
-                    val: 70,
-                    date: xd(45877),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 9,
-                    co: "bk",
-                    desc: "Rio das Pedras",
-                    cat: "Matéria-Prima",
-                    val: 94.5,
-                    date: xd(45879),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 10,
-                    co: "bk",
-                    desc: "Eletroneve",
-                    cat: "Manutenção",
-                    val: 450,
-                    date: xd(45880),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 11,
-                    co: "bk",
-                    desc: "Key Comércio",
-                    cat: "Manutenção",
-                    val: 440,
-                    date: xd(45880),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "Realizado na Produção.",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 12,
-                    co: "bk",
-                    desc: "Prestação de Serviço - Adilfar/Rafa",
-                    cat: "Consultoria",
-                    val: 2200,
-                    date: xd(45880),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 13,
-                    co: "bk",
-                    desc: "Alimente Alimentos",
-                    cat: "Matéria-Prima",
-                    val: 6981.96,
-                    date: xd(45881),
-                    pay: "Boleto",
-                    status: "paid",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 14,
-                    co: "bk",
-                    desc: "Mudar Transportes",
-                    cat: "Aluguel",
-                    val: 401.58,
-                    date: xd(45882),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "Parcela 5/6",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 15,
-                    co: "bk",
-                    desc: "Honorários Styllus Contabilidade",
-                    cat: "Consultoria",
-                    val: 914,
-                    date: xd(45884),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 16,
-                    co: "bk",
-                    desc: "Casa do Holandês",
-                    cat: "Matéria-Prima",
-                    val: 768.43,
-                    date: xd(45884),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 17,
-                    co: "bk",
-                    desc: "Rio das Pedras",
-                    cat: "Matéria-Prima",
-                    val: 162.4,
-                    date: xd(45886),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 18,
-                    co: "bk",
-                    desc: "Brasal Refrigerantes",
-                    cat: "Água",
-                    val: 1257.19,
-                    date: xd(45887),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 19,
-                    co: "bk",
-                    desc: "Alimente Alimentos",
-                    cat: "Matéria-Prima",
-                    val: 3266.35,
-                    date: xd(45887),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 20,
-                    co: "bk",
-                    desc: "Guia DARF",
-                    cat: "Impostos",
-                    val: 678.02,
-                    date: xd(45889),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 21,
-                    co: "bk",
-                    desc: "Guia FGTS",
-                    cat: "FGTS",
-                    val: 1034.96,
-                    date: xd(45889),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 22,
-                    co: "bk",
-                    desc: "Consultoria Fabien",
-                    cat: "Consultoria",
-                    val: 1395,
-                    date: xd(45889),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "Dias 1,2,7,8,9.7.2025 – R$279/dia",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 23,
-                    co: "bk",
-                    desc: "Seguro Loja",
-                    cat: "Seguros",
-                    val: 200.92,
-                    date: xd(45890),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "Parcela 1/6",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 24,
-                    co: "bk",
-                    desc: "Rio das Pedras",
-                    cat: "Matéria-Prima",
-                    val: 89.1,
-                    date: xd(45890),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 25,
-                    co: "bk",
-                    desc: "Ticket Alimentação",
-                    cat: "Ticket Alimentação",
-                    val: 1872,
-                    date: xd(45890),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 26,
-                    co: "bk",
-                    desc: "Alimente Alimentos",
-                    cat: "Matéria-Prima",
-                    val: 3930.71,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 27,
-                    co: "bk",
-                    desc: "Prestação de Serviço - Adilfar/Rafa",
-                    cat: "Consultoria",
-                    val: 337,
-                    date: xd(45894),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 28,
-                    co: "bk",
-                    desc: "SEEC – Plaza Café",
-                    cat: "Impostos",
-                    val: 265.02,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 29,
-                    co: "bk",
-                    desc: "SEEC – Plaza Café",
-                    cat: "Impostos",
-                    val: 291.51,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 30,
-                    co: "bk",
-                    desc: "SEEC – Cildemac Moura 3/05",
-                    cat: "Impostos",
-                    val: 513.71,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 31,
-                    co: "bk",
-                    desc: "SEEC – Cildemac Moura 2/05",
-                    cat: "Impostos",
-                    val: 565.08,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 32,
-                    co: "bk",
-                    desc: "SEEC – Cildemac Moura 1/5",
-                    cat: "Impostos",
-                    val: 565.08,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 33,
-                    co: "bk",
-                    desc: "SEEC – Bäckerei Café",
-                    cat: "Impostos",
-                    val: 786.29,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 34,
-                    co: "bk",
-                    desc: "Graumans/Casa do Holandês",
-                    cat: "Matéria-Prima",
-                    val: 437.17,
-                    date: xd(45895),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 35,
-                    co: "bk",
-                    desc: "Brasal Refrigerantes",
-                    cat: "Água",
-                    val: 1014.39,
-                    date: xd(45896),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 36,
-                    co: "bk",
-                    desc: "Casa do Holandês",
-                    cat: "Matéria-Prima",
-                    val: 303.24,
-                    date: xd(45897),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 37,
-                    co: "bk",
-                    desc: "Flor do Cerrado",
-                    cat: "Matéria-Prima",
-                    val: 727,
-                    date: xd(45897),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 38,
-                    co: "bk",
-                    desc: "Neoenergia Loja 188",
-                    cat: "Luz",
-                    val: 1751.43,
-                    date: xd(45897),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 39,
-                    co: "bk",
-                    desc: "Férias – Francisca das Chagas",
-                    cat: "Salários",
-                    val: 2989.1,
-                    date: xd(45898),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 40,
-                    co: "bk",
-                    desc: "Impostos Bäckerei Plaza",
-                    cat: "Impostos",
-                    val: 626.4,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 41,
-                    co: "bk",
-                    desc: "Impostos Bäckerei Plaza",
-                    cat: "Impostos",
-                    val: 299.07,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 42,
-                    co: "bk",
-                    desc: "Impostos Bäckerei Café",
-                    cat: "Impostos",
-                    val: 544.88,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 43,
-                    co: "bk",
-                    desc: "Impostos Bäckerei Café",
-                    cat: "Impostos",
-                    val: 157.35,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 44,
-                    co: "bk",
-                    desc: "Impostos Bäckerei Café",
-                    cat: "Impostos",
-                    val: 1217.45,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 45,
-                    co: "bk",
-                    desc: "Impostos Bäckerei Café",
-                    cat: "Impostos",
-                    val: 9587.91,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 46,
-                    co: "bk",
-                    desc: "Impostos Bäckerei Café",
-                    cat: "Impostos",
-                    val: 1523.11,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 47,
-                    co: "bk",
-                    desc: "WW Refrigeração",
-                    cat: "Manutenção",
-                    val: 480,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 48,
-                    co: "bk",
-                    desc: "Vale Transporte",
-                    cat: "Vale Transporte",
-                    val: 1153.5,
-                    date: xd(45898),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 49,
-                    co: "bk",
-                    desc: "RDR Informática",
-                    cat: "Telefone/Internet",
-                    val: 182,
-                    date: xd(45899),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 50,
-                    co: "bk",
-                    desc: "Atmosphere – Polus",
-                    cat: "Manutenção",
-                    val: 400,
-                    date: xd(45899),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 51,
-                    co: "bk",
-                    desc: "Rio das Pedras",
-                    cat: "Matéria-Prima",
-                    val: 121.8,
-                    date: xd(45899),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 52,
-                    co: "bk",
-                    desc: "Graumans/Casa do Holandês",
-                    cat: "Matéria-Prima",
-                    val: 363.33,
-                    date: xd(45899),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 53,
-                    co: "sw",
-                    desc: "Férias – Jhonatan de Souza",
-                    cat: "Salários",
-                    val: 1920.16,
-                    date: xd(45870),
-                    pay: "Pix",
-                    status: "paid",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 54,
-                    co: "sw",
-                    desc: "L&L Comércio",
-                    cat: "Bebidas",
-                    val: 90,
-                    date: xd(45870),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 55,
-                    co: "sw",
-                    desc: "Brasaliment",
-                    cat: "Empório",
-                    val: 883,
-                    date: xd(45870),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 56,
-                    co: "sw",
-                    desc: "Gibraltar",
-                    cat: "Compra de Máquinas",
-                    val: 1274.63,
-                    date: xd(45873),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 57,
-                    co: "sw",
-                    desc: "JCT Distribuidora",
-                    cat: "Matéria-Prima",
-                    val: 1252.42,
-                    date: xd(45873),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 58,
-                    co: "sw",
-                    desc: "Ovos Beatriz",
-                    cat: "Matéria-Prima",
-                    val: 480,
-                    date: xd(45874),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 59,
-                    co: "sw",
-                    desc: "Cond. Comercial Brasília Shopping Lj 157C",
-                    cat: "Aluguel",
-                    val: 5472.66,
-                    date: xd(45874),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 60,
-                    co: "sw",
-                    desc: "Folha de Pagamento",
-                    cat: "Salários",
-                    val: 8991.33,
-                    date: xd(45875),
-                    pay: "Pix",
-                    status: "paid",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 61,
-                    co: "sw",
-                    desc: "DP PRO Comércio",
-                    cat: "Outros",
-                    val: 835.7,
-                    date: xd(45875),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 62,
-                    co: "sw",
-                    desc: "Brasal Refrigerantes",
-                    cat: "Água",
-                    val: 985.85,
-                    date: xd(45877),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 63,
-                    co: "sw",
-                    desc: "Seguro dos funcionários",
-                    cat: "Seguros",
-                    val: 71.2,
-                    date: xd(45879),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 64,
-                    co: "sw",
-                    desc: "Cond. Escritório Sala 808B",
-                    cat: "Aluguel",
-                    val: 649.96,
-                    date: xd(45879),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 65,
-                    co: "sw",
-                    desc: "JTC Distribuidora",
-                    cat: "Matéria-Prima",
-                    val: 1252.41,
-                    date: xd(45880),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "Parcela 2/3",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 66,
-                    co: "sw",
-                    desc: "Nugali",
-                    cat: "Empório",
-                    val: 798.98,
-                    date: xd(45880),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "Parcela 2/4",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 67,
-                    co: "sw",
-                    desc: "Oesa Comércio",
-                    cat: "Matéria-Prima",
-                    val: 1500.77,
-                    date: xd(45881),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 68,
-                    co: "sw",
-                    desc: "Ovos Beatriz",
-                    cat: "Matéria-Prima",
-                    val: 720,
-                    date: xd(45881),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 69,
-                    co: "sw",
-                    desc: "Imagina Juntos",
-                    cat: "Bebidas",
-                    val: 502.98,
-                    date: xd(45881),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 70,
-                    co: "sw",
-                    desc: "Pomerode",
-                    cat: "Empório",
-                    val: 812.87,
-                    date: xd(45883),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 71,
-                    co: "sw",
-                    desc: "IPTU 2025 – Escritório 808B",
-                    cat: "Aluguel",
-                    val: 472.91,
-                    date: xd(45883),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 72,
-                    co: "sw",
-                    desc: "Brasaliment",
-                    cat: "Empório",
-                    val: 1398.05,
-                    date: xd(45884),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 73,
-                    co: "sw",
-                    desc: "Honorário Jurídico Licar",
-                    cat: "Consultoria",
-                    val: 750,
-                    date: xd(45884),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 74,
-                    co: "sw",
-                    desc: "Honorário Styllus Contabilidade",
-                    cat: "Consultoria",
-                    val: 914,
-                    date: xd(45884),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 75,
-                    co: "sw",
-                    desc: "Alimente Alimentos",
-                    cat: "Matéria-Prima",
-                    val: 491.85,
-                    date: xd(45884),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 76,
-                    co: "sw",
-                    desc: "Cond. Comercial Brasília Shopping Lj 157C",
-                    cat: "Aluguel",
-                    val: 13930.49,
-                    date: xd(45887),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 77,
-                    co: "sw",
-                    desc: "Videira Vinhos",
-                    cat: "Bebidas",
-                    val: 656.16,
-                    date: xd(45888),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 78,
-                    co: "sw",
-                    desc: "Guia DARF",
-                    cat: "Impostos",
-                    val: 688.99,
-                    date: xd(45889),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 79,
-                    co: "sw",
-                    desc: "Guia FGTS",
-                    cat: "FGTS",
-                    val: 877.99,
-                    date: xd(45889),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 80,
-                    co: "sw",
-                    desc: "RDR Informática",
-                    cat: "Telefone/Internet",
-                    val: 222,
-                    date: xd(45889),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 81,
-                    co: "sw",
-                    desc: "Consultoria Nutricionista Ana Paula",
-                    cat: "Consultoria",
-                    val: 420,
-                    date: xd(45890),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "Visitas 21/7, 28/7 e 15/8",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 82,
-                    co: "sw",
-                    desc: "Ticket Alimentação",
-                    cat: "Ticket Alimentação",
-                    val: 2196,
-                    date: xd(45890),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 83,
-                    co: "sw",
-                    desc: "Ovos Beatriz",
-                    cat: "Matéria-Prima",
-                    val: 480,
-                    date: xd(45891),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 84,
-                    co: "sw",
-                    desc: "Brasaliment",
-                    cat: "Empório",
-                    val: 535.4,
-                    date: xd(45891),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 85,
-                    co: "sw",
-                    desc: "Cogourmet Cogumelos",
-                    cat: "Matéria-Prima",
-                    val: 542.4,
-                    date: xd(45891),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 86,
-                    co: "sw",
-                    desc: "Blend Empório",
-                    cat: "Café",
-                    val: 490,
-                    date: xd(45891),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 87,
-                    co: "sw",
-                    desc: "Neoenergia Loja 177",
-                    cat: "Luz",
-                    val: 2908.46,
-                    date: xd(45892),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 88,
-                    co: "sw",
-                    desc: "Perboni",
-                    cat: "Matéria-Prima",
-                    val: 1125,
-                    date: xd(45893),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 89,
-                    co: "sw",
-                    desc: "Nurit Alimentos",
-                    cat: "Matéria-Prima",
-                    val: 655,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 90,
-                    co: "sw",
-                    desc: "Nugali Chocolates",
-                    cat: "Empório",
-                    val: 798.98,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "Parcela 3/4",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 91,
-                    co: "sw",
-                    desc: "R2 Telecom – Escritório 808B",
-                    cat: "Telefone/Internet",
-                    val: 129.9,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 92,
-                    co: "sw",
-                    desc: "Videira Vinhos",
-                    cat: "Bebidas",
-                    val: 537.84,
-                    date: xd(45895),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 93,
-                    co: "sw",
-                    desc: "L&L Comércio",
-                    cat: "Bebidas",
-                    val: 375,
-                    date: xd(45895),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 94,
-                    co: "sw",
-                    desc: "L&L Comércio",
-                    cat: "Bebidas",
-                    val: 45,
-                    date: xd(45895),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 95,
-                    co: "sw",
-                    desc: "DP PRO Comércio",
-                    cat: "Outros",
-                    val: 255.83,
-                    date: xd(45896),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 96,
-                    co: "sw",
-                    desc: "Reembolso 50% Tênis – Cristiane",
-                    cat: "Outros",
-                    val: 95,
-                    date: xd(45896),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "Funcionária Cristiane",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 97,
-                    co: "sw",
-                    desc: "VT + VA – Lívia Medeiros",
-                    cat: "Salários",
-                    val: 416,
-                    date: xd(45896),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "Mudança de escala",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 98,
-                    co: "sw",
-                    desc: "Neoenergia Escritório 808B",
-                    cat: "Luz",
-                    val: 160.41,
-                    date: xd(45897),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 99,
-                    co: "sw",
-                    desc: "Stuttgart Importação",
-                    cat: "Empório",
-                    val: 622.63,
-                    date: xd(45897),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 100,
-                    co: "sw",
-                    desc: "Brasaliment",
-                    cat: "Empório",
-                    val: 1630,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 101,
-                    co: "sw",
-                    desc: "Impostos Swiss Alimentos",
-                    cat: "Impostos",
-                    val: 111.29,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 102,
-                    co: "sw",
-                    desc: "Impostos Swiss Alimentos",
-                    cat: "Impostos",
-                    val: 326.7,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 103,
-                    co: "sw",
-                    desc: "Vale Transporte",
-                    cat: "Vale Transporte",
-                    val: 1483.5,
-                    date: xd(45898),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 104,
-                    co: "sw",
-                    desc: "Êxito Imobiliária Sala 808B",
-                    cat: "Aluguel",
-                    val: 1056.98,
-                    date: xd(45899),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "Inclui seguro R$66,98. Parcela 1/4",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 105,
-                    co: "sw",
-                    desc: "Sanremo Locação",
-                    cat: "Aluguel",
-                    val: 910,
-                    date: xd(45899),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 106,
-                    co: "sw",
-                    desc: "Perboni",
-                    cat: "Matéria-Prima",
-                    val: 1050,
-                    date: xd(45900),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 107,
-                    co: "dbk",
-                    desc: "Folha de Pagamento",
-                    cat: "Salários",
-                    val: 12048.49,
-                    date: xd(45875),
-                    pay: "Pix",
-                    status: "paid",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 108,
-                    co: "dbk",
-                    desc: "Seguro dos funcionários",
-                    cat: "Seguros",
-                    val: 84.41,
-                    date: xd(45877),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 109,
-                    co: "dbk",
-                    desc: "RDR Informática",
-                    cat: "Telefone/Internet",
-                    val: 132,
-                    date: xd(45879),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 110,
-                    co: "dbk",
-                    desc: "Módulo Orona",
-                    cat: "Manutenção",
-                    val: 210.01,
-                    date: xd(45885),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 111,
-                    co: "dbk",
-                    desc: "Guia DARF",
-                    cat: "Impostos",
-                    val: 1246.06,
-                    date: xd(45889),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 112,
-                    co: "dbk",
-                    desc: "Guia FGTS",
-                    cat: "FGTS",
-                    val: 1268.83,
-                    date: xd(45889),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "Outra emitida venc. 28/8 – R$1.339,14",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 113,
-                    co: "dbk",
-                    desc: "Consultoria Nutricionista Ana Paula",
-                    cat: "Consultoria",
-                    val: 433.2,
-                    date: xd(45890),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "Visitas 21/7, 28/7 e 15/8",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 114,
-                    co: "dbk",
-                    desc: "Guia FGTS – Maio 2025",
-                    cat: "FGTS",
-                    val: 1326.32,
-                    date: xd(45890),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 115,
-                    co: "dbk",
-                    desc: "Ticket Alimentação",
-                    cat: "Ticket Alimentação",
-                    val: 3980,
-                    date: xd(45890),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 116,
-                    co: "dbk",
-                    desc: "Neoenergia Lj 24",
-                    cat: "Luz",
-                    val: 3.46,
-                    date: xd(45892),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 117,
-                    co: "dbk",
-                    desc: "Neoenergia SL 06",
-                    cat: "Luz",
-                    val: 6810.57,
-                    date: xd(45892),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 118,
-                    co: "dbk",
-                    desc: "Caesb SL 06",
-                    cat: "Água",
-                    val: 1819.5,
-                    date: xd(45893),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 119,
-                    co: "dbk",
-                    desc: "TN-BSB Controle",
-                    cat: "Outros",
-                    val: 319.15,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 120,
-                    co: "dbk",
-                    desc: "SEEC",
-                    cat: "Impostos",
-                    val: 242.86,
-                    date: xd(45894),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 121,
-                    co: "dbk",
-                    desc: "SEEC",
-                    cat: "Impostos",
-                    val: 267.14,
-                    date: xd(45802),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 122,
-                    co: "dbk",
-                    desc: "Aluguel Galeria Karim",
-                    cat: "Aluguel",
-                    val: 9743.59,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "Desconto pontualidade R$1.697,54",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 123,
-                    co: "dbk",
-                    desc: "Impostos DBK Alimentos",
-                    cat: "Impostos",
-                    val: 1446.84,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 124,
-                    co: "dbk",
-                    desc: "Impostos DBK Alimentos",
-                    cat: "Impostos",
-                    val: 513.33,
-                    date: xd(45898),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 125,
-                    co: "dbk",
-                    desc: "Vale Transporte",
-                    cat: "Vale Transporte",
-                    val: 2267,
-                    date: xd(45898),
-                    pay: "Pix",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-                {
-                    id: 126,
-                    co: "dbk",
-                    desc: "TFE – Taxa de Func. de Estab. 2025",
-                    cat: "Outros",
-                    val: 99.33,
-                    date: xd(45900),
-                    pay: "Boleto",
-                    status: "pending",
-                    obs: "",
-                    barcode: "",
-                    tipo: "normal",
-                },
-            ];
+            const SEED = []; // removed — use Supabase data
 
             /* ═══ STATE ══════════════════════════════ */
             const S = {
@@ -7791,6 +6385,58 @@
                 }
             }
             // Atualiza o menu lateral de empresas com base nos dados reais do tenant
+            // ── Onboarding ──────────────────────────────────────────────
+            function getOnboardingState() {
+                const dismissed = localStorage.getItem("nexum_onboarding_dismissed") === "true";
+                if (dismissed) return null;
+                const isOwner = S.session?.tenantId === OWNER_TENANT_ID;
+                if (isOwner) return null; // owner não precisa de onboarding
+                const hasCompany = !!S.session?.tenantName;
+                const hasEntries = S.entries.length > 0;
+                if (hasCompany && hasEntries) {
+                    // Tudo completo — dispensa automaticamente após 2 dias
+                    const completedAt = localStorage.getItem("nexum_onboarding_completed");
+                    if (!completedAt) localStorage.setItem("nexum_onboarding_completed", Date.now());
+                    else if (Date.now() - Number(completedAt) > 2 * 24 * 60 * 60 * 1000) {
+                        localStorage.setItem("nexum_onboarding_dismissed", "true");
+                        return null;
+                    }
+                }
+                return { hasCompany, hasEntries };
+            }
+
+            function dismissOnboarding() {
+                localStorage.setItem("nexum_onboarding_dismissed", "true");
+                render("overview");
+            }
+
+            function renderOnboardingBar(state) {
+                if (!state) return "";
+                const { hasCompany, hasEntries } = state;
+                const allDone = hasCompany && hasEntries;
+
+                const step = (icon, label, done, active, action) =>
+                    "<button class=\"onboarding-step " + (done ? "done" : active ? "active" : "pending") + "\"" +
+                    (action && !done ? " onclick=\"" + action + "\"" : "") + ">" +
+                    "<span class=\"onboarding-step-icon\">" + (done ? "✓" : icon) + "</span>" +
+                    label + "</button>";
+
+                return "<div class=\"onboarding-bar\">"
+                    + "<div>"
+                    + "<div class=\"onboarding-title\">Bem-vindo ao Nexum 👋</div>"
+                    + "<div class=\"onboarding-sub\">Complete os passos para começar</div>"
+                    + "</div>"
+                    + "<div class=\"onboarding-steps\">"
+                    + step("✓", "Conta criada", true, false, "")
+                    + step("🏢", "Configurar empresa", hasCompany, !hasCompany, "nav(\'admin\')")
+                    + step("➕", "Primeiro lançamento", hasEntries, hasCompany && !hasEntries, "openEntryModal()")
+                    + "</div>"
+                    + (allDone
+                        ? "<button class=\"onboarding-dismiss\" onclick=\"dismissOnboarding()\" title=\"Dispensar\">✕</button>"
+                        : "")
+                    + "</div>";
+            }
+
             function renderSkeletonOverview() {
                 const page = document.getElementById("overviewPage");
                 if (!page) return;
@@ -7961,6 +6607,30 @@
             /* ═══ OVERVIEW ═══════════════════════════ */
             function renderOverview() {
                 const data = getFiltered();
+                // ── Onboarding bar para novos usuários ──
+                const _onboardingState = getOnboardingState();
+                let h = _onboardingState ? renderOnboardingBar(_onboardingState) : "";
+
+                // ── Empty state para tenants sem lançamentos ──
+                const _isOwner = S.session?.tenantId === OWNER_TENANT_ID;
+                if (!_isOwner && !S.entries.length) {
+                    const _hasCompany = !!S.session?.tenantName;
+                    h += "<div class=\"empty-state\">"
+                        + "<div class=\"empty-icon\" style=\"background:var(--bg2)\">💳</div>"
+                        + "<div class=\"empty-title\">Nenhum lançamento ainda</div>"
+                        + "<div class=\"empty-sub\">"
+                        + (_hasCompany
+                            ? "Adicione seu primeiro lançamento financeiro para começar a acompanhar suas finanças."
+                            : "Configure sua empresa em Administração e depois adicione seu primeiro lançamento.")
+                        + "</div>"
+                        + (_hasCompany
+                            ? "<button class=\"btn primary\" onclick=\"openEntryModal()\">+ Novo lançamento</button>"
+                            : "<button class=\"btn primary\" onclick=\"nav(\'admin\')\">Configurar empresa →</button>")
+                        + "</div>";
+                    html("overviewPage", h);
+                    return;
+                }
+
                 const reminders = reminderSummary(reminderScopeEntries());
                 const globalQuery = getGlobalSearchQuery();
                 const globalResults = globalSearchResults(reminderScopeEntries(), globalQuery);
@@ -7985,7 +6655,7 @@
                     return diff >= 0 && diff < 7 && getStatus(e) !== "paid";
                 });
 
-                let h = "";
+                // h already declared above — continue building
                 if (!getReminderDismissed() && (reminders.dueToday.length || reminders.next3.length || reminders.recurringPending.length)) {
                     const parts = [];
                     if (reminders.dueToday.length) parts.push(`${reminders.dueToday.length} hoje`);
@@ -8086,8 +6756,8 @@
   </div>`;
 
                 // Per company cards - owner sees bk/sw/dbk, other tenants see only their own cos
-                const _isOwner = S.session?.tenantId === OWNER_TENANT_ID;
-                const _tenantCos = _isOwner
+                const _isOwner2 = S.session?.tenantId === OWNER_TENANT_ID;
+                const _tenantCos = _isOwner2
                     ? ["bk","sw","dbk"]
                     : [...new Set(S.entries.map(e => e.co).filter(Boolean))];
                 const _coList = _tenantCos.filter(c => S.cos[c] !== false);
@@ -8157,14 +6827,14 @@
                     ["bk", "sw", "dbk"]
                         .filter((c) => S.cos[c])
                         .forEach((co) => {
-                            const d2 = data.filter((e) => e.co === co);
-                            const pg = d2
+                            const d2b = data.filter((e) => e.co === co);
+                            const pg = d2b
                                 .filter((e) => getStatus(e) === "paid")
                                 .reduce((s, e) => s + e.val, 0);
-                            const pe = d2
+                            const pe = d2b
                                 .filter((e) => getStatus(e) === "pending")
                                 .reduce((s, e) => s + e.val, 0);
-                            const ov = d2
+                            const ov = d2b
                                 .filter((e) => getStatus(e) === "overdue")
                                 .reduce((s, e) => s + e.val, 0);
                             mkChart(
@@ -16741,9 +15411,9 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                         + "<input type=\"file\" id=\"importFile\" accept=\".json\" style=\"display:none\" onchange=\"importJSON(this)\"></div>"
                         + "<div class=\"divider\" style=\"margin:2px 0\"></div>"
                         + "<div style=\"display:flex;gap:8px;align-items:center\">"
-                        + "<div style=\"flex:1\"><div style=\"font-size:12.5px;font-weight:500\">Resetar para dados iniciais</div>"
-                        + "<div style=\"font-size:11px;color:var(--ink4)\">Volta para os 126 lançamentos originais da planilha</div></div>"
-                        + "<button class=\"btn ghost\" onclick=\"resetToSeed()\">Resetar</button></div>"
+                        + "<div style=\"flex:1\"><div style=\"font-size:12.5px;font-weight:500\">Limpar todos os dados</div>"
+                        + "<div style=\"font-size:11px;color:var(--ink4)\">Remove todos os lançamentos. Use para começar do zero.</div></div>"
+                        + "<button class=\"btn ghost\" onclick=\"clearAllData()\">Limpar</button></div>"
                         + "<div class=\"divider\" style=\"margin:2px 0\"></div>"
                         + "<div style=\"display:flex;gap:8px;align-items:center\">"
                         + "<div style=\"flex:1\"><div style=\"font-size:12.5px;font-weight:500;color:var(--red)\">Limpar toda a base</div>"
@@ -16857,24 +15527,8 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 return patch;
             }
             function resetToSeed() {
-                openConfirmModal(
-                    "Resetar Base",
-                    "Isso substituirá TODOS os lançamentos pelos dados originais da planilha (agosto 2025). Ação irreversível.",
-                    null,
-                    () => {
-                        S.entries = JSON.parse(JSON.stringify(SEED));
-                        S.categories = [...DEFAULT_CATEGORIES];
-                        saveCategories();
-                        S.nextId = 200;
-                        saveEntries();
-                        alert(
-                            "Base resetada com sucesso! " +
-                                SEED.length +
-                                " lançamentos restaurados.",
-                        );
-                        render("admin");
-                    },
-                );
+                // SEED removido — função desativada
+                alert("Esta funcionalidade foi removida.");
             }
             function clearAllData() {
                 openConfirmModal(
@@ -18008,8 +16662,19 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
             }
 
             /* ═══ EXPORT ══════════════════════════════ */
-            function exportExcel() {
-                const data = getFiltered();
+            async function loadXLSX() {
+                if (window.XLSX) return window.XLSX;
+                return new Promise((resolve, reject) => {
+                    const s = document.createElement("script");
+                    s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+                    s.onload = () => resolve(window.XLSX);
+                    s.onerror = reject;
+                    document.head.appendChild(s);
+                });
+            }
+            async function exportExcel() {
+                if (!requirePro("Exportação Excel")) return;
+                const XLSX = await loadXLSX();
                 const wb = XLSX.utils.book_new();
                 const appVersion = APP_VERSION;
                 const rhCount = data.filter((e) => String(e.source_system || "") === "rh-vt").length;
@@ -18174,7 +16839,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
 
             /* ═══ INIT ═══════════════════════════════ */
 
-            const APP_VERSION = "1.164";
+            const APP_VERSION = "1.172";
 
             document.addEventListener("DOMContentLoaded", async () => {
                 el("f_pay").addEventListener("change", toggleBarcodeField);
@@ -18213,6 +16878,9 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 if (loading) loading.style.display = "none";
             });
         </script>
+        <!-- FAB: New entry button (mobile only) -->
+        <button class="fab-new-entry" onclick="openEntryModal()" title="Novo lançamento" id="fabNewEntry" style="display:none">+</button>
+
         <!-- UPGRADE PAGE MODAL -->
         <div class="modal-overlay" id="upgradePage" style="z-index:9998;overflow-y:auto;align-items:flex-start;padding:24px 16px">
             <div class="modal" style="max-width:520px;margin:auto">
@@ -18250,7 +16918,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                                 <span style="font-size:12px;color:var(--ink4)">/mês</span>
                             </div>
                         </div>
-                        <div style="font-size:11px;color:var(--ink4);margin-bottom:12px">Cancele quando quiser</div>
+                        <div style="font-size:11px;color:var(--ink4);margin-bottom:12px">1º CNPJ · + R$ 69,90 por CNPJ extra · cancele quando quiser</div>
                         <div style="font-size:12px;color:var(--ink3);display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
                             <div>✓ Tudo do plano Free</div>
                             <div>✓ Múltiplas empresas e visão consolidada</div>
@@ -18278,7 +16946,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                             </div>
                         </div>
                         <div style="font-size:11px;color:var(--ink4);margin-bottom:12px">Equivale a mais de 2 meses grátis</div>
-                        <div style="font-size:12px;color:var(--ink3);margin-bottom:16px">✓ Tudo do Pro Mensal · Pagamento único anual</div>
+                        <div style="font-size:12px;color:var(--ink3);margin-bottom:16px">✓ Tudo do Pro Mensal · Pagamento único anual<br>✓ + R$ 579,57/ano por CNPJ extra (17% off)</div>
                         <button class="btn" style="width:100%;padding:12px;background:var(--green);color:#fff;border:none" onclick="contactUpgrade('anual')">Assinar por R$ 999,00/ano →</button>
                     </div>
 

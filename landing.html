@@ -969,6 +969,59 @@
     <h2 class="section-title">Simples e transparente</h2>
     <p class="section-sub">Comece grátis e faça upgrade quando precisar de mais.</p>
 
+    <!-- CNPJ Calculator -->
+    <div style="background:var(--dark);border-radius:16px;padding:32px;margin-bottom:32px">
+        <div style="text-align:center;margin-bottom:24px">
+            <div style="font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(232,201,106,.7);margin-bottom:8px">Calculadora de preço</div>
+            <div style="font-family:'Fraunces',serif;font-weight:300;font-size:22px;color:#fff;letter-spacing:-.4px">Quantos CNPJs você tem?</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+            <span style="font-size:13px;color:rgba(255,255,255,.4);white-space:nowrap">1</span>
+            <input type="range" id="cnpjRange" min="1" max="10" value="1" oninput="updateCalc()"
+                style="flex:1;accent-color:#4f6ef7;cursor:pointer;height:4px">
+            <span style="font-size:13px;color:rgba(255,255,255,.4);white-space:nowrap">10 CNPJs</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div style="background:rgba(79,110,247,.1);border:1px solid rgba(79,110,247,.2);border-radius:12px;padding:20px;text-align:center">
+                <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:8px">Mensal</div>
+                <div id="calcMonthly" style="font-family:'Fraunces',serif;font-weight:300;font-size:28px;color:#fff;letter-spacing:-.5px">R$&nbsp;99,90</div>
+                <div id="calcMonthlyDesc" style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px">1 CNPJ incluído</div>
+                <a id="calcBtnMonthly" href="https://wa.me/5561991056318?text=Quero%20assinar%20o%20Nexum%20Pro%20Mensal." target="_blank"
+                    style="display:block;margin-top:14px;padding:8px;background:#4f6ef7;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500">
+                    Assinar mensal →
+                </a>
+            </div>
+            <div style="background:rgba(29,158,117,.08);border:1px solid rgba(29,158,117,.2);border-radius:12px;padding:20px;text-align:center">
+                <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:6px">Anual <span style="color:#4ade80;font-weight:600">17% off</span></div>
+                <div id="calcAnnual" style="font-family:'Fraunces',serif;font-weight:300;font-size:28px;color:#fff;letter-spacing:-.5px">R$&nbsp;999,00</div>
+                <div id="calcAnnualDesc" style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px">R$ 83,25/mês por CNPJ</div>
+                <a id="calcBtnAnnual" href="https://wa.me/5561991056318?text=Quero%20assinar%20o%20Nexum%20Pro%20Anual." target="_blank"
+                    style="display:block;margin-top:14px;padding:8px;background:rgba(29,158,117,.2);color:#4ade80;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500;border:1px solid rgba(29,158,117,.3)">
+                    Assinar anual →
+                </a>
+            </div>
+        </div>
+        <div id="calcNote" style="text-align:center;font-size:12px;color:rgba(255,255,255,.2);margin-top:16px">1 CNPJ incluído no plano base</div>
+    </div>
+
+    <script>
+    function updateCalc() {
+        const n = parseInt(document.getElementById("cnpjRange").value);
+        const monthly = 99.90 + (n - 1) * 69.90;
+        const annual = monthly * 12 * 0.83;
+        const fmt = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById("calcMonthly").innerHTML = fmt(monthly);
+        document.getElementById("calcMonthlyDesc").textContent = n === 1 ? "1 CNPJ incluído" : n + " CNPJs · R$ 69,90/CNPJ extra";
+        document.getElementById("calcAnnual").innerHTML = fmt(annual);
+        document.getElementById("calcAnnualDesc").textContent = "R$ " + (annual/12/n).toLocaleString("pt-BR",{minimumFractionDigits:2}) + "/mês por CNPJ";
+        document.getElementById("calcNote").textContent = n === 1 ? "1 CNPJ incluído no plano base" : n + " CNPJs · base R$ 99,90 + " + (n-1) + " × R$ 69,90 adicionais";
+        const msgM = encodeURIComponent("Olá! Quero assinar o Nexum Pro Mensal para " + n + " CNPJ" + (n>1?"s":"") + ". Valor: " + fmt(monthly) + "/mês.");
+        const msgA = encodeURIComponent("Olá! Quero assinar o Nexum Pro Anual para " + n + " CNPJ" + (n>1?"s":"") + ". Valor: " + fmt(annual) + "/ano.");
+        document.getElementById("calcBtnMonthly").href = "https://wa.me/5561991056318?text=" + msgM;
+        document.getElementById("calcBtnAnnual").href = "https://wa.me/5561991056318?text=" + msgA;
+    }
+    </script>
+
     <div class="plans">
         <!-- Free -->
         <div class="plan">
