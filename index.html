@@ -2140,7 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.177</div>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.186</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2215,10 +2215,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.176</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.186</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.159</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.186</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3142,14 +3142,23 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.176"; // declared first — used throughout
+            const APP_VERSION = "1.186"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY =
                 "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             const STORAGE_BUCKET = "payment-proofs";
             const BKI_BUCKET = "bki-data";
-            const BKI_FILE   = "bki_data.json";
+            // BKI file is per-CNPJ — falls back to generic bki_data.json
+            function getBKIFile() {
+                const cnpj = S.session?.tenantCnpj?.replace(/\D/g,"");
+                if (cnpj) return `bki_${cnpj}.json`;
+                // Fallback: try to match by tenant name
+                const name = (S.session?.tenantName || "").toLowerCase();
+                if (name.includes("swiss")) return "bki_50820490000140.json";
+                if (name.includes("bäckerei") || name.includes("backerei")) return "bki_28746859000163.json";
+                return "bki_data.json"; // generic fallback
+            }
             const ENTRY_FILES_BUCKET = "payment-proofs";
             const HR_DOCUMENTS_BUCKET = "hr-documents";
             const ENTRY_MESSAGES_TABLE = "app_entry_messages";
@@ -3213,12 +3222,12 @@
                             console.warn("[BKI] Sem userId na sessão após", retries, "tentativas.");
                             return;
                         }
-                        const { data, error } = await db
+                        const { data: tmData, error } = await db
                             .from("tenant_members")
                             .select("tenant_id, role, tenants(name, plan, segment, cnpj)")
                             .eq("user_id", userId)
-                            .limit(1)
-                            .maybeSingle();
+                            .limit(1);
+                        const data = tmData?.[0] || null;
                         if (data && !error) {
                             S.session.tenantId   = data.tenant_id;
                             S.session.tenantName    = data.tenants?.name || "";
@@ -5439,9 +5448,10 @@
 
             /* ═══ UTILS ══════════════════════════════ */
             function fmt(v) {
+                const n = Number(v) || 0;
                 return (
                     "R$ " +
-                    v
+                    n
                         .toFixed(2)
                         .replace(".", ",")
                         .replace(/\B(?=(\d{3})+(?!\d))/g, ".")
@@ -8591,33 +8601,129 @@
                         );
                 });
             }
+            // ── Convert bki_data.json to pastryLab format ────────────────
+            function convertBKIData(json) {
+                if (!json) return null;
+                // If already in pastryLab format, return as-is
+                if (json.records || json.products) return json;
+
+                try {
+                    // Convert daily_products to products summary
+                    const products = {};
+                    Object.values(json.daily_products || {}).forEach(dayProds => {
+                        Object.entries(dayProds).forEach(([name, data]) => {
+                            if (!products[name]) products[name] = { qty: 0, total: 0, revenue: 0 };
+                            products[name].qty     += Number(data.qty)     || 0;
+                            products[name].total   += Number(data.revenue) || 0;
+                            products[name].revenue += Number(data.revenue) || 0;
+                        });
+                    });
+
+                    // Convert daily_summary to records array
+                    const records = Object.entries(json.daily_summary || {}).map(([dateKey, d]) => {
+                        const op = Number(d.operational) || 0;
+                        const excl = Number(d.excluded) || 0;
+                        // Build items from daily_products for this date
+                        const dayProds = json.daily_products?.[dateKey] || {};
+                        const items = Object.entries(dayProds).map(([name, pd]) => ({
+                            name,
+                            qty: Number(pd.qty) || 0,
+                            value: Number(pd.revenue) || 0,
+                        })).filter(it => it.value > 0);
+                        return {
+                            dateKey,
+                            dhEmi: dateKey,
+                            total: op + excl,        // raw total = operational + excluded
+                            operational: op,
+                            notes: Number(d.notes) || 0,
+                            canceled: Number(d.canceled) || 0,
+                            excluded: excl,
+                            payments: Object.fromEntries(Object.entries(d.payments || {}).map(([k,v]) => [k, Number(v)||0])),
+                            hours: Object.fromEntries(Object.entries(d.hours || {}).map(([k,v]) => [k, {notes: Number(v.notes)||0, revenue: Number(v.revenue)||0}])),
+                            channel: Object.fromEntries(Object.entries(d.channel || {}).map(([k,v]) => [k, Number(v)||0])),
+                            items,
+                        };
+                    });
+
+                    // Build hourTotals from all days
+                    const hourTotals = {};
+                    records.forEach(r => {
+                        Object.entries(r.hours || {}).forEach(([h, v]) => {
+                            if (!hourTotals[h]) hourTotals[h] = { notes: 0, revenue: 0 };
+                            hourTotals[h].notes   += v.notes   || 0;
+                            hourTotals[h].revenue += v.revenue || 0;
+                        });
+                    });
+
+                    return {
+                        state: "ready",
+                        records,
+                        products,
+                        cnpjs: json.cnpjs || {},
+                        hourTotals,
+                        monthly: (json.monthly || []).map(m => ({
+                            ...m,
+                            operational: Number(m.operational) || 0,
+                            excluded: Number(m.excluded) || 0,
+                            notes: Number(m.notes) || 0,
+                            canceled: Number(m.canceled) || 0,
+                        })),
+                        daily_summary: json.daily_summary || {},
+                        daily_products: json.daily_products || {},
+                    };
+                } catch (e) {
+                    console.warn("[BKI] Erro ao converter dados:", e);
+                    return null;
+                }
+            }
+
             // ── Sync BKI data from Supabase Storage ─────────────────────
             async function syncBKIFromStorage() {
                 try {
                     // Get public URL of bki_data.json
                     const { data: urlData } = db.storage
                         .from(BKI_BUCKET)
-                        .getPublicUrl(BKI_FILE);
+                        .getPublicUrl(getBKIFile());
 
                     if (!urlData?.publicUrl) return null;
 
                     // Check if we already have fresh data (< 1 hour old)
                     const cached = await readPastryLabSummaryFromDb();
-                    if (cached?._syncedAt) {
+                    if (cached?._syncedAt && cached?.state === "ready") {
                         const age = Date.now() - new Date(cached._syncedAt).getTime();
                         if (age < 60 * 60 * 1000) return cached; // use cache
                     }
 
-                    // Fetch fresh data
-                    const res = await fetch(urlData.publicUrl + "?t=" + Date.now());
-                    if (!res.ok) return null;
-                    const json = await res.json();
+                    // Fetch fresh data via Supabase SDK to avoid CORS issues with file://
+                    let json = null;
+                    try {
+                        const { data: fileData, error: fileError } = await db.storage
+                            .from(BKI_BUCKET)
+                            .download(getBKIFile());
+                        if (fileError) throw fileError;
+                        const text = await fileData.text();
+                        json = JSON.parse(text);
+                    } catch (fetchErr) {
+                        // Fallback to direct fetch (works on https://)
+                        try {
+                            const res = await fetch(urlData.publicUrl + "?t=" + Date.now());
+                            if (!res.ok) throw new Error("HTTP " + res.status);
+                            json = await res.json();
+                        } catch (e2) {
+                            console.warn("[BKI] Fetch fallback also failed:", e2?.message);
+                            return null;
+                        }
+                    }
                     if (!json) return null;
 
+                    // Convert bki_data.json format to pastryLab format expected by renderPastry
+                    const converted = convertBKIData(json);
+                    if (!converted) return null;
+
                     // Save to IndexedDB with sync timestamp
-                    const enriched = { ...json, _syncedAt: new Date().toISOString() };
+                    const enriched = { ...converted, _syncedAt: new Date().toISOString() };
                     await writePastryLabSummaryToDb(enriched);
-                    console.log("[BKI] Dados sincronizados do Supabase Storage:", BKI_FILE);
+                    console.log("[BKI] Dados sincronizados do Supabase Storage:", getBKIFile());
                     return enriched;
                 } catch (e) {
                     console.warn("[BKI] Erro ao sincronizar dados:", e?.message);
@@ -11472,7 +11578,7 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                             : "";
                         const summary = "<div style=\"margin-left:auto;font-size:11px;color:var(--ink4)\">"
                             + "<strong style=\"color:var(--dbk)\">" + escHtml(pastryPeriodLabel) + "</strong>"
-                            + " \xb7 " + pastryPeriodRecords.length + " notas" + rangeStr
+                            + " \xb7 " + pastryPeriodRecords.length + " dias" + rangeStr
                             + "</div>";
 
                         return "<div class=\"card\" style=\"margin-top:-2px\">"
@@ -11584,7 +11690,7 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                             </div>
                         </div>
                     </div>` : ""}
-                    ${lab ? `<div data-pastry-section="mensal" style="font-size:12px;color:var(--ink4);margin-top:-6px">Base acumulada: ${labNoteCount} nota(s) fiscais · ${labMonthsCovered} mês(es) · período ${labRangeLabel}</div>` : ""}
+                    ${lab ? `<div data-pastry-section="mensal" style="font-size:12px;color:var(--ink4);margin-top:-6px">Base acumulada: ${labNoteCount} dias com movimento · ${labMonthsCovered} mês(es) · período ${labRangeLabel}</div>` : ""}
                     ${lab ? `<div class="card" data-pastry-section="mensal">
                         <div class="card-head"><div class="card-title">Tendência mensal</div><div class="card-sub">total faturado x repique/gorjeta</div></div>
                         <div class="card-body">
