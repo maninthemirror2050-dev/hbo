@@ -2140,7 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.175</div>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.177</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2215,7 +2215,7 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.175</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.176</div>
                         </div>
                     </div>
                     <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.159</div>
@@ -3142,6 +3142,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
+            const APP_VERSION = "1.176"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY =
                 "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
@@ -6298,7 +6299,11 @@
 
             /* ═══ CHARTS ═════════════════════════════ */
             const charts = {};
-            Chart.defaults.font.family = "'Instrument Sans',sans-serif";
+            // Chart.defaults set lazily when Chart.js loads
+            async function initChartDefaults() {
+                const C = await loadChartJS();
+                if (C) C.defaults.font.family = "'DM Sans',sans-serif";
+            }
             function dc(id) {
                 if (charts[id]) {
                     try {
@@ -6307,7 +6312,9 @@
                     delete charts[id];
                 }
             }
-            function mkChart(id, type, data, opts) {
+            async function mkChart(id, type, data, opts) {
+                const Chart = await loadChartJS();
+                if (!Chart) return null;
                 dc(id);
                 const ctx = el(id)?.getContext("2d");
                 if (!ctx) return;
@@ -16705,6 +16712,17 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
             }
 
             /* ═══ EXPORT ══════════════════════════════ */
+            async function loadChartJS() {
+                if (window.Chart) return window.Chart;
+                return new Promise((resolve, reject) => {
+                    const s = document.createElement("script");
+                    s.src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js";
+                    s.onload = () => { initChartDefaults(); resolve(window.Chart); };
+                    s.onerror = reject;
+                    document.head.appendChild(s);
+                });
+            }
+
             async function loadXLSX() {
                 if (window.XLSX) return window.XLSX;
                 return new Promise((resolve, reject) => {
@@ -16882,7 +16900,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
 
             /* ═══ INIT ═══════════════════════════════ */
 
-            const APP_VERSION = "1.175";
+            // APP_VERSION declared at top of script
 
             document.addEventListener("DOMContentLoaded", async () => {
                 // Set version on login screen
