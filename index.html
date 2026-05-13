@@ -2140,7 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.194</div>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.195</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2215,10 +2215,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.194</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.195</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.194</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.195</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3142,7 +3142,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.194"; // declared first — used throughout
+            const APP_VERSION = "1.195"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -3223,30 +3223,11 @@
                         }
                         const { data: tmData, error } = await db
                             .from("tenant_members")
-                            .select("tenant_id, role, tenants(id, name, plan, segment, cnpj, active)")
+                            .select("tenant_id, role, tenants(name, plan, segment, cnpj)")
                             .eq("user_id", userId)
-                            .order("tenant_id");
-                        if (tmData?.length && !error) {
-                            // Store all tenants user has access to
-                            S.session.allTenants = tmData
-                                .filter(m => m.tenants?.active !== false)
-                                .map(m => ({
-                                    tenantId: m.tenant_id,
-                                    name: m.tenants?.name || "",
-                                    plan: m.tenants?.plan || "free",
-                                    segment: m.tenants?.segment || "",
-                                    cnpj: m.tenants?.cnpj || "",
-                                    role: m.role,
-                                }));
-
-                            // Restore last used tenant or prefer the one with admin role
-                            const lastTid = localStorage.getItem("gf_last_tenant_id");
-                            const preferred = S.session.allTenants.find(t => t.tenantId === lastTid)
-                                || S.session.allTenants.find(t => t.role === "admin" && t.tenantId === OWNER_TENANT_ID)
-                                || S.session.allTenants.find(t => t.role === "admin")
-                                || S.session.allTenants[0];
-                            const data = tmData.find(m => m.tenant_id === preferred?.tenantId) || tmData[0];
-
+                            .limit(1);
+                        const data = tmData?.[0] || null;
+                        if (data && !error) {
                             S.session.tenantId      = data.tenant_id;
                             S.session.tenantName    = data.tenants?.name || "";
                             S.session.tenantPlan    = data.tenants?.plan || "free";
@@ -15466,27 +15447,6 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 // Show all tenants the user has access to
                 const _allTenants = S.session?.allTenants || [];
                 const _activeTenantId = S.session?.tenantId;
-
-                // Filter out test/demo tenants
-                const _filteredTenants = _allTenants.filter(t => t.name !== "Restaurante Modelo");
-                if (_filteredTenants.length > 1) {
-                    h += "<div class=\"admin-section\">"
-                        + "<div class=\"admin-section-title\">🏢 Suas Empresas</div>"
-                        + "<div class=\"card\"><div class=\"card-body\">"
-                        + "<div style=\"font-size:13px;color:var(--ink3);margin-bottom:12px\">Alterne entre suas empresas aqui.</div>"
-                        + "<div style=\"display:flex;flex-direction:column;gap:8px\">"
-                        + _filteredTenants.map(t => {
-                            const isActive = t.tenantId === _activeTenantId;
-                            return "<div style=\"display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:8px;border:0.5px solid " + (isActive ? "var(--bk2)" : "var(--border)") + ";background:" + (isActive ? "rgba(79,110,247,.05)" : "#fff") + "\">"
-                                + "<div><div style=\"font-weight:500;font-size:13px\">" + escHtml(t.name || "Empresa sem nome") + "</div>"
-                                + "<div style=\"font-size:11px;color:var(--ink4)\">Plano " + escHtml(t.plan) + " · " + escHtml(t.role) + "</div></div>"
-                                + (isActive
-                                    ? "<span style=\"font-size:11px;color:var(--bk2);font-weight:600\">Ativa</span>"
-                                    : "<button class=\"btn ghost\" onclick=\"switchTenant('" + t.tenantId + "')\">Alternar</button>")
-                                + "</div>";
-                        }).join("")
-                        + "</div></div></div></div>";
-                }
 
                 const _cnpjFmt = S.session?.tenantCnpj
                     ? S.session.tenantCnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5")
