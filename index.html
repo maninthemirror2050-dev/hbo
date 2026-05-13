@@ -2140,7 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.191</div>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.192</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2215,10 +2215,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.191</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.192</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.191</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.192</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3142,7 +3142,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.191"; // declared first — used throughout
+            const APP_VERSION = "1.192"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -6612,27 +6612,25 @@
                     }).join("");
                 }
 
-                // Outros tenants: usa empresas dos lançamentos existentes
-                const cos = [...new Set(S.entries.map(e => e.co).filter(Boolean))];
-
-                if (!cos.length) {
-                    // Sem lançamentos — usa nome do tenant configurado
-                    const slug = (S.session?.tenantName || "empresa")
-                        .toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 10) || "empresa";
-                    const label = S.session?.tenantName || "Minha empresa";
-                    const sel = selectedCo === slug ? " selected" : "";
-                    // Se não tem nome configurado, mostra aviso
-                    if (!S.session?.tenantName) {
-                        return "<option value=\"\" disabled selected>Configure sua empresa em Administração</option>";
-                    }
-                    return "<option value=\"" + slug + "\"" + sel + ">" + escHtml(label) + "</option>";
+                // Para tenants multi-empresa: usa allTenants da sessão
+                const allTenants = S.session?.allTenants || [];
+                if (allTenants.length > 1) {
+                    return allTenants.map(t => {
+                        const slug = t.tenantId;
+                        const label = t.name;
+                        const sel = (selectedCo === slug || selectedCo === t.cnpj) ? " selected" : "";
+                        return "<option value=\"" + slug + "\"" + sel + ">" + escHtml(label) + "</option>";
+                    }).join("");
                 }
 
-                return cos.map(co => {
-                    const label = KNOWN[co] || co;
-                    const sel = co === selectedCo ? " selected" : "";
-                    return "<option value=\"" + co + "\"" + sel + ">" + escHtml(label) + "</option>";
-                }).join("");
+                // Tenant simples: usa nome do tenant como única opção
+                const tenantSlug = S.session?.tenantId || "empresa";
+                const tenantLabel = S.session?.tenantName || "Minha empresa";
+                const tenantSel = (!selectedCo || selectedCo === tenantSlug) ? " selected" : "";
+                if (!tenantLabel) {
+                    return "<option value=\"\" disabled selected>Configure sua empresa em Administração</option>";
+                }
+                return "<option value=\"" + tenantSlug + "\"" + tenantSel + ">" + escHtml(tenantLabel) + "</option>";
             }
             function toggleCo(co, el2) {
                 S.cos[co] = !S.cos[co];
