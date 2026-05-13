@@ -2140,7 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.174</div>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.175</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2215,7 +2215,7 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.174</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.175</div>
                         </div>
                     </div>
                     <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.159</div>
@@ -3379,7 +3379,7 @@
                 console.log("[BKI] applySessionToUI — role:", S.session.role, "tenantId:", S.session.tenantId);
                 // Update version display
                 const sbVer = document.getElementById("sbVersion");
-                if (sbVer) sbVer.textContent = "v" + APP_VERSION;
+                if (sbVer) sbVer.textContent = "v" + (typeof APP_VERSION !== "undefined" ? APP_VERSION : "—");
                 renderSidebarCompanies();
                 // Show FAB on mobile
                 const fab = document.getElementById("fabNewEntry");
@@ -16882,12 +16882,12 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
 
             /* ═══ INIT ═══════════════════════════════ */
 
-            const APP_VERSION = "1.174";
+            const APP_VERSION = "1.175";
 
             document.addEventListener("DOMContentLoaded", async () => {
                 // Set version on login screen
                 const lv = document.getElementById("loginVersion");
-                if (lv) lv.textContent = "v" + APP_VERSION;
+                if (lv) lv.textContent = "v" + (typeof APP_VERSION !== "undefined" ? APP_VERSION : "—");
                 el("f_pay").addEventListener("change", toggleBarcodeField);
                 if (el("filterMonth") && !el("filterMonth").value) {
                     el("filterMonth").value = currentMonthValue();
