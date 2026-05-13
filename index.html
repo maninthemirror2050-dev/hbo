@@ -2140,6 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.174</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2214,7 +2215,7 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.172</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.174</div>
                         </div>
                     </div>
                     <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.159</div>
@@ -3146,6 +3147,8 @@
                 "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             const STORAGE_BUCKET = "payment-proofs";
+            const BKI_BUCKET = "bki-data";
+            const BKI_FILE   = "bki_data.json";
             const ENTRY_FILES_BUCKET = "payment-proofs";
             const HR_DOCUMENTS_BUCKET = "hr-documents";
             const ENTRY_MESSAGES_TABLE = "app_entry_messages";
@@ -8581,6 +8584,40 @@
                         );
                 });
             }
+            // ── Sync BKI data from Supabase Storage ─────────────────────
+            async function syncBKIFromStorage() {
+                try {
+                    // Get public URL of bki_data.json
+                    const { data: urlData } = db.storage
+                        .from(BKI_BUCKET)
+                        .getPublicUrl(BKI_FILE);
+
+                    if (!urlData?.publicUrl) return null;
+
+                    // Check if we already have fresh data (< 1 hour old)
+                    const cached = await readPastryLabSummaryFromDb();
+                    if (cached?._syncedAt) {
+                        const age = Date.now() - new Date(cached._syncedAt).getTime();
+                        if (age < 60 * 60 * 1000) return cached; // use cache
+                    }
+
+                    // Fetch fresh data
+                    const res = await fetch(urlData.publicUrl + "?t=" + Date.now());
+                    if (!res.ok) return null;
+                    const json = await res.json();
+                    if (!json) return null;
+
+                    // Save to IndexedDB with sync timestamp
+                    const enriched = { ...json, _syncedAt: new Date().toISOString() };
+                    await writePastryLabSummaryToDb(enriched);
+                    console.log("[BKI] Dados sincronizados do Supabase Storage:", BKI_FILE);
+                    return enriched;
+                } catch (e) {
+                    console.warn("[BKI] Erro ao sincronizar dados:", e?.message);
+                    return null;
+                }
+            }
+
             async function readPastryLabSummaryFromDb() {
                 const db = await openPastryLabDb();
                 return await new Promise((resolve, reject) => {
@@ -8623,9 +8660,15 @@
                 pastryLabSummaryLoadPromise = (async () => {
                     let lab = null;
                     try {
-                        lab = await readPastryLabSummaryFromDb();
-                    } catch (err) {
-                        lab = null;
+                        // Try to sync from Supabase Storage first
+                        lab = await syncBKIFromStorage();
+                    } catch (err) { lab = null; }
+                    if (!lab) {
+                        try {
+                            lab = await readPastryLabSummaryFromDb();
+                        } catch (err) {
+                            lab = null;
+                        }
                     }
                     if (!lab) {
                         try {
@@ -16839,9 +16882,12 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
 
             /* ═══ INIT ═══════════════════════════════ */
 
-            const APP_VERSION = "1.172";
+            const APP_VERSION = "1.174";
 
             document.addEventListener("DOMContentLoaded", async () => {
+                // Set version on login screen
+                const lv = document.getElementById("loginVersion");
+                if (lv) lv.textContent = "v" + APP_VERSION;
                 el("f_pay").addEventListener("change", toggleBarcodeField);
                 if (el("filterMonth") && !el("filterMonth").value) {
                     el("filterMonth").value = currentMonthValue();
