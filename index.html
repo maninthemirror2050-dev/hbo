@@ -2140,7 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.197</div>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.198</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2215,10 +2215,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.197</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.198</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.197</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.198</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3142,7 +3142,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.197"; // declared first — used throughout
+            const APP_VERSION = "1.198"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -15333,9 +15333,60 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 }
             }
 
+            async function saveTenantDetails(tenantId, field, value, btnId) {
+                const btn = document.getElementById(btnId);
+                if (btn) { btn.disabled = true; btn.textContent = "Salvando…"; }
+                try {
+                    const upd = {};
+                    upd[field] = value?.replace(/\D/g, "") || null;
+                    const { error } = await db.from("tenants").update(upd).eq("id", tenantId);
+                    if (error) throw error;
+                    if (btn) { btn.textContent = "✓ Salvo"; setTimeout(() => { btn.disabled = false; btn.textContent = "Salvar"; }, 2000); }
+                } catch(e) {
+                    alert("Erro: " + e?.message);
+                    if (btn) { btn.disabled = false; btn.textContent = "Salvar"; }
+                }
+            }
+
             async function renderSystemAdminPanel() {
                 let h = "";
                 try {
+                    // ── Configurar Empresas ──────────────────────────────────
+                    const { data: myTenants } = await db
+                        .from("tenant_members")
+                        .select("tenant_id, role, tenants(id, name, cnpj, segment, plan)")
+                        .eq("user_id", (await db.auth.getSession()).data?.session?.user?.id || "");
+
+                    if (myTenants?.length) {
+                        h += "<div class=\"admin-section\">"
+                            + "<div class=\"admin-section-title\">🏢 Configurar Empresas</div>"
+                            + "<div class=\"card\"><div class=\"card-body\" style=\"display:flex;flex-direction:column;gap:16px\">";
+
+                        myTenants.forEach((m, i) => {
+                            const t = m.tenants;
+                            if (!t) return;
+                            const cnpjFmt = t.cnpj ? t.cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5") : "";
+                            const segOpts = ["padaria","restaurante","mercado","bar","importacao","outro"].map(s =>
+                                "<option value=\"" + s + "\"" + (t.segment === s ? " selected" : "") + ">"
+                                + {padaria:"Padaria/Confeitaria",restaurante:"Restaurante",mercado:"Mercado/Varejo",bar:"Bar/Café",importacao:"Importação/Exportação",outro:"Outro"}[s]
+                                + "</option>").join("");
+
+                            h += "<div style=\"padding:16px;background:var(--bg);border-radius:8px;border:0.5px solid var(--border)\">"
+                                + "<div style=\"font-weight:600;font-size:14px;margin-bottom:12px\">" + escHtml(t.name) + "</div>"
+                                + "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:10px\">"
+                                + "<div><label class=\"flabel\">CNPJ</label>"
+                                + "<input class=\"finput\" id=\"sysCnpj_" + i + "\" value=\"" + escHtml(cnpjFmt) + "\" placeholder=\"00.000.000/0001-00\" oninput=\"formatCnpjInput(this)\"></div>"
+                                + "<div><label class=\"flabel\">Segmento</label>"
+                                + "<select class=\"fselect\" id=\"sysSeg_" + i + "\"><option value=\"\">Selecione...</option>" + segOpts + "</select></div>"
+                                + "</div>"
+                                + "<button class=\"btn primary\" id=\"sysBtn_" + i + "\" style=\"margin-top:10px\" onclick=\""
+                                + "saveTenantDetails('" + t.id + "', 'cnpj', document.getElementById('sysCnpj_" + i + "').value, 'sysBtn_" + i + "')\">Salvar</button>"
+                                + "</div>";
+                        });
+
+                        h += "</div></div></div>";
+                    }
+
                     // Carrega stats de todos os tenants
                     const { data: tenants, error } = await db
                         .from("tenant_stats")
