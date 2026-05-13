@@ -2140,7 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.200</div>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.201</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2215,10 +2215,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.200</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.201</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.200</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.201</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3142,7 +3142,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.200"; // declared first — used throughout
+            const APP_VERSION = "1.201"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -7060,6 +7060,7 @@
             }
             return "";
         })()}
+        ${Array.isArray(e.files) && e.files.length ? `<button class="btn sm ghost" onclick="openEntryModal(${e.id})" style="margin-left:3px;color:var(--blue)" title="${e.files.length} arquivo(s) anexado(s)">📎 ${e.files.length}</button>` : ""}
         ${canEdit() ? `<button class="btn sm ghost" onclick="openEntryModal(${e.id})" style="margin-left:3px" title="Editar">✎</button>` : ""}
         ${canEdit() && st !== "paid" ? `<button class="btn sm ghost" onclick="deleteEntry(${e.id})" style="margin-left:3px;color:var(--red)" title="Excluir lançamento não pago">✕</button>` : ""}
       </td>
