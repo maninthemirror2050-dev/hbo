@@ -2140,7 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.207</div>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.209</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2215,10 +2215,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.207</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.209</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.207</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.209</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3143,7 +3143,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.207"; // declared first — used throughout
+            const APP_VERSION = "1.209"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5932,7 +5932,7 @@
                     resultsBox.innerHTML = query
                         ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Data</th><th>Empresa</th><th>Descrição</th><th>Categoria</th><th>Status</th><th class="r">Valor</th><th class="c">Ações</th></tr></thead><tbody>${results.slice(0, 8).map((e) => {
                               const st = getStatus(e);
-                              return `<tr><td class="mono">${fmtDate(e.date)}</td><td>${copill(e.co)}</td><td>${escHtml(e.desc)}</td><td>${escHtml(e.cat)}</td><td>${stBadge(st)}</td><td class="r">${fmt(e.val)}</td><td class="c" style="white-space:nowrap">
+                              return `<tr><td class="mono">${fmtDate(e.date)}</td><td>${copill(e.co)}</td><td>${escHtml(e.desc)}</td><td>${escHtml(e.cat)}</td><td>${stBadge(st, e)}</td><td class="r">${fmt(e.val)}</td><td class="c" style="white-space:nowrap">
                                 <button class="btn sm ghost" onclick="openEntryModal(${e.id})" title="Abrir">Abrir</button>
                                 ${st !== "paid" ? `<button class="btn sm ghost" onclick="openPayModal(${e.id})" title="Pagar" style="margin-left:3px">✓</button>` : ""}
                                 ${canEdit() ? `<button class="btn sm ghost" onclick="openEntryModal(${e.id})" title="Editar" style="margin-left:3px">✎</button>` : ""}
@@ -6042,10 +6042,15 @@
                 if (isOverdue(e.date)) return "overdue";
                 return "pending";
             }
-            function stBadge(st) {
+            function stBadge(st, e) {
+                if (st === "late_paid") {
+                    const days = e?.paid_at && e?.date
+                        ? Math.round((new Date(e.paid_at.slice(0,10)) - new Date(e.date)) / 86400000)
+                        : 0;
+                    return '<span class="badge" style="background:rgba(186,117,23,.12);color:#7a4a00">⏰ ' + days + ' dia' + (days !== 1 ? "s" : "") + ' de atraso</span>';
+                }
                 const m = {
                     paid: '<span class="badge paid">✓ Pago</span>',
-                    late_paid: '<span class="badge" style="background:rgba(186,117,23,.12);color:#7a4a00">⏰ Pago c/ atraso</span>',
                     pending: '<span class="badge pending">Pendente</span>',
                     overdue: '<span class="badge overdue">Vencido</span>',
                     preview: '<span class="badge preview">Outros</span>',
@@ -7065,7 +7070,7 @@
       <td style="font-size:11.5px;color:var(--ink3)">${e.cat}</td>
       <td>${paychip(e.pay)}</td>
       <td class="r">${fmt(e.val)}</td>
-      <td class="r">${stBadge(st)}</td>
+      <td class="r">${stBadge(st, e)}</td>
       <td class="c" style="white-space:nowrap">
         ${
             st !== "paid"
@@ -7750,7 +7755,7 @@
                     next7.slice(0, 8).forEach((e) => {
                         const st = getStatus(e);
                         h += `<div class="calendar-list-item">
-                            <div><div class="mono" style="font-size:11px;color:var(--ink3)">${fmtDate(e.date)}</div><div style="margin-top:4px">${stBadge(st)}</div></div>
+                            <div><div class="mono" style="font-size:11px;color:var(--ink3)">${fmtDate(e.date)}</div><div style="margin-top:4px">${stBadge(st, e)}</div></div>
                             <div><div class="desc-txt">${escHtml(e.desc)}</div><div style="font-size:10.5px;color:var(--ink4);margin-top:2px">${copill(e.co)} ${escHtml(e.cat)}</div></div>
                             <button class="btn sm ghost" onclick="${calendarEntryAction(e)}">${st === "paid" ? "Ver" : "Pagar"} · ${fmt(e.val)}</button>
                         </div>`;
@@ -8114,37 +8119,50 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-body np">
-                            <table class="tbl">
-                                <thead><tr><th>Data</th><th>De</th><th>Para</th><th>Assunto</th><th>Mensagem</th><th>Prioridade</th><th>Prazo</th><th>Resposta</th><th>Status</th><th class="c">Ações</th></tr></thead>
-                                <tbody>`;
+                    <div style="display:flex;flex-direction:column;gap:10px">`;
                 if (!data.length) {
-                    h += `<tr><td colspan="10" style="padding:20px;text-align:center;color:var(--ink4)">Nenhuma mensagem por enquanto.</td></tr>`;
+                    h += `<div class="card"><div class="card-body" style="text-align:center;color:var(--ink4);padding:32px">Nenhuma mensagem por enquanto.</div></div>`;
                 } else {
                     data.forEach((m) => {
                         const priority = String(m.priority || "normal").toLowerCase();
-                        h += `<tr>
-                            <td class="mono">${fmtDateTime(m.created_at)}</td>
-                            <td>${escHtml(displayUserName(m.sender_email || ""))}</td>
-                            <td>${escHtml(displayUserName(m.recipient_email || ""))}</td>
-                            <td><div style="font-weight:500">${escHtml(m.subject || "")}</div>${m.entry_id ? `<div style="font-size:10.5px;color:var(--ink4)">Lançamento #${escHtml(m.entry_id)}</div>` : ""}</td>
-                            <td style="max-width:260px;white-space:normal">${escHtml(m.message || "")}</td>
-                            <td>${messagePriorityBadge(priority)}</td>
-                            <td>${messageDueBadge(m.due_date, m.status)}</td>
-                            <td style="max-width:240px;white-space:normal">${m.reply_message ? escHtml(m.reply_message) : '<span style="color:var(--ink4)">—</span>'}</td>
-                            <td>${messageStatusBadge(m.status)}</td>
-                            <td class="c" style="white-space:nowrap">
-                                ${String(m.sender_email || "").toLowerCase() === String(S.session?.email || "").toLowerCase()
-                                    ? ""
-                                    : `<button class="btn sm ghost" onclick="markMessageRead('${m.id}')">Lida</button>
-                                <button class="btn sm ghost" onclick="replyToMessage('${m.id}')">Responder</button>`}
-                                <button class="btn sm ghost" onclick="resolveMessage('${m.id}')" style="margin-left:3px">Ok</button>
-                            </td>
-                        </tr>`;
+                        const isOwn = String(m.sender_email || "").toLowerCase() === String(S.session?.email || "").toLowerCase();
+                        const isResolved = m.status === "resolved";
+                        const dueBadge = messageDueBadge(m.due_date, m.status);
+                        const isOverdue = dueBadge.includes("vencido");
+                        const borderColor = isOverdue ? "var(--red)" : priority === "high" ? "var(--amber)" : m.status === "open" ? "var(--blue)" : "var(--border)";
+                        h += `<div class="card" style="cursor:pointer;border-left:3px solid ${borderColor};opacity:${isResolved ? '.6' : '1'}"
+                            onclick="openMessageModal('${m.id}')">
+                            <div class="card-body" style="padding:14px 16px">
+                                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px">
+                                    <div style="flex:1">
+                                        <div style="font-weight:600;font-size:13px;margin-bottom:2px">${escHtml(m.subject || "Sem assunto")}</div>
+                                        <div style="font-size:11px;color:var(--ink4)">
+                                            ${escHtml(displayUserName(m.sender_email || ""))} → ${escHtml(displayUserName(m.recipient_email || ""))}
+                                            ${m.entry_id ? ` · Lançamento #${escHtml(String(m.entry_id))}` : ""}
+                                            · ${fmtDateTime(m.created_at)}
+                                        </div>
+                                    </div>
+                                    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+                                        ${messagePriorityBadge(priority)}
+                                        ${messageStatusBadge(m.status)}
+                                        ${dueBadge}
+                                    </div>
+                                </div>
+                                <div style="font-size:13px;color:var(--ink2);line-height:1.5;margin-bottom:${m.reply_message ? '8px' : '0'}">${escHtml(m.message || "")}</div>
+                                ${m.reply_message ? `<div style="background:var(--bg2);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--ink3);border-left:2px solid var(--green)">
+                                    <span style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--green);font-weight:600">Resposta: </span>
+                                    ${escHtml(m.reply_message)}
+                                </div>` : ""}
+                                ${!isOwn || !isResolved ? `<div style="display:flex;gap:6px;margin-top:10px" onclick="event.stopPropagation()">
+                                    ${!isOwn ? `<button class="btn sm ghost" onclick="markMessageRead('${m.id}')">Lida</button>
+                                    <button class="btn sm ghost" onclick="replyToMessage('${m.id}')">Responder</button>` : ""}
+                                    <button class="btn sm ghost" onclick="resolveMessage('${m.id}')">✓ Resolver</button>
+                                </div>` : ""}
+                            </div>
+                        </div>`;
                     });
                 }
-                h += `</tbody></table></div></div></div>`;
+                h += `</div></div>`;
                 html("mensagensPage", h);
             }
 
@@ -8218,7 +8236,7 @@
         <td>${recurrenceBadge(e)}</td>
         <td style="font-size:11.5px;color:var(--ink3)">${e.cat}</td>
         <td class="c">${e.proof_count ? `<span title="${e.proof_count} comprovante(s)">🧾 ${e.proof_count}</span>` : "—"}</td>
-        <td>${paychip(e.pay)}</td><td class="r">${fmt(e.val)}</td><td class="r">${stBadge(st)}</td>
+        <td>${paychip(e.pay)}</td><td class="r">${fmt(e.val)}</td><td class="r">${stBadge(st, e)}</td>
       </tr>`;
                     });
                 } else {
@@ -8241,7 +8259,7 @@
           <td><div class="desc-txt">${e.desc}${msgBadge}</div>${createdMeta(e)}${e.obs ? `<div style="font-size:10.5px;color:var(--ink4)">${e.obs}</div>` : ""}</td>
           <td>${recurrenceBadge(e)}</td>
           <td style="font-size:11.5px;color:var(--ink3)">${e.cat}</td>
-          <td>${paychip(e.pay)}</td><td class="r">${fmt(e.val)}</td><td class="r">${stBadge(st)}</td>
+          <td>${paychip(e.pay)}</td><td class="r">${fmt(e.val)}</td><td class="r">${stBadge(st, e)}</td>
         </tr>`;
                         });
                     });
@@ -8573,7 +8591,7 @@
         <td style="font-size:11.5px;color:var(--ink3)">${e.cat}</td>
         <td class="c">${e.proof_count ? `<span title="${e.proof_count} comprovante(s)">🧾 ${e.proof_count}</span>` : "—"}</td>
         <td>${paychip(e.pay)}</td><td class="r">${fmt(e.val)}</td>
-        <td class="r">${stBadge(st)}</td>
+        <td class="r">${stBadge(st, e)}</td>
         <td class="c" style="white-space:nowrap">${
             st !== "paid"
                 ? `<button class="btn sm ghost" onclick="openPayModal(${e.id})">✓</button>`
