@@ -2140,7 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.204</div>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.207</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2215,10 +2215,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.204</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.207</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.204</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.207</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -2561,14 +2561,15 @@
                             <label class="flabel" id="barcodeLabel"
                                 >Código de Barras do Boleto</label
                             >
+                            >
                             <input
                                 class="finput"
                                 id="f_barcode"
                                 type="text"
                                 autocomplete="off"
-                                placeholder="Cole o código aqui — ficará disponível com 1 clique ao pagar"
+                                oninput="handleBarcodeInput(this)"
+                                placeholder="Use o leitor de código de barras ou cole aqui"
                             />
-                        </div>
                     </div>
                     <div class="frow full">
                         <div class="fg">
@@ -3142,7 +3143,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.204"; // declared first — used throughout
+            const APP_VERSION = "1.207"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -6031,7 +6032,11 @@
                 return s && new Date(s + "T12:00:00") < new Date();
             }
             function getStatus(e) {
-                if (e.status === "paid") return "paid";
+                if (e.status === "paid") {
+                    // Check if paid late (paid_at after due date)
+                    if (e.paid_at && e.date && e.paid_at.slice(0,10) > e.date) return "late_paid";
+                    return "paid";
+                }
                 // "preview" tipo only applies to future entries, not overdue ones
                 if (e.tipo === "preview" && !isOverdue(e.date)) return "preview";
                 if (isOverdue(e.date)) return "overdue";
@@ -6040,6 +6045,7 @@
             function stBadge(st) {
                 const m = {
                     paid: '<span class="badge paid">✓ Pago</span>',
+                    late_paid: '<span class="badge" style="background:rgba(186,117,23,.12);color:#7a4a00">⏰ Pago c/ atraso</span>',
                     pending: '<span class="badge pending">Pendente</span>',
                     overdue: '<span class="badge overdue">Vencido</span>',
                     preview: '<span class="badge preview">Outros</span>',
@@ -6942,18 +6948,22 @@
                                 const st = getStatus(e);
                                 return st === "pending" || st === "overdue";
                             })
+                          : t === "paid_all"
+                          ? raw.filter((e) => {
+                                const st = getStatus(e);
+                                return st === "paid" || st === "late_paid";
+                            })
                           : raw.filter((e) => getStatus(e) === t);
                 const counts = {
                     all: raw.length,
-                    pending: raw.filter((e) => getStatus(e) === "pending")
-                        .length,
-                    overdue: raw.filter((e) => getStatus(e) === "overdue")
-                        .length,
+                    pending: raw.filter((e) => getStatus(e) === "pending").length,
+                    overdue: raw.filter((e) => getStatus(e) === "overdue").length,
                     payable: raw.filter((e) => {
                         const st = getStatus(e);
                         return st === "pending" || st === "overdue";
                     }).length,
                     paid: raw.filter((e) => getStatus(e) === "paid").length,
+                    late_paid: raw.filter((e) => getStatus(e) === "late_paid").length,
                 };
                 const getters = TABLE_GETTERS.pay;
                 const data = applySort(byTab(payTab), "pay", getters);
@@ -7020,6 +7030,7 @@
       <button class="tab-btn ${payTab === "pending" ? "active" : ""}" onclick="setPayTab('pending')">Pendentes (${counts.pending})</button>
       <button class="tab-btn ${payTab === "overdue" ? "active" : ""}" onclick="setPayTab('overdue')">Vencidos (${counts.overdue})</button>
       <button class="tab-btn ${payTab === "paid" ? "active" : ""}" onclick="setPayTab('paid')">Pagos (${counts.paid})</button>
+      ${counts.late_paid > 0 ? `<button class="tab-btn ${payTab === "late_paid" ? "active" : ""}" onclick="setPayTab('late_paid')" style="color:#7a4a00">⏰ Pago c/ atraso (${counts.late_paid})</button>` : ""}
     </div>
   </div>
   `;
@@ -16432,6 +16443,22 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 closeEntryModal();
                 S.pendingRecurringDraft = null;
                 applyFilters();
+
+                // If files were uploaded and entry is still pending/overdue, suggest marking as paid
+                if (hasNewFiles && targetEntryId) {
+                    const _entry = S.entries.find(x => x.id === targetEntryId);
+                    const _st = _entry ? getStatus(_entry) : null;
+                    if (_st === "pending" || _st === "overdue") {
+                        setTimeout(() => {
+                            openConfirmModal(
+                                "Marcar como pago?",
+                                "Você anexou um documento a este lançamento. Deseja marcá-lo como pago agora?",
+                                null,
+                                () => openPayModal(targetEntryId, false)
+                            );
+                        }, 300);
+                    }
+                }
             }
 
             async function listPaymentProofs(entryId) {
