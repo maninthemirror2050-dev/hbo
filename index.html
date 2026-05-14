@@ -6997,7 +6997,7 @@
     <input type="text" id="paySearch" placeholder="Buscar por descrição, categoria, empresa, valor…" oninput="filterPayTable()"></div>
     <div id="paySearchSummary" style="display:none"></div>
   <!-- Resumo financeiro -->
-  ${(() => {
+  ` + (() => {
     const _pending = raw.filter(e => getStatus(e) === "pending");
     const _overdue = raw.filter(e => getStatus(e) === "overdue");
     const _paid    = raw.filter(e => getStatus(e) === "paid");
@@ -7005,38 +7005,28 @@
     const _totalOverdue = _overdue.reduce((s,e) => s + (e.val||0), 0);
     const _totalPaid    = _paid.reduce((s,e) => s + (e.val||0), 0);
     const _totalAll     = raw.reduce((s,e) => s + (e.val||0), 0);
-    return `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
-      <div onclick="setPayTab('all')" style="cursor:pointer;background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px">Total período</div>
-        <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--ink);letter-spacing:-.5px">\${fmt(_totalAll)}</div>
-        <div style="font-size:11px;color:var(--ink4);margin-top:3px">\${raw.length} lançamentos</div>
-      </div>
-      <div onclick="setPayTab('payable')" style="cursor:pointer;background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px;border-left:3px solid var(--amber)">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px">A pagar</div>
-        <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--amber);letter-spacing:-.5px">\${fmt(_totalPending)}</div>
-        <div style="font-size:11px;color:var(--ink4);margin-top:3px">\${_pending.length} pendentes</div>
-      </div>
-      <div onclick="setPayTab('overdue')" style="cursor:pointer;background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px;border-left:3px solid var(--red)">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px">Em atraso</div>
-        <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--red);letter-spacing:-.5px">\${fmt(_totalOverdue)}</div>
-        <div style="font-size:11px;color:var(--ink4);margin-top:3px">\${_overdue.length} vencidos</div>
-      </div>
-      <div onclick="setPayTab('paid')" style="cursor:pointer;background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px;border-left:3px solid var(--green)">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px">Pago</div>
-        <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--green);letter-spacing:-.5px">\${fmt(_totalPaid)}</div>
-        <div style="font-size:11px;color:var(--ink4);margin-top:3px">\${_paid.length} liquidados</div>
-      </div>
-    </div>`;
-  })()}
+    const card = (label, val, count, sub, color, tab) =>
+        "<div onclick=\"setPayTab('" + tab + "')\" style=\"cursor:pointer;background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px" + (color ? ";border-left:3px solid " + color : "") + "\">"
+        + "<div style=\"font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px\">" + label + "</div>"
+        + "<div style=\"font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:" + (color || "var(--ink)") + ";letter-spacing:-.5px\">" + fmt(val) + "</div>"
+        + "<div style=\"font-size:11px;color:var(--ink4);margin-top:3px\">" + count + " " + sub + "</div>"
+        + "</div>";
+    return "<div style=\"display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px\">"
+        + card("Total período", _totalAll, raw.length, "lançamentos", null, "all")
+        + card("A pagar", _totalPending, _pending.length, "pendentes", "var(--amber)", "payable")
+        + card("Em atraso", _totalOverdue, _overdue.length, "vencidos", "var(--red)", "overdue")
+        + card("Pago", _totalPaid, _paid.length, "liquidados", "var(--green)", "paid")
+        + "</div>";
+  })() + `
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
     <div class="tab-bar" style="margin-bottom:0">
-      <button class="tab-btn \${payTab === "all" ? "active" : ""}" onclick="setPayTab('all')">Todos (\${counts.all})</button>
-      <button class="tab-btn \${payTab === "payable" ? "active" : ""}" onclick="setPayTab('payable')">A pagar (\${counts.payable})</button>
-      <button class="tab-btn \${payTab === "pending" ? "active" : ""}" onclick="setPayTab('pending')">Pendentes (\${counts.pending})</button>
-      <button class="tab-btn \${payTab === "overdue" ? "active" : ""}" onclick="setPayTab('overdue')">Vencidos (\${counts.overdue})</button>
-      <button class="tab-btn \${payTab === "paid" ? "active" : ""}" onclick="setPayTab('paid')">Pagos (\${counts.paid})</button>
+      <button class="tab-btn ${payTab === "all" ? "active" : ""}" onclick="setPayTab('all')">Todos (${counts.all})</button>
+      <button class="tab-btn ${payTab === "payable" ? "active" : ""}" onclick="setPayTab('payable')">A pagar (${counts.payable})</button>
+      <button class="tab-btn ${payTab === "pending" ? "active" : ""}" onclick="setPayTab('pending')">Pendentes (${counts.pending})</button>
+      <button class="tab-btn ${payTab === "overdue" ? "active" : ""}" onclick="setPayTab('overdue')">Vencidos (${counts.overdue})</button>
+      <button class="tab-btn ${payTab === "paid" ? "active" : ""}" onclick="setPayTab('paid')">Pagos (${counts.paid})</button>
     </div>
-  </div>`;
+  </div>
 
                 h += `<div class="card"><div class="card-body np"><table class="tbl" id="payTable">
     <thead><tr>
