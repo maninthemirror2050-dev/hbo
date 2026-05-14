@@ -2140,7 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.201</div>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.203</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2215,10 +2215,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.201</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.203</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.201</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.203</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3142,7 +3142,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.201"; // declared first — used throughout
+            const APP_VERSION = "1.203"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -6032,7 +6032,8 @@
             }
             function getStatus(e) {
                 if (e.status === "paid") return "paid";
-                if (e.tipo === "preview") return "preview";
+                // "preview" tipo only applies to future entries, not overdue ones
+                if (e.tipo === "preview" && !isOverdue(e.date)) return "preview";
                 if (isOverdue(e.date)) return "overdue";
                 return "pending";
             }
@@ -6995,22 +6996,47 @@
   <div class="search-wrap"><span style="color:var(--ink4);font-size:14px">🔍</span>
     <input type="text" id="paySearch" placeholder="Buscar por descrição, categoria, empresa, valor…" oninput="filterPayTable()"></div>
     <div id="paySearchSummary" style="display:none"></div>
+  <!-- Resumo financeiro -->
+  ${(() => {
+    const _pending = raw.filter(e => getStatus(e) === "pending");
+    const _overdue = raw.filter(e => getStatus(e) === "overdue");
+    const _paid    = raw.filter(e => getStatus(e) === "paid");
+    const _totalPending = _pending.reduce((s,e) => s + (e.val||0), 0);
+    const _totalOverdue = _overdue.reduce((s,e) => s + (e.val||0), 0);
+    const _totalPaid    = _paid.reduce((s,e) => s + (e.val||0), 0);
+    const _totalAll     = raw.reduce((s,e) => s + (e.val||0), 0);
+    return \`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+      <div onclick="setPayTab('all')" style="cursor:pointer;background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px">Total período</div>
+        <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--ink);letter-spacing:-.5px">\${fmt(_totalAll)}</div>
+        <div style="font-size:11px;color:var(--ink4);margin-top:3px">\${raw.length} lançamentos</div>
+      </div>
+      <div onclick="setPayTab('payable')" style="cursor:pointer;background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px;border-left:3px solid var(--amber)">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px">A pagar</div>
+        <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--amber);letter-spacing:-.5px">\${fmt(_totalPending)}</div>
+        <div style="font-size:11px;color:var(--ink4);margin-top:3px">\${_pending.length} pendentes</div>
+      </div>
+      <div onclick="setPayTab('overdue')" style="cursor:pointer;background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px;border-left:3px solid var(--red)">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px">Em atraso</div>
+        <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--red);letter-spacing:-.5px">\${fmt(_totalOverdue)}</div>
+        <div style="font-size:11px;color:var(--ink4);margin-top:3px">\${_overdue.length} vencidos</div>
+      </div>
+      <div onclick="setPayTab('paid')" style="cursor:pointer;background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px;border-left:3px solid var(--green)">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px">Pago</div>
+        <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--green);letter-spacing:-.5px">\${fmt(_totalPaid)}</div>
+        <div style="font-size:11px;color:var(--ink4);margin-top:3px">\${_paid.length} liquidados</div>
+      </div>
+    </div>\`;
+  })()}
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
     <div class="tab-bar" style="margin-bottom:0">
-      <button class="tab-btn ${payTab === "all" ? "active" : ""}" onclick="setPayTab('all')">Todos (${counts.all})</button>
-      <button class="tab-btn ${payTab === "payable" ? "active" : ""}" onclick="setPayTab('payable')">A pagar (${counts.payable})</button>
-      <button class="tab-btn ${payTab === "pending" ? "active" : ""}" onclick="setPayTab('pending')">Pendentes (${counts.pending})</button>
-      <button class="tab-btn ${payTab === "overdue" ? "active" : ""}" onclick="setPayTab('overdue')">Vencidos (${counts.overdue})</button>
-      <button class="tab-btn ${payTab === "paid" ? "active" : ""}" onclick="setPayTab('paid')">Pagos (${counts.paid})</button>
+      <button class="tab-btn \${payTab === "all" ? "active" : ""}" onclick="setPayTab('all')">Todos (\${counts.all})</button>
+      <button class="tab-btn \${payTab === "payable" ? "active" : ""}" onclick="setPayTab('payable')">A pagar (\${counts.payable})</button>
+      <button class="tab-btn \${payTab === "pending" ? "active" : ""}" onclick="setPayTab('pending')">Pendentes (\${counts.pending})</button>
+      <button class="tab-btn \${payTab === "overdue" ? "active" : ""}" onclick="setPayTab('overdue')">Vencidos (\${counts.overdue})</button>
+      <button class="tab-btn \${payTab === "paid" ? "active" : ""}" onclick="setPayTab('paid')">Pagos (\${counts.paid})</button>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:12px;color:var(--ink4)">
-      <div>${fmt(data.reduce((s, e) => s + e.val, 0))} total</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-        <span class="badge blue" style="font-size:10px;padding:2px 6px">RH: ${rhCount}</span>
-        <span class="badge" style="font-size:10px;padding:2px 6px;background:var(--bg-soft)">Outros: ${otherCount}</span>
-      </div>
-    </div>
-  </div>`;
+  </div>\`;
 
                 h += `<div class="card"><div class="card-body np"><table class="tbl" id="payTable">
     <thead><tr>
