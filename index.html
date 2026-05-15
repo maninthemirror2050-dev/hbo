@@ -66,40 +66,114 @@
                 min-height: 100vh;
             }
 
-            /* LOGIN */
+            /* LOGIN — split screen */
             #loginPage {
                 position: fixed;
                 inset: 0;
-                background: linear-gradient(
-                    135deg,
-                    var(--ink) 0%,
-                    #2a1a0e 100%
-                );
                 display: flex;
-                align-items: center;
-                justify-content: center;
                 z-index: 1000;
             }
-            #loginPage::before {
+            .login-left {
+                flex: 1;
+                background: linear-gradient(145deg, #1a1f36 0%, #0f1220 100%);
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                padding: 48px 52px;
+                position: relative;
+                overflow: hidden;
+            }
+            .login-left::before {
                 content: "";
                 position: absolute;
-                top: -100px;
-                left: -100px;
-                width: 400px;
-                height: 400px;
-                background: radial-gradient(
-                    circle,
-                    rgba(90, 170, 130, 0.12) 0%,
-                    transparent 60%
-                );
+                top: -120px; right: -120px;
+                width: 500px; height: 500px;
+                background: radial-gradient(circle, rgba(79,110,247,.18) 0%, transparent 65%);
                 pointer-events: none;
             }
+            .login-left::after {
+                content: "";
+                position: absolute;
+                bottom: -80px; left: -80px;
+                width: 380px; height: 380px;
+                background: radial-gradient(circle, rgba(232,201,106,.08) 0%, transparent 65%);
+                pointer-events: none;
+            }
+            .login-right {
+                width: 440px;
+                background: #fff;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 52px 48px;
+            }
             .login-card {
-                background: var(--white);
-                border-radius: 16px;
-                padding: 40px;
-                width: 380px;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                background: transparent;
+                border-radius: 0;
+                padding: 0;
+                width: 100%;
+                box-shadow: none;
+            }
+            .login-stat-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+                margin-top: 32px;
+            }
+            .login-stat {
+                background: rgba(255,255,255,.06);
+                border: 0.5px solid rgba(255,255,255,.1);
+                border-radius: 12px;
+                padding: 18px 20px;
+            }
+            .login-stat-lbl {
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: .1em;
+                color: rgba(255,255,255,.4);
+                margin-bottom: 8px;
+            }
+            .login-stat-val {
+                font-family: "Fraunces", serif;
+                font-size: 26px;
+                font-weight: 300;
+                color: #fff;
+                letter-spacing: -.5px;
+                line-height: 1;
+            }
+            .login-stat-sub {
+                font-size: 11px;
+                color: rgba(255,255,255,.3);
+                margin-top: 4px;
+            }
+            .login-features {
+                margin-top: 36px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .login-feature {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 13px;
+                color: rgba(255,255,255,.6);
+            }
+            .login-feature-dot {
+                width: 6px; height: 6px;
+                border-radius: 50%;
+                background: #4f6ef7;
+                flex-shrink: 0;
+            }
+            @media (max-width: 768px) {
+                .login-left { display: none; }
+                .login-right {
+                    width: 100%;
+                    padding: 40px 28px;
+                    background: linear-gradient(145deg, #1a1f36, #0f1220);
+                }
+                .login-card { background: #fff; border-radius: 16px; padding: 32px; }
             }
             .login-logo {
                 font-family: "Fraunces", serif;
@@ -2123,28 +2197,78 @@
 
         <!-- LOGIN -->
         <div id="loginPage">
-            <div class="login-card">
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-                    <svg width="36" height="36" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
-                    <div>
-                        <div style="font-family:'Fraunces',serif;font-weight:300;font-size:26px;color:var(--ink);letter-spacing:-0.5px;line-height:1">Nexum</div>
-                        <div style="font-size:10px;color:var(--ink4);letter-spacing:.12em;text-transform:uppercase;margin-top:2px">gestão inteligente</div>
+            <!-- LEFT PANEL -->
+            <div class="login-left">
+                <div style="position:relative;z-index:1">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+                        <svg width="40" height="40" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
+                        <div>
+                            <div style="font-family:'Fraunces',serif;font-weight:300;font-size:30px;color:#fff;letter-spacing:-0.5px;line-height:1">Nexum</div>
+                            <div style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.15em;text-transform:uppercase;margin-top:3px">gestão inteligente</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:28px">
+                        <div style="font-size:26px;font-weight:300;color:#fff;line-height:1.3;max-width:360px">Controle financeiro completo para o seu negócio</div>
+                        <div style="font-size:14px;color:rgba(255,255,255,.45);margin-top:12px;max-width:340px;line-height:1.6">Lançamentos, pagamentos, RH e inteligência de vendas — tudo em um lugar.</div>
+                    </div>
+                    <div class="login-stat-grid">
+                        <div class="login-stat">
+                            <div class="login-stat-lbl">Controle de Caixa</div>
+                            <div class="login-stat-val">Real-time</div>
+                            <div class="login-stat-sub">A pagar, vencidos e pagos</div>
+                        </div>
+                        <div class="login-stat">
+                            <div class="login-stat-lbl">Inteligência NF-e</div>
+                            <div class="login-stat-val">BKI</div>
+                            <div class="login-stat-sub">Análise de vendas por XML</div>
+                        </div>
+                        <div class="login-stat">
+                            <div class="login-stat-lbl">Multi-empresa</div>
+                            <div class="login-stat-val">3 CNPJs</div>
+                            <div class="login-stat-sub">Uma conta, tudo integrado</div>
+                        </div>
+                        <div class="login-stat">
+                            <div class="login-stat-lbl">Notificações</div>
+                            <div class="login-stat-val">Email</div>
+                            <div class="login-stat-sub">Alertas automáticos diários</div>
+                        </div>
+                    </div>
+                    <div class="login-features">
+                        <div class="login-feature"><div class="login-feature-dot"></div>Lançamentos com código de barras e anexos</div>
+                        <div class="login-feature"><div class="login-feature-dot"></div>Alertas de vencimento e atraso por email</div>
+                        <div class="login-feature"><div class="login-feature-dot"></div>Análise de vendas via NF-e (Bäckerei Intelligence)</div>
+                        <div class="login-feature"><div class="login-feature-dot"></div>Gestão de RH integrada</div>
                     </div>
                 </div>
-                <div class="login-form-group">
-                    <label class="login-label">E-mail</label>
-                    <input class="login-input" type="email" id="loginEmail" placeholder="email@empresa.com" onkeydown="if(event.key==='Enter')doLogin();" />
-                </div>
-                <div class="login-form-group">
-                    <label class="login-label">Senha</label>
-                    <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
-                </div>
-                <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.216</div>
-                <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
-                <div style="text-align:center;margin-top:14px">
-                    <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
-                    <button onclick="showSignup()" style="background:none;border:none;color:var(--bk);font-size:12px;font-weight:600;cursor:pointer;margin-left:4px;text-decoration:underline">Criar conta grátis</button>
+                <div style="position:relative;z-index:1;font-size:11px;color:rgba(255,255,255,.2)">© 2026 Nexum · nexum.uniwares.net</div>
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="login-right">
+                <div class="login-card">
+                    <div style="margin-bottom:28px">
+                        <div style="font-family:'Fraunces',serif;font-weight:300;font-size:26px;color:var(--ink);letter-spacing:-0.5px;line-height:1">Bom te ver de volta</div>
+                        <div style="font-size:13px;color:var(--ink4);margin-top:6px">Acesse sua conta para continuar</div>
+                    </div>
+                    <div class="login-form-group">
+                        <label class="login-label">E-mail</label>
+                        <input class="login-input" type="email" id="loginEmail" placeholder="email@empresa.com" onkeydown="if(event.key==='Enter')doLogin();" />
+                    </div>
+                    <div class="login-form-group">
+                        <label class="login-label">Senha</label>
+                        <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
+                    </div>
+                    <button class="login-btn" onclick="doLogin()">Entrar</button>
+                    <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
+                    <div style="text-align:center;margin-top:20px">
+                        <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
+                        <button onclick="showSignup()" style="background:none;border:none;color:var(--bk2);font-size:12px;font-weight:600;cursor:pointer;margin-left:4px">Criar conta grátis</button>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)">
+                        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
+                        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Conformidade SEFAZ</div>
+                    </div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.219</div>
                 </div>
             </div>
         </div>
@@ -2215,10 +2339,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.216</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.219</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.216</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.219</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3143,7 +3267,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.216"; // declared first — used throughout
+            const APP_VERSION = "1.219"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -4458,6 +4582,7 @@
                     ativo: emp?.active !== false,
                     criado_por: null,
                     atualizado_por: null,
+                    tenant_id: S.session?.tenantId || null,
                 };
             }
             function hrDependentRowsForDb(employeeId, dependents) {
@@ -4468,6 +4593,7 @@
                     nome: String(d?.name || "").trim(),
                     data_nascimento: d?.birthDate || null,
                     parentesco: String(d?.kinship || "").trim(),
+                    tenant_id: S.session?.tenantId || null,
                 }));
             }
             function hrDocumentRowsForDb(employeeId, docs) {
@@ -4495,6 +4621,7 @@
                     observacao: String(emp?.leaveNote || emp?.notes || "").trim(),
                     criado_por: null,
                     updated_at: new Date().toISOString(),
+                    tenant_id: S.session?.tenantId || null,
                 }];
             }
             function hrVTRowsForDb(monthKey, rows) {
@@ -6704,17 +6831,35 @@
                 const overdue = data.filter((e) => getStatus(e) === "overdue");
                 const paid = data.filter((e) => getStatus(e) === "paid" || getStatus(e) === "late_paid");
                 const sum = (arr) => arr.reduce((s, e) => s + e.val, 0);
+                const _todayDate = new Date();
+                const _startToday = new Date(_todayDate.getFullYear(), _todayDate.getMonth(), _todayDate.getDate());
                 const next7 = data.filter((e) => {
                     const d = new Date(e.date + "T12:00:00");
-                    const now = new Date();
-                    const startToday = new Date(
-                        now.getFullYear(),
-                        now.getMonth(),
-                        now.getDate(),
-                    );
-                    const diff = (d - startToday) / 86400000;
-                    return diff >= 0 && diff < 7 && getStatus(e) !== "paid";
+                    const diff = (d - _startToday) / 86400000;
+                    return diff >= 0 && diff < 7 && getStatus(e) !== "paid" && getStatus(e) !== "late_paid";
                 });
+
+                // Add recurring projections for next 7 days
+                const _recurringEntries = data.filter(e => isMonthlyRecurring(e));
+                const _projNext7 = [];
+                for (let _di = 0; _di < 7; _di++) {
+                    const _projDate = new Date(_startToday); _projDate.setDate(_projDate.getDate() + _di);
+                    const _py = _projDate.getFullYear(), _pm = _projDate.getMonth();
+                    _recurringEntries.forEach(e => {
+                        const proj = monthlyProjectionForMonth(e, _py, _pm);
+                        if (!proj) return;
+                        const projD = new Date(proj.date + "T12:00:00");
+                        const diff = (projD - _startToday) / 86400000;
+                        if (diff < 0 || diff >= 7) return;
+                        // Skip if real entry already exists for this month
+                        const alreadyReal = data.some(x => x.recurrence_source_id === e.id
+                            && x.date?.slice(0,7) === proj.date?.slice(0,7));
+                        if (!alreadyReal && !next7.some(x => String(x.id) === String(proj.id))) {
+                            _projNext7.push(proj);
+                        }
+                    });
+                }
+                const next7WithProj = [...next7, ..._projNext7].sort((a,b) => a.date.localeCompare(b.date));
 
                 // h already declared above — continue building
                 if (!getReminderDismissed() && reminders.next3.length) {
@@ -6867,12 +7012,12 @@
                     });
                 h += `</div>`;
 
-                if (next7.length) {
-                    h += `<div class="card anim d3"><div class="card-head"><div class="card-title">📅 Próximos 7 dias</div><div class="card-sub">${fmt(sum(next7))}</div></div>
+                if (next7WithProj.length) {
+                    h += `<div class="card anim d3"><div class="card-head"><div class="card-title">📅 Próximos 7 dias</div><div class="card-sub">${fmt(sum(next7WithProj))}${_projNext7.length ? ' <span style="font-size:10px;color:var(--ink4)">+ ' + _projNext7.length + ' previsto(s)</span>' : ""}</div></div>
     <div class="card-body np"><table class="tbl"><thead><tr>
       <th>Data</th><th>Empresa</th><th>Descrição</th><th>Recorrência</th><th>Categoria</th><th>Pgto</th><th class="r">Valor</th><th class="c">Ação</th>
     </tr></thead><tbody>`;
-                    next7.slice(0, 12).forEach((e) => {
+                    next7WithProj.slice(0, 12).forEach((e) => {
                         const msgCounts = entryMessageCounts(e.id);
                         const msgBadge = msgCounts.open
                             ? `<span class="badge preview" style="margin-left:6px;font-size:10px;padding:2px 6px">Revisão ${msgCounts.open}</span>`
