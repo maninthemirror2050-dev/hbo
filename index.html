@@ -2140,7 +2140,7 @@
                     <input class="login-input" type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin();" />
                 </div>
                 <button class="login-btn" onclick="doLogin()">Entrar</button>
-                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.211</div>
+                <div id="loginVersion" style="text-align:center;font-size:11px;color:var(--ink4);margin-top:14px;opacity:.6">v1.212</div>
                 <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                 <div style="text-align:center;margin-top:14px">
                     <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
@@ -2215,10 +2215,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.211</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.212</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.211</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.212</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3143,7 +3143,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.211"; // declared first — used throughout
+            const APP_VERSION = "1.212"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -6717,12 +6717,32 @@
                 });
 
                 // h already declared above — continue building
-                if (!getReminderDismissed() && (reminders.dueToday.length || reminders.next3.length || reminders.recurringPending.length)) {
-                    const parts = [];
-                    if (reminders.dueToday.length) parts.push(`${reminders.dueToday.length} hoje`);
-                    if (reminders.next3.length) parts.push(`${reminders.next3.length} em 3 dias`);
-                    if (reminders.recurringPending.length) parts.push(`${reminders.recurringPending.length} recorrente(s) pendente(s)`);
-                    h += `<div class="alert warn anim" style="justify-content:space-between;align-items:flex-start"><div><b>Lembretes do período</b><div style="margin-top:2px">${parts.join(" · ")}</div></div><button class="btn sm ghost" onclick="setReminderDismissed(true);render('overview')">Dispensar</button></div>`;
+                if (!getReminderDismissed() && reminders.next3.length) {
+                    const next3sorted = reminders.next3
+                        .filter(e => getStatus(e) !== "paid")
+                        .sort((a,b) => a.date.localeCompare(b.date))
+                        .slice(0, 5);
+                    const today = new Date().toISOString().slice(0,10);
+                    const tomorrow = new Date(Date.now()+86400000).toISOString().slice(0,10);
+                    const dayLabel = d => d === today ? "hoje" : d === tomorrow ? "amanhã" : fmtDate(d);
+                    const items = next3sorted.map(e =>
+                        `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,.06);gap:8px">
+                            <div style="flex:1;min-width:0">
+                                <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(e.desc||e.cat||"")}</div>
+                                <div style="font-size:10.5px;color:var(--ink4)">${escHtml(e.co?.toUpperCase()||"")} · ${dayLabel(e.date)}</div>
+                            </div>
+                            <div style="font-size:13px;font-weight:600;color:var(--amber);white-space:nowrap">${fmt(e.val)}</div>
+                        </div>`
+                    ).join("");
+                    const total = next3sorted.reduce((s,e) => s+(e.val||0), 0);
+                    h += `<div class="alert warn anim" style="flex-direction:column;align-items:stretch;padding:14px 16px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                            <b>📅 Vencimentos próximos — ${fmt(total)}</b>
+                            <button class="btn sm ghost" onclick="setReminderDismissed(true);render('overview')" style="flex-shrink:0">Dispensar</button>
+                        </div>
+                        ${items}
+                        ${reminders.next3.length > 5 ? `<div style="font-size:11px;color:var(--ink4);margin-top:6px;text-align:center">+${reminders.next3.length-5} outros · <span style="cursor:pointer;text-decoration:underline" onclick="nav('pagamentos');setPayTab('payable')">Ver todos</span></div>` : ""}
+                    </div>`;
                 }
                 if (overdue.length)
                     h += `<div class="alert err anim" onclick="nav('pagamentos');setPayTab('overdue')" style="cursor:pointer;justify-content:space-between;align-items:center"><div style="display:flex;align-items:flex-start;gap:8px"><span class="alert-ico">🔴</span><div><b>${overdue.length} pagamento(s) VENCIDO(s) — ${fmt(sum(overdue))}</b><div style="font-size:11px;margin-top:2px;opacity:.8">Clique para ver os vencidos</div></div></div><span style="font-size:12px;opacity:.6">→</span></div>`;
