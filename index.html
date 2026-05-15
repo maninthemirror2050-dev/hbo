@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.229</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.230</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.229</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.230</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.229</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.230</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3294,7 +3294,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.229"; // declared first — used throughout
+            const APP_VERSION = "1.230"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5460,7 +5460,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.229": [
+                "1.230": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -8322,6 +8322,20 @@
             async function replyToMessage(id) {
                 openReplyModal(id);
             }
+            async function addTreeplica(id) {
+                const text = prompt("Digite sua tréplica:");
+                if (!text?.trim()) return;
+                const { error } = await db.from("app_entry_messages")
+                    .update({ treeplica: text.trim(), status: "open", updated_at: new Date().toISOString() })
+                    .eq("id", id);
+                if (error) { alert("Erro: " + error.message); return; }
+                // Update local cache
+                const msg = getInboxMessages().find(m => m.id === id);
+                if (msg) { msg.treeplica = text.trim(); msg.status = "open"; }
+                render("mensagens");
+                updateInboxBadge();
+            }
+
             async function resolveMessage(id) {
                 const msg = S.entryMessages.find((m) => String(m.id) === String(id));
                 if (!msg) return;
@@ -8422,10 +8436,15 @@
                                     <span style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--green);font-weight:600">Resposta: </span>
                                     ${escHtml(m.reply_message)}
                                 </div>` : ""}
-                                ${!isOwn || !isResolved ? `<div style="display:flex;gap:6px;margin-top:10px" onclick="event.stopPropagation()">
-                                    ${!isOwn ? `<button class="btn sm ghost" onclick="markMessageRead('${m.id}')">Lida</button>
+                                ${m.treeplica ? `<div style="background:rgba(79,110,247,.06);border-radius:6px;padding:8px 12px;font-size:12px;color:var(--ink3);border-left:2px solid var(--bk2);margin-top:8px">
+                                    <span style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--bk2);font-weight:600">Tréplica: </span>
+                                    ${escHtml(m.treeplica)}
+                                </div>` : ""}
+                                ${!isResolved ? `<div style="display:flex;gap:6px;margin-top:10px" onclick="event.stopPropagation()">
+                                    ${!isOwn && m.status === "open" ? `<button class="btn sm ghost" onclick="markMessageRead('${m.id}')">Lida</button>
                                     <button class="btn sm ghost" onclick="replyToMessage('${m.id}')">Responder</button>` : ""}
-                                    <button class="btn sm ghost" onclick="resolveMessage('${m.id}')">✓ Resolver</button>
+                                    ${isOwn && m.reply_message && !m.treeplica ? `<button class="btn sm ghost" onclick="addTreeplica('${m.id}')" style="color:var(--bk2)">+ Tréplica</button>` : ""}
+                                    <button class="btn sm ghost" onclick="resolveMessage('${m.id}')" style="color:var(--green)">✓ Resolvido</button>
                                 </div>` : ""}
                             </div>
                         </div>`;
