@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.230</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.231</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.230</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.231</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.230</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.231</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3294,7 +3294,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.230"; // declared first — used throughout
+            const APP_VERSION = "1.231"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5460,7 +5460,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.230": [
+                "1.231": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -6941,25 +6941,34 @@
                 });
 
                 // Add recurring projections for next 7 days
+                // Build recurring projections for next 7 days — deduplicated by proj.id
                 const _recurringEntries = data.filter(e => isMonthlyRecurring(e));
                 const _projNext7 = [];
+                const _projSeen = new Set();
+                // Get unique months covered in next 7 days
+                const _months = new Set();
                 for (let _di = 0; _di < 7; _di++) {
-                    const _projDate = new Date(_startToday); _projDate.setDate(_projDate.getDate() + _di);
-                    const _py = _projDate.getFullYear(), _pm = _projDate.getMonth();
+                    const _d = new Date(_startToday); _d.setDate(_d.getDate() + _di);
+                    _months.add(_d.getFullYear() + "-" + _d.getMonth());
+                }
+                _months.forEach(ym => {
+                    const [_py, _pm] = ym.split("-").map(Number);
                     _recurringEntries.forEach(e => {
                         const proj = monthlyProjectionForMonth(e, _py, _pm);
                         if (!proj) return;
+                        if (_projSeen.has(String(proj.id))) return;
                         const projD = new Date(proj.date + "T12:00:00");
                         const diff = (projD - _startToday) / 86400000;
                         if (diff < 0 || diff >= 7) return;
-                        // Skip if real entry already exists for this month
+                        // Skip if paid or real entry exists for this month
                         const alreadyReal = data.some(x => x.recurrence_source_id === e.id
                             && x.date?.slice(0,7) === proj.date?.slice(0,7));
-                        if (!alreadyReal && !next7.some(x => String(x.id) === String(proj.id))) {
+                        if (!alreadyReal) {
+                            _projSeen.add(String(proj.id));
                             _projNext7.push(proj);
                         }
                     });
-                }
+                });
                 const next7WithProj = [...next7, ..._projNext7].sort((a,b) => a.date.localeCompare(b.date));
 
                 // h already declared above — continue building
