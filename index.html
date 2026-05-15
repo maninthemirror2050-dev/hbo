@@ -82,6 +82,9 @@
                 padding: 48px 52px;
                 position: relative;
                 overflow: hidden;
+                clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+                margin-right: -60px;
+                z-index: 1;
             }
             .login-left::before {
                 content: "";
@@ -107,6 +110,9 @@
                 align-items: center;
                 justify-content: center;
                 padding: 52px 48px;
+                padding-left: 72px;
+                position: relative;
+                z-index: 0;
             }
             .login-card {
                 background: transparent;
@@ -2224,7 +2230,7 @@
                         </div>
                         <div class="login-stat">
                             <div class="login-stat-lbl">Multi-empresa</div>
-                            <div class="login-stat-val">3 CNPJs</div>
+                            <div class="login-stat-val">Multi-CNPJ</div>
                             <div class="login-stat-sub">Uma conta, tudo integrado</div>
                         </div>
                         <div class="login-stat">
@@ -2268,7 +2274,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Conformidade SEFAZ</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.219</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.221</div>
                 </div>
             </div>
         </div>
@@ -2339,10 +2345,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.219</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.221</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.219</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.221</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3267,7 +3273,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.219"; // declared first — used throughout
+            const APP_VERSION = "1.221"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -16741,12 +16747,37 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                                 </div>
                                 <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
                                             ${proofUrl ? `<a href="${proofUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--ink2);font-size:11.5px;text-decoration:none">Abrir</a><a href="${proofUrl}" download="${label}" style="color:var(--ink2);font-size:11.5px;text-decoration:none">Baixar</a>` : `<span style="color:var(--red);font-size:11.5px">Arquivo indisponível</span>`}
+                                            <button onclick="deleteProof('${p.id}', '${p.storage_path||p.path||""}', ${S.payEntryId})" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:12px;padding:2px 4px;opacity:.7" title="Excluir comprovante">✕</button>
                                 </div>
                             </div>`;
                             })
                             .join("")}
                     </div>`;
             }
+            async function deleteProof(proofId, storagePath, entryId) {
+                if (!confirm("Excluir este comprovante? Esta ação não pode ser desfeita.")) return;
+                try {
+                    // Delete from storage
+                    if (storagePath) {
+                        await db.storage.from("payment-proofs").remove([storagePath]);
+                    }
+                    // Delete from database
+                    await db.from("payment_proofs").delete().eq("id", proofId);
+                    // Refresh proof list
+                    await renderProofList(entryId);
+                    // Update proof_count on entry
+                    const remaining = await listPaymentProofs(entryId);
+                    const count = Object.values(remaining || {}).flat().length;
+                    await db.from("lancamentos").update({ proof_count: count }).eq("id", entryId);
+                    // Refresh entries
+                    const idx = S.entries.findIndex(e => e.id === entryId);
+                    if (idx >= 0) S.entries[idx].proof_count = count;
+                    applyFilters();
+                } catch(e) {
+                    alert("Erro ao excluir: " + e?.message);
+                }
+            }
+
             function handlePayProof(input) {
                 const f = input.files?.[0];
                 if (!f) return;
