@@ -2186,6 +2186,9 @@
             @media (max-width: 1380px) {
                 .hide-sm { display: none !important; }
             }
+            @media (max-width: 1480px) {
+                .tbl-wrap { overflow-x: auto; }
+            }
             ::-webkit-scrollbar {
                 width: 5px;
                 height: 5px;
@@ -2277,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.227</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.228</div>
                 </div>
             </div>
         </div>
@@ -2348,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.227</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.228</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.227</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.228</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3291,7 +3294,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.227"; // declared first — used throughout
+            const APP_VERSION = "1.228"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -4602,6 +4605,9 @@
                     contato_emergencia_nome: String(emp?.emergencyName || "").trim(),
                     contato_emergencia_telefone: String(emp?.emergencyPhone || "").trim(),
                     contato_emergencia_parentesco: String(emp?.emergencyKinship || "").trim(),
+                    contato_emergencia_nome2: String(emp?.emergencyName2 || "").trim(),
+                    contato_emergencia_telefone2: String(emp?.emergencyPhone2 || "").trim(),
+                    contato_emergencia_parentesco2: String(emp?.emergencyKinship2 || "").trim(),
                     observacoes: String(emp?.notes || "").trim(),
                     ativo: emp?.active !== false,
                     criado_por: null,
@@ -4764,6 +4770,9 @@
                     emergencyName: row.contato_emergencia_nome,
                     emergencyPhone: row.contato_emergencia_telefone,
                     emergencyKinship: row.contato_emergencia_parentesco,
+                    emergencyName2: row.contato_emergencia_nome2,
+                    emergencyPhone2: row.contato_emergencia_telefone2,
+                    emergencyKinship2: row.contato_emergencia_parentesco2,
                     notes: row.observacoes,
                     active: row.ativo,
                     dependentsCount: (dependentsByEmployee[row.id] || []).length,
@@ -5451,7 +5460,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.227": [
+                "1.228": [
                     "🔔 Badge de mensagens no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT",
                     "💾 Botão Salvar protegido contra clique duplo",
@@ -6752,7 +6761,7 @@
                 applySessionToUI();
                 await loadStorage();
                 render(S.currentPage || "overview");
-                setTimeout(showChangelogIfNew, 1000);
+                setTimeout(showChangelogIfNew, 800);
                 console.log("[BKI] Switched to tenant:", t.name);
             }
 
@@ -13295,6 +13304,9 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 const emergencyName = (el("hrEmpEmergencyName")?.value || "").trim();
                 const emergencyPhone = normalizePhone(el("hrEmpEmergencyPhone")?.value || "");
                 const emergencyKinship = (el("hrEmpEmergencyKinship")?.value || "").trim();
+                const emergencyName2 = (el("hrEmpEmergencyName2")?.value || "").trim();
+                const emergencyPhone2 = normalizePhone(el("hrEmpEmergencyPhone2")?.value || "");
+                const emergencyKinship2 = (el("hrEmpEmergencyKinship2")?.value || "").trim();
                 const dependentsCount = Math.max(0, Math.min(7, parseInt(el("hrEmpDependentsCount")?.value || "0", 10) || 0));
                 const experience1 = (el("hrEmpExperience1")?.value || "").trim();
                 const experience2 = (el("hrEmpExperience2")?.value || "").trim();
@@ -13377,6 +13389,9 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                         emergencyName,
                         emergencyPhone,
                         emergencyKinship,
+                        emergencyName2,
+                        emergencyPhone2,
+                        emergencyKinship2,
                         dependentsCount,
                         experience1,
                         experience2,
@@ -13455,6 +13470,9 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                         emergencyName,
                         emergencyPhone,
                         emergencyKinship,
+                        emergencyName2,
+                        emergencyPhone2,
+                        emergencyKinship2,
                         dependentsCount,
                         experience1,
                         experience2,
@@ -13847,6 +13865,9 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                     set("hrEmpEmergencyName", emp.emergencyName);
                     set("hrEmpEmergencyPhone", normalizePhone(emp.emergencyPhone));
                     set("hrEmpEmergencyKinship", emp.emergencyKinship);
+                    set("hrEmpEmergencyName2", emp.emergencyName2);
+                    set("hrEmpEmergencyPhone2", normalizePhone(emp.emergencyPhone2 || ""));
+                    set("hrEmpEmergencyKinship2", emp.emergencyKinship2);
                     set("hrEmpDependentsCount", emp.dependentsCount || (Array.isArray(emp.dependents) ? emp.dependents.length : 0));
                     set("hrEmpStatus", emp.status);
                     set("hrEmpLeaveReason", emp.leaveReason);
@@ -15235,10 +15256,25 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                                 <div class="fg"><label class="flabel">Apto no exame</label><select class="fselect" id="hrEmpExamFit"><option value="">Apto?</option><option value="Sim">Sim</option><option value="Não">Não</option></select></div>
                             </div>
                             </div>
-                            <div class="g4">
-                                <div class="fg"><label class="flabel">Contato de emergência</label><input class="finput" id="hrEmpEmergencyName" placeholder="Nome"></div>
-                                <div class="fg"><label class="flabel">Telefone de emergência</label><input class="finput" id="hrEmpEmergencyPhone" placeholder="Telefone" inputmode="numeric" oninput="normalizePhoneTyping(this)" maxlength="15"></div>
-                                <div class="fg"><label class="flabel">Parentesco</label><input class="finput" id="hrEmpEmergencyKinship" placeholder="Grau de parentesco"></div>
+                            <div class="fhint" style="font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink4);margin-top:4px">Contato de emergência 1</div>
+                            <div class="g3">
+                                <div class="fg"><label class="flabel">Nome</label><input class="finput" id="hrEmpEmergencyName" placeholder="Nome completo"></div>
+                                <div class="fg"><label class="flabel">Telefone / Parentesco</label>
+                                    <div style="display:flex;gap:6px">
+                                        <input class="finput" id="hrEmpEmergencyPhone" placeholder="Telefone" inputmode="numeric" oninput="normalizePhoneTyping(this)" maxlength="15" style="flex:1">
+                                        <input class="finput" id="hrEmpEmergencyKinship" placeholder="Parentesco" style="flex:1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fhint" style="font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink4);margin-top:8px">Contato de emergência 2</div>
+                            <div class="g3">
+                                <div class="fg"><label class="flabel">Nome</label><input class="finput" id="hrEmpEmergencyName2" placeholder="Nome completo"></div>
+                                <div class="fg"><label class="flabel">Telefone / Parentesco</label>
+                                    <div style="display:flex;gap:6px">
+                                        <input class="finput" id="hrEmpEmergencyPhone2" placeholder="Telefone" inputmode="numeric" oninput="normalizePhoneTyping(this)" maxlength="15" style="flex:1">
+                                        <input class="finput" id="hrEmpEmergencyKinship2" placeholder="Parentesco" style="flex:1">
+                                    </div>
+                                </div>
                             </div>
                             </div>
                             <div class="hr-form-section" data-hr-form-tab="dependentes" style="display:${getHrFormTab() === "dependentes" ? "flex" : "none"};flex-direction:column;gap:10px">
