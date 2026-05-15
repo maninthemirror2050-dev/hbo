@@ -2277,7 +2277,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.226</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.227</div>
                 </div>
             </div>
         </div>
@@ -2348,10 +2348,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.226</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.227</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.226</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.227</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3291,7 +3291,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.226"; // declared first — used throughout
+            const APP_VERSION = "1.227"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5449,6 +5449,43 @@
                 document.getElementById("signupPage").style.display = "none";
                 document.getElementById("loginPage").style.display = "flex";
             }
+            // ── Changelog ──────────────────────────────────────────────────
+            const CHANGELOG = {
+                "1.227": [
+                    "🔔 Badge de mensagens no menu lateral",
+                    "📅 Dias úteis calculados automaticamente no VT",
+                    "💾 Botão Salvar protegido contra clique duplo",
+                    "📱 Tabela de pagamentos adaptada para 1280px",
+                    "🗑 Exclusão de comprovantes com confirmação",
+                    "✅ Dados de RH salvos no banco",
+                    "🎉 Este popup de novidades!",
+                ],
+            };
+            function showChangelogIfNew() {
+                var lastSeen = localStorage.getItem("nexum_changelog_seen");
+                if (lastSeen === APP_VERSION) return;
+                var notes = CHANGELOG[APP_VERSION];
+                if (!notes || !notes.length) return;
+                var body = el("changelogBody");
+                if (body) {
+                    body.innerHTML = "<div style=\"font-size:13px;color:var(--ink3);margin-bottom:16px\">Novidades da v" + APP_VERSION + ":</div>"
+                        + "<ul style=\"list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px\">"
+                        + notes.map(function(n) {
+                            return "<li style=\"display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.4\">"
+                                + "<span style=\"flex-shrink:0\">" + n.slice(0,2) + "</span>"
+                                + "<span>" + n.slice(2) + "</span></li>";
+                        }).join("")
+                        + "</ul>";
+                }
+                var modal = el("changelogModal");
+                if (modal) modal.classList.add("open");
+            }
+            function closeChangelogModal() {
+                localStorage.setItem("nexum_changelog_seen", APP_VERSION);
+                var modal = el("changelogModal");
+                if (modal) modal.classList.remove("open");
+            }
+
             function formatCnpjInput(input) {
                 let v = input.value.replace(/\D/g, "").slice(0, 14);
                 if (v.length > 12) v = v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
