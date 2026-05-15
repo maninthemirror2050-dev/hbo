@@ -2183,6 +2183,9 @@
                 .fab-new-entry:active { transform: scale(.95); }
             }
 
+            @media (max-width: 1380px) {
+                .hide-sm { display: none !important; }
+            }
             ::-webkit-scrollbar {
                 width: 5px;
                 height: 5px;
@@ -2272,9 +2275,9 @@
                     </div>
                     <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)">
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
-                        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Conformidade SEFAZ</div>
+                        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.222</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.224</div>
                 </div>
             </div>
         </div>
@@ -2345,10 +2348,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.222</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.224</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.222</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.224</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -2410,8 +2413,9 @@
                         <span class="nav-icon">✦</span>Assistente IA
                         <span class="pro-badge" id="iaBadge" style="display:none">PRO</span>
                     </button>
-                    <button class="nav-btn" data-page="mensagens" onclick="nav('mensagens')">
+                    <button class="nav-btn" data-page="mensagens" onclick="nav('mensagens')" style="position:relative">
                         <span class="nav-icon">✉</span>Mensagens
+                        <span id="sbMsgBadge" style="display:none;position:absolute;top:6px;right:8px;background:var(--red);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center;line-height:14px"></span>
                     </button>
                     <button
                         class="nav-btn hr-only"
@@ -3273,7 +3277,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.222"; // declared first — used throughout
+            const APP_VERSION = "1.224"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -6541,6 +6545,7 @@
             function updateInboxBadge() {
                 const btn = el("topInboxBtn");
                 const count = el("topInboxCount");
+                const sbBadge = el("sbMsgBadge");
                 const n = getOpenInboxCount();
                 const urgent = getInboxMessages().filter((m) => isMessageOverdue(m)).length;
                 if (count) count.textContent = String(n);
@@ -6552,6 +6557,16 @@
                     btn.title = urgent
                         ? `Mensagens internas · ${urgent} vencida(s)`
                         : "Mensagens internas";
+                }
+                // Update sidebar badge
+                if (sbBadge) {
+                    if (n > 0) {
+                        sbBadge.style.display = "";
+                        sbBadge.textContent = n > 99 ? "99+" : String(n);
+                        sbBadge.style.background = urgent ? "var(--red)" : "var(--amber)";
+                    } else {
+                        sbBadge.style.display = "none";
+                    }
                 }
             }
             // Atualiza o menu lateral de empresas com base nos dados reais do tenant
@@ -7021,7 +7036,7 @@
                 if (next7WithProj.length) {
                     h += `<div class="card anim d3"><div class="card-head"><div class="card-title">📅 Próximos 7 dias</div><div class="card-sub">${fmt(sum(next7WithProj))}${_projNext7.length ? ' <span style="font-size:10px;color:var(--ink4)">+ ' + _projNext7.length + ' previsto(s)</span>' : ""}</div></div>
     <div class="card-body np"><table class="tbl"><thead><tr>
-      <th>Data</th><th>Empresa</th><th>Descrição</th><th>Recorrência</th><th>Categoria</th><th>Pgto</th><th class="r">Valor</th><th class="c">Ação</th>
+      <th>Data</th><th>Empresa</th><th>Descrição</th><th class="hide-sm">Recorrência</th><th class="hide-sm">Categoria</th><th class="hide-sm">Pgto</th><th class="r">Valor</th><th class="c">Ação</th>
     </tr></thead><tbody>`;
                     next7WithProj.slice(0, 12).forEach((e) => {
                         const msgCounts = entryMessageCounts(e.id);
@@ -7032,9 +7047,9 @@
                               : "";
                         h += `<tr><td class="mono">${fmtDate(e.date)}</td><td>${copill(e.co)}</td>
       <td><div class="desc-txt">${e.desc}${msgBadge}</div>${createdMeta(e)}${e.obs ? `<div style="font-size:10.5px;color:var(--ink4)">${e.obs}</div>` : ""}</td>
-      <td>${recurrenceBadge(e)}</td>
-      <td style="font-size:11.5px;color:var(--ink3)">${e.cat}</td>
-      <td>${paychip(e.pay)}</td>
+      <td class="hide-sm">${recurrenceBadge(e)}</td>
+      <td class="hide-sm" style="font-size:11.5px;color:var(--ink3)">${e.cat}</td>
+      <td class="hide-sm">${paychip(e.pay)}</td>
       <td class="r">${fmt(e.val)}</td>
       <td class="c"><button class="btn sm ghost" onclick="openPayModal(${e.id})">✓ Pagar</button></td></tr>`;
                     });
@@ -7240,9 +7255,9 @@
       <td class="mono">${fmtDate(e.date)}</td>
       <td>${copill(e.co)}</td>
       <td><div class="desc-txt" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">${escHtml(e.desc)}${rhBadge}${msgBadge}${msgBell}</div>${createdMeta(e)}${e.obs ? `<div style="font-size:10.5px;color:var(--ink4);margin-top:2px">${e.obs}</div>` : ""}</td>
-      <td>${recurrenceBadge(e)}</td>
-      <td style="font-size:11.5px;color:var(--ink3)">${e.cat}</td>
-      <td>${paychip(e.pay)}</td>
+      <td class="hide-sm">${recurrenceBadge(e)}</td>
+      <td class="hide-sm" style="font-size:11.5px;color:var(--ink3)">${e.cat}</td>
+      <td class="hide-sm">${paychip(e.pay)}</td>
       <td class="r">${fmt(e.val)}</td>
       <td class="r">${stBadge(st, e)}</td>
       <td class="c" style="white-space:nowrap">
