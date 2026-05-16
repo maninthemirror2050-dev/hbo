@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.236</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.238</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.236</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.238</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.236</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.238</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.236"; // declared first — used throughout
+            const APP_VERSION = "1.238"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5468,7 +5468,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.236": [
+                "1.238": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -11658,7 +11658,12 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                     },
                     { raw: 0, operational: 0, excluded: 0, excludedItems: 0 },
                 );
-                const pastryPeriodEmitted = pastryPeriodRecords.filter((r) => String(r.status || "").toLowerCase() !== "cancelada").length;
+                // pastryPeriodEmitted = total de notas reais (soma do campo notes de cada dia)
+                const pastryPeriodEmitted = pastryPeriodRecords
+                    .filter((r) => String(r.status || "").toLowerCase() !== "cancelada")
+                    .reduce((s, r) => s + (Number(r.notes) || 1), 0);
+                // pastryPeriodDays = número de dias com movimento
+                const pastryPeriodDays = pastryPeriodRecords.filter((r) => String(r.status || "").toLowerCase() !== "cancelada").length;
                 const pastryPeriodCanceled = pastryPeriodRecords.filter((r) => String(r.status || "").toLowerCase() === "cancelada").length;
                 const pastryPeriodCst = pastryPeriodRecords.reduce((acc, r) => {
                     const key = String(r.cst || "").trim();
@@ -11804,8 +11809,8 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                 // ── Variáveis filtradas pelo período selecionado ────────────────
                 const ticketMedio = pastryPeriodEmitted > 0
                     ? pastryPeriodTotals.operational / pastryPeriodEmitted : 0;
-                const cancelRate = pastryPeriodRecords.length > 0
-                    ? Math.round((pastryPeriodCanceled / pastryPeriodRecords.length) * 100) : 0;
+                const cancelRate = pastryPeriodEmitted > 0
+                    ? Math.round((pastryPeriodCanceled / pastryPeriodEmitted) * 100) : 0;
 
                 // Produtos agregados do período (item a item das notas do período)
                 const periodProductMap = {};
@@ -12524,7 +12529,7 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                         <div style="flex:1;padding:10px 16px;border-right:1px solid var(--border)">
                             <div style="font-size:10px;color:var(--ink4);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">${lab ? "Faturamento operacional" : "Vendas analisadas"}</div>
                             <div style="font-size:20px;font-weight:700;color:var(--green);font-family:'Fraunces',serif;line-height:1">${fmt(lab ? pastryPeriodTotals.operational : total)}</div>
-                            <div style="font-size:10.5px;color:var(--ink4);margin-top:3px">${lab ? `${pastryPeriodEmitted} notas · sem repique` : `${qty} itens no cenário`}</div>
+                            <div style="font-size:10.5px;color:var(--ink4);margin-top:3px">${lab ? `${pastryPeriodEmitted} notas · ${pastryPeriodDays} dias` : `${qty} itens no cenário`}</div>
                         </div>
                         <div style="flex:1;padding:10px 16px;border-right:1px solid var(--border)">
                             <div style="font-size:10px;color:var(--ink4);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Ticket médio</div>
@@ -12904,11 +12909,13 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                                     else if (periodTopProductShare > 0) alerts.push({ type: "ok", icon: "★", title: `Produto estrela: ${escHtml(periodProductsSorted[0]?.[0] || "")}`, body: `${periodTopProductShare}% do faturamento em ${escHtml(pastryPeriodLabel)} — concentração saudável. Os demais produtos complementam bem o mix.` });
                                     // Cancelamentos do período
                                     if (cancelRate > 5) alerts.push({ type: "warn", icon: "!", title: `Cancelamentos elevados no período: ${cancelRate}%`, body: `${pastryPeriodCanceled} notas canceladas de ${pastryPeriodRecords.length} em ${escHtml(pastryPeriodLabel)}. Acima de 5% pode indicar falha operacional ou reprocessamento manual.` });
-                                    else if (pastryPeriodCanceled > 0) alerts.push({ type: "info", icon: "✓", title: `Cancelamentos sob controle: ${cancelRate}%`, body: `${pastryPeriodCanceled} nota(s) cancelada(s) em ${escHtml(pastryPeriodLabel)} — taxa dentro do normal para operações de balcão.` });
-                                    // Horário de pico
-                                    if (labHours.length > 0) {
-                                        const peakHour = labHours[0];
-                                        alerts.push({ type: "info", icon: "🕐", title: `Pico de faturamento às ${peakHour[0]}h`, body: `O horário das ${peakHour[0]}h concentra o maior volume financeiro (${fmt(peakHour[1])}). Vale garantir equipe e estoque completos nesse turno.` });
+                                    else if (pastryPeriodCanceled > 0) alerts.push({ type: "info", icon: "✓", title: `Cancelamentos sob controle: ${cancelRate}%`, body: `${pastryPeriodCanceled} nota(s) cancelada(s) de ${pastryPeriodEmitted} em ${escHtml(pastryPeriodLabel)} — taxa dentro do normal para operações de balcão.` });
+                                    // Horário de pico - filtra horas com revenue > 0
+                                    const validHours = labHours.filter(([h, v]) => (Number(v) || 0) > 0);
+                                    if (validHours.length > 0) {
+                                        const peakHour = validHours[0];
+                                        const worstHour = validHours[validHours.length - 1];
+                                        alerts.push({ type: "info", icon: "🕐", title: `Pico de faturamento às ${peakHour[0]}h`, body: `O horário das ${peakHour[0]}h concentra o maior volume financeiro (${fmt(peakHour[1])}). Vale garantir equipe e estoque completos nesse turno. Horário mais fraco: ${worstHour[0]}h (${fmt(worstHour[1])}).` });
                                     }
                                     // Dia mais forte
                                     if (topWeekdayNum !== null) alerts.push({ type: "info", icon: "📅", title: `${pastryWeekdayLongLabel(topWeekdayNum)} é o dia mais rentável em ${escHtml(pastryPeriodLabel)}`, body: `Com ${fmt(topWeekdayEntry[1])} em ${escHtml(pastryPeriodLabel)}, é o dia que mais contribui para o caixa. Garanta mix completo e produção antecipada.` });
