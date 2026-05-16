@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.231</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.232</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.231</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.232</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.231</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.232</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -2419,6 +2419,13 @@
                     <button class="nav-btn" data-page="mensagens" onclick="nav('mensagens')" style="position:relative">
                         <span class="nav-icon">✉</span>Mensagens
                         <span id="sbMsgBadge" style="display:none;position:absolute;top:6px;right:8px;background:var(--red);color:#fff;border-radius:10px;font-size:9px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center;line-height:14px"></span>
+                    </button>
+                    <button
+                        class="nav-btn"
+                        data-page="contratos"
+                        onclick="isPro() ? nav('contratos') : showUpgradeModal('Módulo de Contratos')"
+                    >
+                        <span class="nav-icon">📋</span>Contratos
                     </button>
                     <button
                         class="nav-btn hr-only"
@@ -2587,6 +2594,7 @@
                     <div id="rhPage" class="page"></div>
                     <div id="excluidosPage" class="page"></div>
                     <div id="mensagensPage" class="page"></div>
+                    <div id="contratosPage" class="page"></div>
                     <div id="adminPage" class="page"></div>
                 </div>
                 <div id="appFooter" style="margin:10px 0 0;padding:8px 12px;border-top:1px solid var(--border);font-size:11px;color:var(--ink4);display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px"></div>
@@ -3294,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.231"; // declared first — used throughout
+            const APP_VERSION = "1.232"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5460,7 +5468,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.231": [
+                "1.232": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -6578,6 +6586,7 @@
                 excluidos: "Excluídos",
                 ia: "Assistente IA",
                 mensagens: "Mensagens",
+                contratos: "Contratos",
                 admin: "Administração",
             };
             function nav(name) {
@@ -6607,6 +6616,7 @@
                 else if (pg === "excluidos") renderExcluidos();
                 else if (pg === "ia") { if (!requirePro("Assistente IA")) return; renderIA(); }
                 else if (pg === "mensagens") renderMessages();
+                else if (pg === "contratos") renderContratos();
                 else if (pg === "admin") renderAdmin();
                 updateAppFooter();
                 updateInboxBadge();
@@ -15830,6 +15840,193 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                     .eq("id", tenantId);
                 if (error) { alert("Erro: " + error.message); return; }
                 render("admin");
+            }
+
+            // ══════════════════════════════════════════════════════════════
+            // CONTRATOS
+            // ══════════════════════════════════════════════════════════════
+            const CONTRATO_STATUS = {
+                elaboracao: { label: "Em elaboração", color: "var(--ink4)", bg: "rgba(0,0,0,.06)" },
+                aprovacao:  { label: "Em aprovação",  color: "#7a4a00",     bg: "rgba(186,117,23,.12)" },
+                vigente:    { label: "Vigente",       color: "#2d6e4a",     bg: "rgba(45,110,74,.1)" },
+                renovar:    { label: "Renovar",       color: "#c8703a",     bg: "rgba(200,112,58,.12)" },
+                encerrado:  { label: "Encerrado",     color: "var(--ink4)", bg: "rgba(0,0,0,.06)" },
+            };
+            const CONTRATO_TIPOS = ["fornecedor","prestador","cliente","colaborador","locacao","outro"];
+            const CONTRATO_TIPO_LABELS = {
+                fornecedor:"Fornecedor", prestador:"Prestador de Serviço",
+                cliente:"Cliente", colaborador:"Colaborador",
+                locacao:"Locação", outro:"Outro"
+            };
+
+            async function renderContratos() {
+                const { data, error } = await db.from("contratos")
+                    .select("*")
+                    .eq("tenant_id", S.session?.tenantId)
+                    .order("data_fim", { ascending: true });
+
+                if (error) { html("contratosPage", `<div class="alert warn">Erro ao carregar contratos: ${error.message}</div>`); return; }
+
+                const today = new Date().toISOString().slice(0,10);
+                const in30 = new Date(Date.now() + 30*86400000).toISOString().slice(0,10);
+                const in60 = new Date(Date.now() + 60*86400000).toISOString().slice(0,10);
+
+                const active = (data||[]).filter(c => c.status !== "encerrado");
+                const expiring = active.filter(c => c.data_fim && c.data_fim <= in30 && c.data_fim >= today);
+                const expired = active.filter(c => c.data_fim && c.data_fim < today && c.status === "vigente");
+
+                let h = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        ${expired.length ? `<div class="alert warn" style="padding:8px 14px;margin:0;font-size:12px">⚠ ${expired.length} contrato(s) vencido(s)</div>` : ""}
+                        ${expiring.length ? `<div class="alert" style="padding:8px 14px;margin:0;font-size:12px;background:rgba(200,112,58,.1);color:#c8703a">🔔 ${expiring.length} vencendo em 30 dias</div>` : ""}
+                    </div>
+                    <button class="btn primary" onclick="openContratoModal()">+ Novo contrato</button>
+                </div>`;
+
+                if (!data?.length) {
+                    h += `<div class="card"><div class="card-body" style="text-align:center;padding:40px;color:var(--ink4)">
+                        <div style="font-size:32px;margin-bottom:12px">📋</div>
+                        <div style="font-weight:500;margin-bottom:6px">Nenhum contrato cadastrado</div>
+                        <div style="font-size:13px">Clique em "+ Novo contrato" para começar</div>
+                    </div></div>`;
+                } else {
+                    // Group by status
+                    const grupos = ["vigente","renovar","aprovacao","elaboracao","encerrado"];
+                    grupos.forEach(st => {
+                        const grupo = data.filter(c => c.status === st);
+                        if (!grupo.length) return;
+                        const cfg = CONTRATO_STATUS[st] || CONTRATO_STATUS.vigente;
+                        h += `<div style="margin-bottom:20px">
+                            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink4);margin-bottom:8px">${cfg.label} · ${grupo.length}</div>
+                            <div style="display:flex;flex-direction:column;gap:8px">`;
+                        grupo.forEach(c => {
+                            const daysLeft = c.data_fim ? Math.round((new Date(c.data_fim) - new Date(today)) / 86400000) : null;
+                            const isExpired = daysLeft !== null && daysLeft < 0;
+                            const isSoonExpiring = daysLeft !== null && daysLeft >= 0 && daysLeft <= 30;
+                            const borderColor = isExpired ? "var(--red)" : isSoonExpiring ? "var(--amber)" : cfg.color;
+                            h += `<div class="card" style="cursor:pointer;border-left:3px solid ${borderColor}" onclick="openContratoModal('${c.id}')">
+                                <div class="card-body" style="padding:14px 16px">
+                                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+                                        <div style="flex:1">
+                                            <div style="font-weight:600;font-size:13px">${escHtml(c.titulo||"")}</div>
+                                            <div style="font-size:11px;color:var(--ink4);margin-top:2px">
+                                                ${escHtml(CONTRATO_TIPO_LABELS[c.tipo]||c.tipo||"")}
+                                                ${c.contraparte_nome ? " · " + escHtml(c.contraparte_nome) : ""}
+                                                ${c.co ? " · " + escHtml(c.co.toUpperCase()) : ""}
+                                            </div>
+                                        </div>
+                                        <div style="text-align:right;flex-shrink:0">
+                                            ${c.valor_mensal ? `<div style="font-weight:600;font-size:13px">${fmt(c.valor_mensal)}/mês</div>` : ""}
+                                            ${c.data_fim ? `<div style="font-size:11px;color:${isExpired ? "var(--red)" : isSoonExpiring ? "var(--amber)" : "var(--ink4)"}">
+                                                ${isExpired ? "⚠ Vencido " + fmtDate(c.data_fim) : isSoonExpiring ? "⏰ Vence em " + daysLeft + " dias" : "Até " + fmtDate(c.data_fim)}
+                                            </div>` : ""}
+                                        </div>
+                                    </div>
+                                    ${c.obs ? `<div style="font-size:12px;color:var(--ink3);margin-top:6px;font-style:italic">${escHtml(c.obs.slice(0,100))}${c.obs.length>100?"…":""}</div>` : ""}
+                                </div>
+                            </div>`;
+                        });
+                        h += `</div></div>`;
+                    });
+                }
+
+                html("contratosPage", h);
+            }
+
+            let _contratoEditId = null;
+            async function openContratoModal(id = null) {
+                _contratoEditId = id;
+                let c = {};
+                if (id) {
+                    const { data } = await db.from("contratos").select("*").eq("id", id).single();
+                    c = data || {};
+                }
+                const isEdit = !!id;
+                const tipoOpts = CONTRATO_TIPOS.map(t =>
+                    `<option value="${t}" ${c.tipo===t?"selected":""}>${CONTRATO_TIPO_LABELS[t]}</option>`).join("");
+                const statusOpts = Object.entries(CONTRATO_STATUS).map(([k,v]) =>
+                    `<option value="${k}" ${(c.status||"vigente")===k?"selected":""}>${v.label}</option>`).join("");
+                const coOpts = [...new Set(S.entries.map(e=>e.co).filter(Boolean))].map(co =>
+                    `<option value="${co}" ${c.co===co?"selected":""}>${co.toUpperCase()}</option>`).join("");
+
+                openModal("entryModal", `
+                    <div class="modal-head">
+                        <div class="modal-title">${isEdit ? "Editar contrato" : "Novo contrato"}</div>
+                        <button class="modal-close" onclick="closeEntryModal()">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="frow"><div class="fg fg2"><label class="flabel">Título *</label>
+                            <input class="finput" id="ctTitulo" value="${escHtml(c.titulo||"")}" placeholder="Ex: Contrato Brasal Refrigerantes"></div>
+                            <div class="fg"><label class="flabel">Tipo</label>
+                            <select class="fselect" id="ctTipo">${tipoOpts}</select></div></div>
+                        <div class="frow"><div class="fg"><label class="flabel">Contraparte</label>
+                            <input class="finput" id="ctContraparte" value="${escHtml(c.contraparte_nome||"")}" placeholder="Nome da empresa/pessoa"></div>
+                            <div class="fg"><label class="flabel">CNPJ/CPF</label>
+                            <input class="finput" id="ctCnpj" value="${escHtml(c.contraparte_cnpj||"")}" placeholder="00.000.000/0001-00"></div></div>
+                        <div class="frow"><div class="fg"><label class="flabel">Início</label>
+                            <input class="finput" id="ctInicio" type="date" value="${c.data_inicio||""}"></div>
+                            <div class="fg"><label class="flabel">Fim / Vencimento</label>
+                            <input class="finput" id="ctFim" type="date" value="${c.data_fim||""}"></div>
+                            <div class="fg"><label class="flabel">Aviso antecedência (dias)</label>
+                            <input class="finput" id="ctAviso" type="number" value="${c.aviso_antecedencia_dias||30}" min="7" max="180"></div></div>
+                        <div class="frow"><div class="fg"><label class="flabel">Valor mensal</label>
+                            <input class="finput" id="ctValMensal" type="number" step="0.01" value="${c.valor_mensal||""}" placeholder="0,00"></div>
+                            <div class="fg"><label class="flabel">Valor total</label>
+                            <input class="finput" id="ctValTotal" type="number" step="0.01" value="${c.valor_total||""}" placeholder="0,00"></div>
+                            <div class="fg"><label class="flabel">Empresa</label>
+                            <select class="fselect" id="ctCo"><option value="">Todas</option>${coOpts}</select></div></div>
+                        <div class="frow"><div class="fg"><label class="flabel">Status</label>
+                            <select class="fselect" id="ctStatus">${statusOpts}</select></div>
+                            <div class="fg"><label class="flabel">Renovação automática</label>
+                            <select class="fselect" id="ctRenovacao"><option value="false" ${!c.renovacao_automatica?"selected":""}>Não</option><option value="true" ${c.renovacao_automatica?"selected":""}>Sim</option></select></div></div>
+                        <div class="frow full"><div class="fg"><label class="flabel">Observações</label>
+                            <textarea class="finput" id="ctObs" rows="3" placeholder="Cláusulas importantes, contatos, histórico...">${escHtml(c.obs||"")}</textarea></div></div>
+                    </div>
+                    <div class="modal-foot">
+                        ${isEdit ? `<button class="btn ghost" style="color:var(--red)" onclick="deleteContrato('${id}')">Excluir</button>` : ""}
+                        <button class="btn ghost" onclick="closeEntryModal()">Cancelar</button>
+                        <button class="btn primary" onclick="saveContrato()">Salvar</button>
+                    </div>`);
+            }
+
+            async function saveContrato() {
+                const titulo = (el("ctTitulo")?.value||"").trim();
+                if (!titulo) { alert("Título obrigatório."); return; }
+                const payload = {
+                    tenant_id: S.session?.tenantId,
+                    titulo,
+                    tipo: el("ctTipo")?.value||"outro",
+                    contraparte_nome: (el("ctContraparte")?.value||"").trim(),
+                    contraparte_cnpj: (el("ctCnpj")?.value||"").trim(),
+                    data_inicio: el("ctInicio")?.value||null,
+                    data_fim: el("ctFim")?.value||null,
+                    aviso_antecedencia_dias: parseInt(el("ctAviso")?.value)||30,
+                    valor_mensal: parseFloat(el("ctValMensal")?.value)||null,
+                    valor_total: parseFloat(el("ctValTotal")?.value)||null,
+                    status: el("ctStatus")?.value||"vigente",
+                    renovacao_automatica: el("ctRenovacao")?.value === "true",
+                    co: el("ctCo")?.value||null,
+                    obs: (el("ctObs")?.value||"").trim(),
+                    atualizado_em: new Date().toISOString(),
+                };
+                let error;
+                if (_contratoEditId) {
+                    ({ error } = await db.from("contratos").update(payload).eq("id", _contratoEditId));
+                } else {
+                    payload.criado_por = S.session?.email;
+                    payload.criado_em = new Date().toISOString();
+                    ({ error } = await db.from("contratos").insert(payload));
+                }
+                if (error) { alert("Erro ao salvar: " + error.message); return; }
+                closeEntryModal();
+                renderContratos();
+            }
+
+            async function deleteContrato(id) {
+                if (!confirm("Excluir este contrato? Esta ação não pode ser desfeita.")) return;
+                await db.from("contratos").delete().eq("id", id);
+                closeEntryModal();
+                renderContratos();
             }
 
             async function renderAdmin() {
