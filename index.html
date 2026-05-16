@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.232</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.236</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.232</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.236</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.232</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.236</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.232"; // declared first — used throughout
+            const APP_VERSION = "1.236"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5468,7 +5468,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.232": [
+                "1.236": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -11581,6 +11581,15 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                 }
             }
             function renderPastry() {
+                // BKI restrito ao usuário owner
+                if (S.session?.email !== "maninthemirror2050@gmail.com") {
+                    html("pastryPage", `<div class="card"><div class="card-body" style="padding:40px;text-align:center;color:var(--ink4)">
+                        <div style="font-size:32px;margin-bottom:12px">🔒</div>
+                        <div style="font-weight:500;margin-bottom:6px">Acesso restrito</div>
+                        <div style="font-size:13px">O Bäckerei Intelligence está disponível apenas para o administrador principal.</div>
+                    </div></div>`);
+                    return;
+                }
                 const d = pastryDemoData();
                 const lab = loadPastryLabSummary();
                 if (!pastryLabSummaryReady && !lab) {
@@ -15859,28 +15868,62 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 locacao:"Locação", outro:"Outro"
             };
 
-            async function renderContratos() {
-                const { data, error } = await db.from("contratos")
-                    .select("*")
-                    .eq("tenant_id", S.session?.tenantId)
-                    .order("data_fim", { ascending: true });
+            let _contratoSearch = "";
+            let _contratoFilterStatus = "";
+            let _contratoFilterTipo = "";
+            let _allContratos = [];
 
-                if (error) { html("contratosPage", `<div class="alert warn">Erro ao carregar contratos: ${error.message}</div>`); return; }
+            async function renderContratos(forceReload = true) {
+                if (forceReload) {
+                    const { data, error } = await db.from("contratos")
+                        .select("*")
+                        .eq("tenant_id", S.session?.tenantId)
+                        .order("data_fim", { ascending: true, nullsFirst: false });
+                    if (error) { html("contratosPage", `<div class="alert warn">Erro ao carregar contratos: ${error.message}</div>`); return; }
+                    _allContratos = data || [];
+                }
+
+                // Apply filters
+                let data = _allContratos.filter(c => {
+                    if (_contratoFilterStatus && c.status !== _contratoFilterStatus) return false;
+                    if (_contratoFilterTipo && c.tipo !== _contratoFilterTipo) return false;
+                    if (_contratoSearch) {
+                        const q = _contratoSearch.toLowerCase();
+                        if (!((c.titulo||"").toLowerCase().includes(q) ||
+                              (c.contraparte_nome||"").toLowerCase().includes(q) ||
+                              (c.contraparte_cnpj||"").includes(q))) return false;
+                    }
+                    return true;
+                });
 
                 const today = new Date().toISOString().slice(0,10);
                 const in30 = new Date(Date.now() + 30*86400000).toISOString().slice(0,10);
-                const in60 = new Date(Date.now() + 60*86400000).toISOString().slice(0,10);
 
-                const active = (data||[]).filter(c => c.status !== "encerrado");
+                const active = _allContratos.filter(c => c.status !== "encerrado");
                 const expiring = active.filter(c => c.data_fim && c.data_fim <= in30 && c.data_fim >= today);
                 const expired = active.filter(c => c.data_fim && c.data_fim < today && c.status === "vigente");
 
-                let h = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                let h = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
                     <div style="display:flex;gap:8px;flex-wrap:wrap">
-                        ${expired.length ? `<div class="alert warn" style="padding:8px 14px;margin:0;font-size:12px">⚠ ${expired.length} contrato(s) vencido(s)</div>` : ""}
-                        ${expiring.length ? `<div class="alert" style="padding:8px 14px;margin:0;font-size:12px;background:rgba(200,112,58,.1);color:#c8703a">🔔 ${expiring.length} vencendo em 30 dias</div>` : ""}
+                        ${expired.length ? `<div class="alert warn" style="padding:6px 12px;margin:0;font-size:12px">⚠ ${expired.length} vencido(s)</div>` : ""}
+                        ${expiring.length ? `<div class="alert" style="padding:6px 12px;margin:0;font-size:12px;background:rgba(200,112,58,.1);color:#c8703a">🔔 ${expiring.length} vencendo em 30 dias</div>` : ""}
                     </div>
                     <button class="btn primary" onclick="openContratoModal()">+ Novo contrato</button>
+                </div>
+                <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+                    <input class="finput" placeholder="🔍 Buscar por nome, fornecedor, CNPJ..." value="${escHtml(_contratoSearch)}"
+                        oninput="_contratoSearch=this.value;renderContratos(false)"
+                        style="flex:1;min-width:200px;max-width:360px">
+                    <select class="fselect" style="width:160px" onchange="_contratoFilterStatus=this.value;renderContratos(false)">
+                        <option value="">Todos os status</option>
+                        ${Object.entries(CONTRATO_STATUS).map(([k,v]) => `<option value="${k}" ${_contratoFilterStatus===k?"selected":""}>${v.label}</option>`).join("")}
+                    </select>
+                    <select class="fselect" style="width:160px" onchange="_contratoFilterTipo=this.value;renderContratos(false)">
+                        <option value="">Todos os tipos</option>
+                        ${CONTRATO_TIPOS.map(t => `<option value="${t}" ${_contratoFilterTipo===t?"selected":""}>${CONTRATO_TIPO_LABELS[t]}</option>`).join("")}
+                    </select>
+                    ${(_contratoSearch||_contratoFilterStatus||_contratoFilterTipo) ? `<button class="btn ghost" onclick="_contratoSearch='';_contratoFilterStatus='';_contratoFilterTipo='';renderContratos(false)">Limpar</button>` : ""}
+                    <span style="font-size:12px;color:var(--ink4);align-self:center">${data.length} contrato(s)</span>
                 </div>`;
 
                 if (!data?.length) {
@@ -15923,6 +15966,10 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                                         </div>
                                     </div>
                                     ${c.obs ? `<div style="font-size:12px;color:var(--ink3);margin-top:6px;font-style:italic">${escHtml(c.obs.slice(0,100))}${c.obs.length>100?"…":""}</div>` : ""}
+                                    ${(c.status === "renovar" || (c.data_fim && c.data_fim < today && c.status === "vigente")) ?
+                                        `<div style="margin-top:8px" onclick="event.stopPropagation()">
+                                            <button class="btn sm ghost" onclick="renovarContrato('${c.id}')" style="color:var(--green)">🔄 Renovar contrato</button>
+                                        </div>` : ""}
                                 </div>
                             </div>`;
                         });
@@ -15949,10 +15996,18 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 const coOpts = [...new Set(S.entries.map(e=>e.co).filter(Boolean))].map(co =>
                     `<option value="${co}" ${c.co===co?"selected":""}>${co.toUpperCase()}</option>`).join("");
 
-                openModal("entryModal", `
+                // Use a dedicated contratos modal instead of entryModal
+                let _cm = document.getElementById("contratosModal");
+                if (!_cm) {
+                    _cm = document.createElement("div");
+                    _cm.id = "contratosModal";
+                    _cm.className = "modal-overlay";
+                    document.body.appendChild(_cm);
+                }
+                _cm.innerHTML = `<div class="modal" style="max-width:640px">` + `
                     <div class="modal-head">
                         <div class="modal-title">${isEdit ? "Editar contrato" : "Novo contrato"}</div>
-                        <button class="modal-close" onclick="closeEntryModal()">✕</button>
+                        <button class="modal-close" onclick="document.getElementById('contratosModal').classList.remove('open')">✕</button>
                     </div>
                     <div class="modal-body">
                         <div class="frow"><div class="fg fg2"><label class="flabel">Título *</label>
@@ -15981,12 +16036,83 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                             <select class="fselect" id="ctRenovacao"><option value="false" ${!c.renovacao_automatica?"selected":""}>Não</option><option value="true" ${c.renovacao_automatica?"selected":""}>Sim</option></select></div></div>
                         <div class="frow full"><div class="fg"><label class="flabel">Observações</label>
                             <textarea class="finput" id="ctObs" rows="3" placeholder="Cláusulas importantes, contatos, histórico...">${escHtml(c.obs||"")}</textarea></div></div>
+                        <div class="frow"><div class="fg">
+                            <label class="flabel">Vincular a lançamento</label>
+                            <select class="fselect" id="ctLancamento">
+                                <option value="">Nenhum</option>
+                                ${S.entries.filter(e => e.status !== "paid").slice(0,50).map(e =>
+                                    `<option value="${e.id}" ${String(c.lancamento_id)===String(e.id)?"selected":""}>${fmtDate(e.date)} — ${escHtml((e.desc||e.cat||"").slice(0,40))} (${fmt(e.val)})</option>`
+                                ).join("")}
+                            </select>
+                        </div>
+                        <div class="fg">
+                            <label class="flabel">Vincular a colaborador</label>
+                            <select class="fselect" id="ctColaborador">
+                                <option value="">Nenhum</option>
+                                ${(S.hrEmployees||[]).map(e =>
+                                    `<option value="${e.id}" ${c.hr_employee_id===e.id?"selected":""}>${escHtml(e.name||"")}</option>`
+                                ).join("")}
+                            </select>
+                        </div></div>
+                        ${(() => {
+                            const hist = JSON.parse(c.historico || "[]");
+                            if (!hist.length) return "";
+                            return `<div class="frow full"><div class="fg">
+                                <label class="flabel">Histórico de alterações</label>
+                                <div style="background:var(--bg);border-radius:6px;padding:10px 12px;font-size:11.5px;color:var(--ink3);max-height:120px;overflow-y:auto">
+                                    ${hist.reverse().map(h => `<div style="padding:3px 0;border-bottom:0.5px solid var(--border)">
+                                        <span style="color:var(--ink4)">${fmtDateTime(h.em)}</span>
+                                        · ${escHtml(CONTRATO_STATUS[h.de]?.label||h.de)} → <strong>${escHtml(CONTRATO_STATUS[h.para]?.label||h.para)}</strong>
+                                        · ${escHtml(h.por||"")}
+                                    </div>`).join("")}
+                                </div>
+                            </div></div>`;
+                        })()}
+                        <div class="frow full"><div class="fg">
+                            <label class="flabel">Documento (PDF, imagem)</label>
+                            ${c.arquivo_nome ? `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:8px 12px;background:var(--bg);border-radius:6px;border:0.5px solid var(--border)">
+                                <span>📄</span>
+                                <span style="flex:1;font-size:12px;color:var(--ink2)">${escHtml(c.arquivo_nome)}</span>
+                                <a href="#" onclick="viewContratoFile('${c.id}')" style="font-size:11px;color:var(--bk2)">Abrir</a>
+                                <button onclick="removeContratoFile('${c.id}')" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:12px" title="Remover arquivo">✕</button>
+                            </div>` : ""}
+                            <input type="file" id="ctArquivo" accept=".pdf,.jpg,.jpeg,.png,.webp" style="display:none" onchange="handleContratoFile(this)">
+                            <button class="btn ghost" onclick="el('ctArquivo').click()" style="width:100%;border:1.5px dashed var(--border);color:var(--ink3)">
+                                📎 ${c.arquivo_nome ? "Substituir documento" : "Anexar documento"}
+                            </button>
+                            <div id="ctArquivoPreview" style="font-size:11px;color:var(--ink4);margin-top:4px"></div>
+                        </div></div>
                     </div>
                     <div class="modal-foot">
                         ${isEdit ? `<button class="btn ghost" style="color:var(--red)" onclick="deleteContrato('${id}')">Excluir</button>` : ""}
-                        <button class="btn ghost" onclick="closeEntryModal()">Cancelar</button>
+                        <button class="btn ghost" onclick="document.getElementById('contratosModal').classList.remove('open')">Cancelar</button>
                         <button class="btn primary" onclick="saveContrato()">Salvar</button>
-                    </div>`);
+                    </div>`;
+                _cm.classList.add("open");
+            }
+
+            let _contratoFile = null;
+            function handleContratoFile(input) {
+                const file = input.files?.[0];
+                if (!file) return;
+                _contratoFile = file;
+                const preview = el("ctArquivoPreview");
+                if (preview) preview.textContent = "📄 " + file.name + " (" + (file.size / 1024).toFixed(0) + " KB)";
+            }
+
+            async function viewContratoFile(contratoId) {
+                const { data } = await db.from("contratos").select("arquivo_path, arquivo_nome").eq("id", contratoId).single();
+                if (!data?.arquivo_path) return;
+                const { data: urlData } = await db.storage.from("contratos-docs").createSignedUrl(data.arquivo_path, 3600);
+                if (urlData?.signedUrl) window.open(urlData.signedUrl, "_blank");
+            }
+
+            async function removeContratoFile(contratoId) {
+                if (!confirm("Remover o documento anexado?")) return;
+                const { data } = await db.from("contratos").select("arquivo_path").eq("id", contratoId).single();
+                if (data?.arquivo_path) await db.storage.from("contratos-docs").remove([data.arquivo_path]);
+                await db.from("contratos").update({ arquivo_path: null, arquivo_nome: null }).eq("id", contratoId);
+                openContratoModal(contratoId);
             }
 
             async function saveContrato() {
@@ -16007,26 +16133,90 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                     renovacao_automatica: el("ctRenovacao")?.value === "true",
                     co: el("ctCo")?.value||null,
                     obs: (el("ctObs")?.value||"").trim(),
+                    lancamento_id: parseInt(el("ctLancamento")?.value)||null,
+                    hr_employee_id: el("ctColaborador")?.value||null,
                     atualizado_em: new Date().toISOString(),
                 };
-                let error;
+                let error, savedId = _contratoEditId;
                 if (_contratoEditId) {
+                    // Track status change in history
+                    const prev = _allContratos.find(c => c.id === _contratoEditId);
+                    if (prev && prev.status !== payload.status) {
+                        const hist = JSON.parse(prev.historico || "[]");
+                        hist.push({ de: prev.status, para: payload.status, por: S.session?.email, em: new Date().toISOString() });
+                        payload.historico = JSON.stringify(hist);
+                    }
                     ({ error } = await db.from("contratos").update(payload).eq("id", _contratoEditId));
                 } else {
                     payload.criado_por = S.session?.email;
                     payload.criado_em = new Date().toISOString();
-                    ({ error } = await db.from("contratos").insert(payload));
+                    const { data: inserted, error: insertErr } = await db.from("contratos").insert(payload).select("id").single();
+                    error = insertErr;
+                    savedId = inserted?.id;
                 }
                 if (error) { alert("Erro ao salvar: " + error.message); return; }
-                closeEntryModal();
+
+                // Upload file if selected
+                if (_contratoFile && savedId) {
+                    const ext = _contratoFile.name.split(".").pop();
+                    const path = `contratos/${S.session?.tenantId}/${savedId}_${Date.now()}.${ext}`;
+                    const { error: upErr } = await db.storage.from("contratos-docs").upload(path, _contratoFile, { upsert: true });
+                    if (!upErr) {
+                        await db.from("contratos").update({ arquivo_path: path, arquivo_nome: _contratoFile.name }).eq("id", savedId);
+                    }
+                    _contratoFile = null;
+                }
+
+                document.getElementById("contratosModal")?.classList.remove("open");
                 renderContratos();
             }
 
             async function deleteContrato(id) {
                 if (!confirm("Excluir este contrato? Esta ação não pode ser desfeita.")) return;
                 await db.from("contratos").delete().eq("id", id);
-                closeEntryModal();
+                document.getElementById("contratosModal")?.classList.remove("open");
                 renderContratos();
+            }
+
+            async function renovarContrato(id) {
+                const c = _allContratos.find(x => x.id === id);
+                if (!c) return;
+                // Calculate new end date (same duration, starting from today or old end)
+                const oldFim = c.data_fim ? new Date(c.data_fim) : new Date();
+                const oldInicio = c.data_inicio ? new Date(c.data_inicio) : new Date(oldFim - 365*86400000);
+                const duration = oldFim - oldInicio;
+                const newInicio = c.data_fim && c.data_fim >= new Date().toISOString().slice(0,10) ? new Date(c.data_fim) : new Date();
+                const newFim = new Date(newInicio.getTime() + duration);
+                const fimStr = newFim.toISOString().slice(0,10);
+                const inicioStr = newInicio.toISOString().slice(0,10);
+                if (!confirm(`Renovar contrato até ${fmtDate(fimStr)}?`)) return;
+                const hist = JSON.parse(c.historico || "[]");
+                hist.push({ de: c.status, para: "vigente", por: S.session?.email, em: new Date().toISOString(), obs: "Renovação" });
+                await db.from("contratos").update({
+                    status: "vigente",
+                    data_inicio: inicioStr,
+                    data_fim: fimStr,
+                    historico: JSON.stringify(hist),
+                    atualizado_em: new Date().toISOString(),
+                }).eq("id", id);
+                // Create lancamento if has monthly value
+                if (c.valor_mensal) {
+                    await db.from("lancamentos").insert({
+                        tenant_id: S.session?.tenantId,
+                        co: c.co || (S.entries[0]?.co || "bk"),
+                        descricao: "Renovação — " + c.titulo,
+                        cat: "Contratos",
+                        val: c.valor_mensal,
+                        date: inicioStr,
+                        status: "pending",
+                        tipo: "normal",
+                        pay: "Pix",
+                        created_by: S.session?.email,
+                        created_at: new Date().toISOString(),
+                    });
+                }
+                renderContratos();
+                alert("Contrato renovado" + (c.valor_mensal ? " e lançamento criado!" : "!"));
             }
 
             async function renderAdmin() {
