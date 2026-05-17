@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.255</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.256</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.255</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.256</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.255</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.256</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.255"; // declared first — used throughout
+            const APP_VERSION = "1.256"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5470,7 +5470,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.255": [
+                "1.256": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -12441,148 +12441,7 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                             ` : ""}
                         </div>
                     </div>` : ""}
-                    ${lab ? (() => {
-                        // Week navigation
-                        const today = new Date();
-                        const todaySunday = new Date(today);
-                        todaySunday.setDate(today.getDate() - today.getDay());
-                        const focusWeekStart = S.pastryWeekFocusDate || todaySunday.toISOString().slice(0,10);
-                        const focusWeekDate = new Date(focusWeekStart + "T12:00:00");
-                        const prevWeek = new Date(focusWeekDate); prevWeek.setDate(prevWeek.getDate()-7);
-                        const nextWeek = new Date(focusWeekDate); nextWeek.setDate(nextWeek.getDate()+7);
-                        const isPastWeek = focusWeekStart < todaySunday.toISOString().slice(0,10);
-                        const isCurrentWeek = focusWeekStart === todaySunday.toISOString().slice(0,10);
-                        const isFutureWeek = focusWeekStart > todaySunday.toISOString().slice(0,10);
-                        const weekData = buildPastryWeekActualVsForecast(lab, focusWeekStart);
-                        const canGoNext = !isFutureWeek;
-                        const _wkTitle = isPastWeek ? "vs Real" : "de produção";
-                        const _wkSub = weekData.ready ? weekData.weekLabel + (isPastWeek ? " · comparativo" : " · próximos 7 dias") : "precisa de histórico";
-                        const _prevKey = prevWeek.toISOString().slice(0,10);
-                        const _nextKey = nextWeek.toISOString().slice(0,10);
-                        const _todayKey = todaySunday.toISOString().slice(0,10);
-                        const _todayBtn = isCurrentWeek ? "" : "<button class=\"btn sm ghost\" onclick=\"S.pastryWeekFocusDate='" + _todayKey + "';renderPastry()\" style=\"font-size:10px\">Hoje</button>";
-                        const _nextDisabled = isFutureWeek ? "disabled style=\"opacity:.3\"" : "";
-                        return `<div class="card" data-pastry-section="producao">
-                        <div class="card-head">
-                            <div style="flex:1">
-                                <div class="card-title">Previsão semanal ${_wkTitle}</div>
-                                <div class="card-sub">${_wkSub}</div>
-                            </div>
-                            <div style="display:flex;gap:6px;align-items:center">
-                                <button class="btn sm ghost" onclick="S.pastryWeekFocusDate='${_prevKey}';renderPastry()" title="Semana anterior">←</button>
-                                ${_todayBtn}
-                                <button class="btn sm ghost" onclick="S.pastryWeekFocusDate='${_nextKey}';renderPastry()" title="Próxima semana" ${_nextDisabled}>→</button>
-                            </div>
-                        </div>
-                        <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
-                            ${pastryWeeklyProductionForecast?.ready ? `
-                                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
-                                    <div class="fg" style="min-width:260px;flex:1 1 260px">
-                                        <label class="flabel">Filtrar produto</label>
-                                        <input class="finput" list="pastryProductionFilterOptions" value="${escHtml(S.pastryProductionFilter || "")}" oninput="setPastryProductionFilter(this.value)" placeholder="Digite um produto para focar a semana">
-                                        <datalist id="pastryProductionFilterOptions">${pastryProductNames.slice(0, 200).map((name) => `<option value="${escHtml(name)}"></option>`).join("")}</datalist>
-                                    </div>
-                                    <button class="btn ghost" onclick="setPastryProductionFilter('')">Limpar filtro</button>
-                                </div>
-                                ${pastryProductionFilter ? `<div class="alert info"><span class="alert-ico">•</span><div><b>Filtro ativo</b><div style="margin-top:4px">Mostrando apenas produtos que contêm <strong>${escHtml(S.pastryProductionFilter || "")}</strong>.</div></div></div>` : ""}
-                                ${labHasDetailedItems ? "" : `<div class="alert warn"><span class="alert-ico">!</span><div><b>Quantidade aproximada</b><div style="margin-top:4px">Esta base foi importada antes de guardarmos as quantidades item a item. Reimporte a pasta XML com esta versão para enxergar os números exatos por produto e dia.</div></div></div>`}
-                                <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px">
-                                    ${(() => {
-                                        const maxDayQty = Math.max(1, ...pastryWeeklyProductionForecast.days.map((d, i) => {
-                                            if (pastryProductionFilter) return pastryWeeklyRowsFiltered.reduce((s, r) => s + (Number(r.cells?.[i]) || 0), 0);
-                                            return d.totalQty || 0;
-                                        }));
-                                        return pastryWeeklyProductionForecast.days.map((day, dayIndex) => {
-                                            const dayFilteredQty = pastryProductionFilter
-                                                ? pastryWeeklyRowsFiltered.reduce((sum, row) => sum + (Number(row.cells?.[dayIndex]) || 0), 0)
-                                                : day.totalQty || 0;
-                                            const isNext = day.dateKey === pastryForecast?.nextDate;
-                                            const barPct = Math.round((dayFilteredQty / maxDayQty) * 100);
-                                            return `<button onclick="setPastryForecastFocus(${JSON.stringify(day.dateKey)});event.stopPropagation()" style="
-                                                display:flex;flex-direction:column;gap:4px;padding:10px 10px 0;text-align:left;
-                                                background:${isNext ? "#f6efe2" : "#fff"};
-                                                border:1px solid ${isNext ? "rgba(143,43,36,.4)" : "var(--border)"};
-                                                border-radius:var(--r-sm);cursor:pointer;overflow:hidden;
-                                                box-shadow:${isNext ? "0 2px 8px rgba(143,43,36,.14)" : "none"};
-                                                transition:box-shadow .15s;
-                                            ">
-                                                <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:${isNext ? "var(--dbk2)" : "var(--ink4)"};font-weight:600">${pastryWeekdayShortLabel(day.weekday)}</div>
-                                                <div style="font-size:10.5px;color:${isNext ? "var(--ink2)" : "var(--ink3)"};margin-bottom:2px">${pastryDateLabel(day.dateKey)}</div>
-                                                <div style="font-family:'Fraunces',serif;font-size:20px;color:${isNext ? "var(--dbk)" : "var(--ink)"};line-height:1;font-weight:400">${Math.round(dayFilteredQty || 0)}</div>
-                                                <div style="font-size:9.5px;color:var(--ink4)">${pastryProductionFilter ? "un filtradas" : "un previstas"}</div>
-                                                ${(() => {
-                                                    if (!isPastWeek || !weekData.ready) return "";
-                                                    const actualRev = (weekData.actualByDay[day.dateKey] || {}).totalRevenue || 0;
-                                                    const forecastRev = (weekData.forecastByDay[day.dateKey] || {}).totalRevenue || 0;
-                                                    if (!actualRev) return "";
-                                                    const pct = forecastRev > 0 ? Math.round((actualRev - forecastRev)/forecastRev*100) : 0;
-                                                    return "<div style=\"margin-top:4px;padding-top:4px;border-top:1px solid rgba(0,0,0,.06)\">"
-                                                        + "<div style=\"font-size:9px;color:var(--ink4)\">Real</div>"
-                                                        + "<div style=\"font-size:14px;font-weight:700;color:var(--ink);font-family:'Fraunces',serif\">" + fmt(actualRev).replace("R$","") + "</div>"
-                                                        + "<div style=\"font-size:9px;font-weight:600;color:" + (pct>=0?"var(--green)":"var(--red)") + "\">" + (pct>=0?"+":"") + pct + "%</div>"
-                                                        + "</div>";
-                                                })()}
-                                                <div style="margin-bottom:8px"></div>
-                                                <div style="height:3px;background:var(--bg3);border-radius:0 0 0 0;margin:0 -10px">
-                                                    <div style="height:100%;width:${barPct}%;background:${isNext ? "rgba(143,43,36,.65)" : "rgba(143,43,36,.32)"};border-radius:0;transition:width .3s"></div>
-                                                </div>
-                                            </button>`;
-                                        }).join("");
-                                    })()}
-                                </div>
-                                <div style="font-size:11px;color:var(--ink4)">Os cards acima mostram o total previsto do dia${pastryProductionFilter ? " para o filtro escolhido" : ""}. A grade abaixo detalha quantas unidades de cada produto devem sair em cada dia da semana, sem relação com faturamento.</div>
-                                <div class="tbl-wrap" style="overflow:auto">
-                                    <table class="tbl narrow" style="min-width:1100px">
-                                        <thead>
-                                            <tr>
-                                                <th style="min-width:220px">Produto</th>
-                                                ${pastryWeeklyProductionForecast.days.map((day) => `<th class="c">${pastryWeekdayShortLabel(day.weekday)}<div style="font-size:10px;color:var(--ink4);font-weight:400">${pastryDateLabel(day.dateKey)}</div></th>`).join("")}
-                                                <th class="r" style="min-width:80px">Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${pastryWeeklyRowsFiltered.map((row) => {
-                                                const weekRow = isPastWeek && weekData.ready ? weekData.rows.find(r => r.name === row.name) : null;
-                                                return `<tr>
-                                                <td>
-                                                    <strong>${escHtml(row.name)}</strong>
-                                                    <div style="font-size:10px;color:var(--ink4);margin-top:2px">${Math.round(row.totalQty || 0)} un previstas</div>
-                                                </td>
-                                                ${row.cells.map((qty, dayIndex) => {
-                                                    const day = pastryWeeklyProductionForecast.days[dayIndex];
-                                                    const bg = qty ? pastryHeatColor(qty, pastryWeeklyProductionForecast.maxQty) : "rgba(0,0,0,.03)";
-                                                    const color = qty ? pastryHeatTextColor(qty, pastryWeeklyProductionForecast.maxQty) : "var(--ink4)";
-                                                    const actualQty = weekRow ? (weekRow.actual[dayIndex] || 0) : null;
-                                                    const diff = (isPastWeek && actualQty !== null && qty > 0) ? Math.round(actualQty - qty) : null;
-                                                    const actualLabel = (isPastWeek && actualQty !== null) ? ("<span style=\"font-size:9px;font-weight:400;opacity:.85\">Real: " + Math.round(actualQty) + "</span>" + (diff !== null ? "<span style=\"font-size:9px;font-weight:700;color:" + (diff>=0?"#2d6e4a":"#c0392b") + "\">" + (diff>=0?"+":"") + diff + "</span>" : "")) : "";
-                                                    return "<td class=\"c\" style=\"padding:5px 4px\">"
-                                                        + "<button style=\"display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:36px;border-radius:6px;padding:4px;background:" + bg + ";color:" + color + ";border:none;font-weight:700;font-size:12.5px;font-family:'JetBrains Mono',monospace;cursor:pointer;\" onmouseover=\"this.style.filter='brightness(.9)'\" onmouseout=\"this.style.filter=''\" onclick=\"openPastryWeekdayProductDrilldown(" + JSON.stringify(day.weekday) + ", " + JSON.stringify(encodeURIComponent(row.name)) + ");event.stopPropagation()\" title=\"Ver histórico\">"
-                                                        + "<span>" + (qty ? Math.round(qty) : "—") + "</span>"
-                                                        + actualLabel
-                                                        + "</button></td>";
-                                                }).join("")}
-                                                <td class="r" style="padding:5px 12px">
-                                                    <strong>${Math.round(row.totalQty || 0)}</strong>
-                                                    ${isPastWeek && weekRow ? "<div style=\"font-size:10px;color:var(--ink3)\">Real: " + Math.round(weekRow.actual.reduce((s,v)=>s+v,0)) + "</div>" : ""}
-                                                    <div style="height:3px;background:var(--bg2);border-radius:2px;margin-top:4px;min-width:50px">
-                                                        <div style="height:100%;width:${Math.round((row.totalQty / Math.max(1, pastryWeeklyProductionForecast.maxQty * pastryWeeklyProductionForecast.days.length / 7)) * 100)}%;max-width:100%;background:rgba(143,43,36,.45);border-radius:2px"></div>
-                                                    </div>
-                                                </td>
-                                            </tr>`;}).join("")}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div style="display:flex;align-items:center;gap:10px;margin-top:2px">
-                                    <span style="font-size:10.5px;color:var(--ink4)">Intensidade:</span>
-                                    <div style="display:flex;align-items:center;gap:6px">
-                                        <div style="width:80px;height:8px;border-radius:4px;background:linear-gradient(to right,rgb(253,236,214),rgb(210,110,60),rgb(143,43,36),rgb(72,14,10))"></div>
-                                        <span style="font-size:10px;color:var(--ink4)">Baixo → Alto</span>
-                                    </div>
-                                    <span style="font-size:10.5px;color:var(--ink4);margin-left:8px">Base: ${pastryWeeklyProductionForecast.historyDays || 0} dia(s) históricos · clique na célula para ver o histórico daquele produto nesse dia.</span>
-                                </div>
-                            ` : `<div class="alert warn"><span class="alert-ico">!</span><div><b>Previsão semanal indisponível</b><div style="margin-top:4px">${escHtml(pastryWeeklyProductionForecast?.reason || "Precisamos de mais histórico com itens detalhados para montar a semana de produção.")}</div></div></div>`}
-                        </div>
-                    </div>` : ""}
+                    ${lab ? renderPastryWeekCard(lab, pastryWeeklyProductionForecast, pastryWeeklyRowsFiltered, pastryProductionFilter, pastryProductNames, pastryForecast, labHasDetailedItems) : ""}
                     ${lab ? `<div class="card" data-pastry-section="producao">
                         <div class="card-head" style="align-items:flex-start;gap:12px">
                             <div>
@@ -16621,6 +16480,109 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                 }
                 renderContratos();
                 alert("Contrato renovado" + (c.valor_mensal ? " e lançamento criado!" : "!"));
+            }
+
+            function renderPastryWeekCard(lab, pastryWeeklyProductionForecast, pastryWeeklyRowsFiltered, pastryProductionFilter, pastryProductNames, pastryForecast, labHasDetailedItems) {
+                const today = new Date();
+                const todaySunday = new Date(today);
+                todaySunday.setDate(today.getDate() - today.getDay());
+                const focusWeekStart = S.pastryWeekFocusDate || todaySunday.toISOString().slice(0,10);
+                const focusWeekDate = new Date(focusWeekStart + "T12:00:00");
+                const prevWeek = new Date(focusWeekDate); prevWeek.setDate(prevWeek.getDate()-7);
+                const nextWeek = new Date(focusWeekDate); nextWeek.setDate(nextWeek.getDate()+7);
+                const isPastWeek = focusWeekStart < todaySunday.toISOString().slice(0,10);
+                const isCurrentWeek = focusWeekStart === todaySunday.toISOString().slice(0,10);
+                const isFutureWeek = focusWeekStart > todaySunday.toISOString().slice(0,10);
+                const weekData = buildPastryWeekActualVsForecast(lab, focusWeekStart);
+                const _prevKey = prevWeek.toISOString().slice(0,10);
+                const _nextKey = nextWeek.toISOString().slice(0,10);
+                const _todayKey = todaySunday.toISOString().slice(0,10);
+
+                let h = "<div class=\"card\" data-pastry-section=\"producao\">";
+                h += "<div class=\"card-head\">";
+                h += "<div style=\"flex:1\"><div class=\"card-title\">Previsão semanal " + (isPastWeek ? "vs Real" : "de produção") + "</div>";
+                h += "<div class=\"card-sub\">" + (weekData.ready ? weekData.weekLabel + (isPastWeek ? " · comparativo" : " · próximos 7 dias") : "precisa de histórico") + "</div></div>";
+                h += "<div style=\"display:flex;gap:6px;align-items:center\">";
+                h += "<button class=\"btn sm ghost\" onclick=\"S.pastryWeekFocusDate='" + _prevKey + "';renderPastry()\" title=\"Semana anterior\">←</button>";
+                if (!isCurrentWeek) h += "<button class=\"btn sm ghost\" onclick=\"S.pastryWeekFocusDate='" + _todayKey + "';renderPastry()\" style=\"font-size:10px\">Hoje</button>";
+                h += "<button class=\"btn sm ghost\" onclick=\"S.pastryWeekFocusDate='" + _nextKey + "';renderPastry()\" title=\"Próxima semana\"" + (isFutureWeek ? " disabled style=\"opacity:.3\"" : "") + ">→</button>";
+                h += "</div></div>";
+                h += "<div class=\"card-body\" style=\"display:flex;flex-direction:column;gap:12px\">";
+
+                if (!pastryWeeklyProductionForecast?.ready) {
+                    h += "<div class=\"alert warn\"><span class=\"alert-ico\">!</span><div><b>Previsão semanal indisponível</b><div style=\"margin-top:4px\">" + escHtml(pastryWeeklyProductionForecast?.reason || "Precisamos de mais histórico.") + "</div></div></div>";
+                } else {
+                    // Filter input
+                    h += "<div style=\"display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end\">";
+                    h += "<div class=\"fg\" style=\"min-width:260px;flex:1 1 260px\"><label class=\"flabel\">Filtrar produto</label>";
+                    h += "<input class=\"finput\" list=\"pastryProductionFilterOptions\" value=\"" + escHtml(S.pastryProductionFilter || "") + "\" oninput=\"setPastryProductionFilter(this.value)\" placeholder=\"Digite um produto para focar a semana\">";
+                    h += "<datalist id=\"pastryProductionFilterOptions\">" + pastryProductNames.slice(0,200).map(function(n){return "<option value=\""+escHtml(n)+"\"></option>";}).join("") + "</datalist></div>";
+                    h += "<button class=\"btn ghost\" onclick=\"setPastryProductionFilter('')\">Limpar filtro</button></div>";
+
+                    if (!labHasDetailedItems) h += "<div class=\"alert warn\"><span class=\"alert-ico\">!</span><div><b>Quantidade aproximada</b></div></div>";
+
+                    // Day cards
+                    const maxDayQty = Math.max(1, ...pastryWeeklyProductionForecast.days.map(function(d,i){
+                        return pastryProductionFilter ? pastryWeeklyRowsFiltered.reduce(function(s,r){return s+(Number(r.cells&&r.cells[i])||0);},0) : (d.totalQty||0);
+                    }));
+                    h += "<div style=\"display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px\">";
+                    pastryWeeklyProductionForecast.days.forEach(function(day, dayIndex) {
+                        const dayQty = pastryProductionFilter ? pastryWeeklyRowsFiltered.reduce(function(s,r){return s+(Number(r.cells&&r.cells[dayIndex])||0);},0) : (day.totalQty||0);
+                        const isNext = day.dateKey === (pastryForecast&&pastryForecast.nextDate);
+                        const barPct = Math.round((dayQty/maxDayQty)*100);
+                        const actualRev = isPastWeek && weekData.ready ? ((weekData.actualByDay[day.dateKey]||{}).totalRevenue||0) : 0;
+                        const forecastRev = isPastWeek && weekData.ready ? ((weekData.forecastByDay[day.dateKey]||{}).totalRevenue||0) : 0;
+                        const pct = forecastRev > 0 ? Math.round((actualRev-forecastRev)/forecastRev*100) : 0;
+                        h += "<button onclick=\"setPastryForecastFocus(" + JSON.stringify(day.dateKey) + ");event.stopPropagation()\" style=\"display:flex;flex-direction:column;gap:4px;padding:10px 10px 0;text-align:left;background:" + (isNext?"#f6efe2":"#fff") + ";border:1px solid " + (isNext?"rgba(143,43,36,.4)":"var(--border)") + ";border-radius:var(--r-sm);cursor:pointer;overflow:hidden;\">";
+                        h += "<div style=\"font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:" + (isNext?"var(--dbk2)":"var(--ink4)") + ";font-weight:600\">" + pastryWeekdayShortLabel(day.weekday) + "</div>";
+                        h += "<div style=\"font-size:10.5px;color:" + (isNext?"var(--ink2)":"var(--ink3)") + ";margin-bottom:2px\">" + pastryDateLabel(day.dateKey) + "</div>";
+                        h += "<div style=\"font-family:'Fraunces',serif;font-size:20px;color:" + (isNext?"var(--dbk)":"var(--ink)") + ";line-height:1;font-weight:400\">" + Math.round(dayQty||0) + "</div>";
+                        h += "<div style=\"font-size:9.5px;color:var(--ink4)\">" + (pastryProductionFilter?"un filtradas":"un previstas") + "</div>";
+                        if (isPastWeek && actualRev > 0) {
+                            h += "<div style=\"margin-top:4px;padding-top:4px;border-top:1px solid rgba(0,0,0,.06)\">";
+                            h += "<div style=\"font-size:9px;color:var(--ink4)\">Real</div>";
+                            h += "<div style=\"font-size:14px;font-weight:700;color:var(--ink);font-family:'Fraunces',serif\">" + fmt(actualRev).replace("R$","") + "</div>";
+                            h += "<div style=\"font-size:9px;font-weight:600;color:" + (pct>=0?"var(--green)":"var(--red)") + "\">" + (pct>=0?"+":"") + pct + "%</div></div>";
+                        }
+                        h += "<div style=\"margin-bottom:8px\"></div>";
+                        h += "<div style=\"height:3px;background:var(--bg3);margin:0 -10px\"><div style=\"height:100%;width:" + barPct + "%;background:" + (isNext?"rgba(143,43,36,.65)":"rgba(143,43,36,.32)") + ";\"></div></div>";
+                        h += "</button>";
+                    });
+                    h += "</div>";
+                    h += "<div style=\"font-size:11px;color:var(--ink4)\">Os cards acima mostram o total previsto do dia. A grade abaixo detalha unidades por produto.</div>";
+
+                    // Product table
+                    h += "<div class=\"tbl-wrap\" style=\"overflow:auto\"><table class=\"tbl narrow\" style=\"min-width:1100px\"><thead><tr><th style=\"min-width:220px\">Produto</th>";
+                    pastryWeeklyProductionForecast.days.forEach(function(day){
+                        h += "<th class=\"c\">" + pastryWeekdayShortLabel(day.weekday) + "<div style=\"font-size:10px;color:var(--ink4);font-weight:400\">" + pastryDateLabel(day.dateKey) + "</div></th>";
+                    });
+                    h += "<th class=\"r\" style=\"min-width:80px\">Total</th></tr></thead><tbody>";
+                    pastryWeeklyRowsFiltered.forEach(function(row) {
+                        const weekRow = isPastWeek && weekData.ready ? weekData.rows.find(function(r){return r.name===row.name;}) : null;
+                        h += "<tr><td><strong>" + escHtml(row.name) + "</strong><div style=\"font-size:10px;color:var(--ink4);margin-top:2px\">" + Math.round(row.totalQty||0) + " un previstas</div></td>";
+                        row.cells.forEach(function(qty, dayIndex) {
+                            const day = pastryWeeklyProductionForecast.days[dayIndex];
+                            const bg = qty ? pastryHeatColor(qty, pastryWeeklyProductionForecast.maxQty) : "rgba(0,0,0,.03)";
+                            const color = qty ? pastryHeatTextColor(qty, pastryWeeklyProductionForecast.maxQty) : "var(--ink4)";
+                            const actualQty = weekRow ? (weekRow.actual[dayIndex]||0) : null;
+                            const diff = (isPastWeek && actualQty !== null && qty > 0) ? Math.round(actualQty - qty) : null;
+                            h += "<td class=\"c\" style=\"padding:5px 4px\"><button style=\"display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:36px;border-radius:6px;padding:4px;background:" + bg + ";color:" + color + ";border:none;font-weight:700;font-size:12.5px;font-family:'JetBrains Mono',monospace;cursor:pointer;\" onclick=\"openPastryWeekdayProductDrilldown(" + JSON.stringify(day.weekday) + "," + JSON.stringify(encodeURIComponent(row.name)) + ");event.stopPropagation()\">";
+                            h += "<span>" + (qty?Math.round(qty):"—") + "</span>";
+                            if (isPastWeek && actualQty !== null) {
+                                h += "<span style=\"font-size:9px;font-weight:400;opacity:.85\">Real: " + Math.round(actualQty) + "</span>";
+                                if (diff !== null) h += "<span style=\"font-size:9px;font-weight:700;color:" + (diff>=0?"#2d6e4a":"#c0392b") + "\">" + (diff>=0?"+":"") + diff + "</span>";
+                            }
+                            h += "</button></td>";
+                        });
+                        h += "<td class=\"r\" style=\"padding:5px 12px\"><strong>" + Math.round(row.totalQty||0) + "</strong>";
+                        if (isPastWeek && weekRow) h += "<div style=\"font-size:10px;color:var(--ink3)\">Real: " + Math.round(weekRow.actual.reduce(function(s,v){return s+v;},0)) + "</div>";
+                        h += "<div style=\"height:3px;background:var(--bg2);border-radius:2px;margin-top:4px\"><div style=\"height:100%;width:" + Math.min(100,Math.round((row.totalQty/Math.max(1,pastryWeeklyProductionForecast.maxQty))*100)) + "%;background:rgba(143,43,36,.45);border-radius:2px\"></div></div></td></tr>";
+                    });
+                    h += "</tbody></table></div>";
+                    h += "<div style=\"font-size:10.5px;color:var(--ink4)\">Base: " + (pastryWeeklyProductionForecast.historyDays||0) + " dia(s) históricos</div>";
+                }
+                h += "</div></div>";
+                return h;
             }
 
             async function renderAdmin() {
