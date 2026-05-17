@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.240</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.241</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.240</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.241</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.240</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.241</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.240"; // declared first — used throughout
+            const APP_VERSION = "1.241"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5468,7 +5468,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.240": [
+                "1.241": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -12050,34 +12050,28 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                             const pct = sameMonthAvg ? Math.round((realSoFar / sameMonthAvg) * 100) : null;
                             const forecastPct = sameMonthAvg ? Math.round((forecast / sameMonthAvg) * 100) : null;
                             
-                            return \`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
-                                <div style="background:var(--bg);border-radius:8px;padding:14px">
-                                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px">Real até agora</div>
-                                    <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--ink)">\${fmt(realSoFar)}</div>
-                                    <div style="font-size:11px;color:var(--ink4);margin-top:3px">\${daysElapsed} dias · \${fmt(dailyAvg)}/dia</div>
-                                </div>
-                                <div style="background:rgba(79,110,247,.06);border-radius:8px;padding:14px;border:1px solid rgba(79,110,247,.15)">
-                                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--bk2);margin-bottom:6px">Previsão do mês</div>
-                                    <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--bk2)">\${fmt(forecast)}</div>
-                                    <div style="font-size:11px;color:var(--ink4);margin-top:3px">\${daysRemaining} dias restantes</div>
-                                </div>
-                                <div style="background:\${pct >= 100 ? 'rgba(45,110,74,.08)' : 'rgba(200,112,58,.08)'};border-radius:8px;padding:14px">
-                                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px">vs mesmo mês hist.</div>
-                                    <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:\${pct >= 100 ? 'var(--green)' : 'var(--amber)'}">\${pct !== null ? pct + "%" : "—"}</div>
-                                    <div style="font-size:11px;color:var(--ink4);margin-top:3px">\${sameMonthHist.length} anos histórico</div>
-                                </div>
-                            </div>
-                            <div style="margin-bottom:8px">
-                                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink4);margin-bottom:4px">
-                                    <span>Progresso do mês</span>
-                                    <span>\${daysElapsed}/\${daysInMonth} dias</span>
-                                </div>
-                                <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden">
-                                    <div style="height:100%;width:\${Math.round(daysElapsed/daysInMonth*100)}%;background:var(--bk2);border-radius:4px;transition:width .3s"></div>
-                                </div>
-                            </div>
-                            \${sameMonthAvg ? \`<div style="font-size:12px;color:var(--ink4)">Média histórica \${["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"][fm-1]}: \${fmt(sameMonthAvg)} · Previsão final: \${forecastPct}% vs histórico</div>\` : ""}
-                            \`;
+                            return "<div style=\"display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px\">"
+                                + "<div style=\"background:var(--bg);border-radius:8px;padding:14px\">"
+                                + "<div style=\"font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px\">Real até agora</div>"
+                                + "<div style=\"font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--ink)\">" + fmt(realSoFar) + "</div>"
+                                + "<div style=\"font-size:11px;color:var(--ink4);margin-top:3px\">" + daysElapsed + " dias · " + fmt(dailyAvg) + "/dia</div>"
+                                + "</div>"
+                                + "<div style=\"background:rgba(79,110,247,.06);border-radius:8px;padding:14px;border:1px solid rgba(79,110,247,.15)\">"
+                                + "<div style=\"font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--bk2);margin-bottom:6px\">Previsão do mês</div>"
+                                + "<div style=\"font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:var(--bk2)\">" + fmt(forecast) + "</div>"
+                                + "<div style=\"font-size:11px;color:var(--ink4);margin-top:3px\">" + daysRemaining + " dias restantes</div>"
+                                + "</div>"
+                                + "<div style=\"background:" + (pct >= 100 ? "rgba(45,110,74,.08)" : "rgba(200,112,58,.08)") + ";border-radius:8px;padding:14px\">"
+                                + "<div style=\"font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink4);margin-bottom:6px\">vs mesmo mês hist.</div>"
+                                + "<div style=\"font-family:'Fraunces',serif;font-size:22px;font-weight:300;color:" + (pct >= 100 ? "var(--green)" : "var(--amber)") + "\">" + (pct !== null ? pct + "%" : "—") + "</div>"
+                                + "<div style=\"font-size:11px;color:var(--ink4);margin-top:3px\">" + sameMonthHist.length + " anos histórico</div>"
+                                + "</div></div>"
+                                + "<div style=\"margin-bottom:8px\">"
+                                + "<div style=\"display:flex;justify-content:space-between;font-size:11px;color:var(--ink4);margin-bottom:4px\"><span>Progresso do mês</span><span>" + daysElapsed + "/" + daysInMonth + " dias</span></div>"
+                                + "<div style=\"height:8px;background:var(--bg);border-radius:4px;overflow:hidden\">"
+                                + "<div style=\"height:100%;width:" + Math.round(daysElapsed/daysInMonth*100) + "%;background:var(--bk2);border-radius:4px\"></div>"
+                                + "</div></div>"
+                                + (sameMonthAvg ? "<div style=\"font-size:12px;color:var(--ink4)\">Média histórica: " + fmt(sameMonthAvg) + " · Previsão: " + forecastPct + "% vs histórico</div>" : "");
                         })()}
                         </div>
                     </div>` : ""}
