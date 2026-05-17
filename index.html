@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.242</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.243</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.242</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.243</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.242</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.243</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.242"; // declared first — used throughout
+            const APP_VERSION = "1.243"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5468,7 +5468,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.242": [
+                "1.243": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -9887,22 +9887,29 @@
                     return fmt(n);
                 };
                 const gridVals = [maxY, maxY * 0.75, maxY * 0.5, maxY * 0.25, 0];
+                const todayMonthKey = new Date().toISOString().slice(0,7);
+                // Show labels every N months to avoid overlap
+                const labelEvery = rows.length > 36 ? 6 : rows.length > 18 ? 3 : rows.length > 12 ? 2 : 1;
                 const labels = rows.map((m, idx) => {
                     const x = xFor(idx);
                     const active = focusMonthKey && m.monthKey === focusMonthKey;
+                    const isCurrent = m.monthKey === todayMonthKey;
+                    const showLabel = active || isCurrent || idx === 0 || idx === rows.length - 1 || idx % labelEvery === 0;
                     const shortLabel = new Date(`${m.monthKey}-01T12:00:00`).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }).replace(".", "");
                     return `<g>
-                        <line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${h - padB}" stroke="rgba(43,32,20,.05)" />
-                        <text x="${x.toFixed(1)}" y="${h - 18}" text-anchor="middle" font-size="11" fill="${active ? "#2b2014" : "#9a8a78"}" font-weight="${active ? "700" : "400"}">${escHtml(shortLabel)}</text>
+                        <line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${h - padB}" stroke="${isCurrent ? "rgba(79,110,247,.15)" : "rgba(43,32,20,.05)"}" stroke-dasharray="${isCurrent ? "3,3" : "none"}" />
+                        ${showLabel ? `<text x="${x.toFixed(1)}" y="${h - 18}" text-anchor="middle" font-size="10" fill="${active ? "#2b2014" : isCurrent ? "var(--bk2)" : "#9a8a78"}" font-weight="${active || isCurrent ? "700" : "400"}">${escHtml(shortLabel)}</text>` : ""}
                     </g>`;
                 }).join("");
                 const rawDots = rows.map((m, idx) => {
                     const x = xFor(idx);
                     const y = yFor(m.rawRevenue || m.revenue);
                     const active = focusMonthKey && m.monthKey === focusMonthKey;
+                    const isCurrent = m.monthKey === todayMonthKey;
+                    const partialLabel = isCurrent ? " (parcial)" : "";
                     return `<g style="cursor:pointer" onclick="setPastryMonthFocus('${escHtml(m.monthKey)}')">
-                        <title>${escHtml(m.label)} · total ${fmt(Number(m.rawRevenue || m.revenue) || 0)} · repique ${fmt(Number(m.excludedRevenue) || 0)}</title>
-                        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${active ? 6 : 4}" fill="#8f2b24" stroke="#fff" stroke-width="2" />
+                        <title>${escHtml(m.label)}${partialLabel} · total ${fmt(Number(m.rawRevenue || m.revenue) || 0)} · repique ${fmt(Number(m.excludedRevenue) || 0)}</title>
+                        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${active ? 6 : 4}" fill="${isCurrent ? "#fff" : "#8f2b24"}" stroke="${isCurrent ? "#8f2b24" : "#fff"}" stroke-width="2" stroke-dasharray="${isCurrent ? "3,2" : "none"}" />
                     </g>`;
                 }).join("");
                 const repiqueDots = rows.map((m, idx) => {
@@ -12187,7 +12194,8 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                                     </tbody>
                                 </table>
                             </div>
-                            <div style="font-size:11px;color:var(--ink4);margin-top:8px">A completude é estimada pela cobertura de datas no mês. Mês parcial costuma indicar importação interrompida ou só metade do período enviado.</div>
+                            <div style="font-size:11px;color:var(--bk2);margin-top:4px">⚠ O mês atual (círculo vazado) está incompleto — o valor exibido é parcial até hoje.</div>
+                    <div style="font-size:11px;color:var(--ink4);margin-top:8px">A completude é estimada pela cobertura de datas no mês. Mês parcial costuma indicar importação interrompida ou só metade do período enviado.</div>
                         </div>
                     </div>` : ""}
                     ${!lab ? `<div class="card" style="border:1px dashed rgba(143,43,36,.28);background:#fff8f3">
