@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.273</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.274</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.273</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.274</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.273</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.274</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.273"; // declared first — used throughout
+            const APP_VERSION = "1.274"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5471,7 +5471,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.273": [
+                "1.274": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -9125,38 +9125,28 @@
 
             async function readPastryLabSummaryFromDb() {
                 const db = await openPastryLabDb();
+                const cacheKey = "summary_" + getBKIFile().replace(".json","");
                 return await new Promise((resolve, reject) => {
                     const tx = db.transaction(PASTRY_LAB_STORE, "readonly");
                     const store = tx.objectStore(PASTRY_LAB_STORE);
-                    const req = store.get("summary");
+                    const req = store.get(cacheKey);
                     req.onsuccess = () => resolve(req.result?.value || null);
-                    req.onerror = () =>
-                        reject(
-                            req.error ||
-                                new Error("Falha ao ler resumo da Bäckerei."),
-                        );
+                    req.onerror = () => reject(req.error || new Error("Falha ao ler resumo."));
                 });
             }
             async function writePastryLabSummaryToDb(summary) {
                 const db = await openPastryLabDb();
+                const cacheKey = "summary_" + getBKIFile().replace(".json","");
                 return await new Promise((resolve, reject) => {
                     const tx = db.transaction(PASTRY_LAB_STORE, "readwrite");
                     const store = tx.objectStore(PASTRY_LAB_STORE);
                     if (summary) {
-                        store.put({
-                            id: "summary",
-                            value: summary,
-                            savedAt: new Date().toISOString(),
-                        });
+                        store.put({ id: cacheKey, value: summary, savedAt: new Date().toISOString() });
                     } else {
-                        store.delete("summary");
+                        store.delete(cacheKey);
                     }
                     tx.oncomplete = () => resolve();
-                    tx.onerror = () =>
-                        reject(
-                            tx.error ||
-                                new Error("Falha ao salvar resumo da Bäckerei."),
-                        );
+                    tx.onerror = () => reject(tx.error || new Error("Falha ao salvar resumo."));
                 });
             }
             async function ensurePastryLabSummaryLoaded() {
