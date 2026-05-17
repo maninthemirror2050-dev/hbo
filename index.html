@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.262</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.264</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.262</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.264</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.262</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.264</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.262"; // declared first — used throughout
+            const APP_VERSION = "1.264"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5470,7 +5470,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.262": [
+                "1.264": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -10135,7 +10135,7 @@
                     weekdayAvgRevenue: weekdayBaseRevenue,
                     recentAvgRevenue: ewmaRevenue,
                     seasonalFactor: Math.round(effectiveSeasonalFactor * 100) / 100,
-                    momentumFactor: Math.round(momentumFactor * 100) / 100,
+                    momentumFactor: Math.round((weekdayRevenue.length < 20 ? momentumFactor : 1.0) * 100) / 100,
                     weekdayTrendAdj: Math.round(weekdayTrendAdj * 100) / 100,
                 };
             }
@@ -10985,20 +10985,18 @@
             async function generatePastryAIAnalysis() {
                 const lab = loadPastryLabSummary();
                 if (!lab) return;
-                const apiKeyInput = document.getElementById("pastryAIKey");
-                const apiKey = (apiKeyInput?.value || localStorage.getItem("pastryAIKey") || "").trim();
-                if (!apiKey) {
-                    const result = document.getElementById("pastryAIResult");
-                    if (result) result.innerHTML = `<div class="alert warn"><span class="alert-ico">!</span><div><b>Chave de API necessária</b><div style="margin-top:4px">Insira sua chave da Anthropic (começa com <code>sk-ant-</code>) no campo acima e clique novamente.</div></div></div>`;
-                    return;
-                }
-                if (apiKeyInput?.value) localStorage.setItem("pastryAIKey", apiKey);
+                const focusEl = document.querySelector('input[name="pastryAIFocus"]:checked');
+                const aiFocus = focusEl?.value || "geral";
                 const btn = document.getElementById("pastryAIBtn");
                 const result = document.getElementById("pastryAIResult");
                 const statusEl = document.getElementById("pastryAIStatus");
                 if (btn) btn.disabled = true;
                 if (statusEl) { statusEl.style.display = "flex"; }
                 if (result) result.innerHTML = "";
+                // Monthly trend
+                const monthly = (lab.monthly || []).slice(-6).map(m => 
+                    (m.month_key||"") + ": R$" + Math.round(m.operational||0).toLocaleString("pt-BR")
+                ).join(", ");
                 const topProducts = Object.entries(lab.products || {})
                     .sort((a, b) => (b[1].total || 0) - (a[1].total || 0))
                     .slice(0, 10)
@@ -11044,16 +11042,28 @@ ${topHours || "sem dados"}
 FATURAMENTO POR DIA DA SEMANA:
 ${weekdayStr}
 
+TENDÊNCIA DOS ÚLTIMOS 6 MESES:
+${monthly || "sem dados"}
+
 ${Object.keys(lab.cst||{}).length ? "CÓDIGOS CST: " + Object.entries(lab.cst).slice(0,6).map(([k,v])=>`${k}(${v})`).join(", ") : ""}
 
-Forneça uma análise estruturada com:
-1. **Resumo Executivo** — 2-3 frases sobre a saúde geral do negócio
-2. **Produtos Estrela vs Produtos de Cauda** — o que está puxando o caixa e o que pode ser repensado
-3. **Padrões de Horário e Dia da Semana** — quando concentrar equipe e produção
-4. **Alertas e Riscos** — concentração de clientes, cancelamentos, sazonalidade
-5. **3 Ações Imediatas** — sugestões práticas e específicas para este negócio
+Forneça uma análise estruturada em português brasileiro com:
+1. **Resumo Executivo** — saúde geral, tendência e destaque principal
+2. **Pontos Fortes** — o que está funcionando bem e deve ser mantido/ampliado
+3. **Produtos Estrela vs Cauda** — mix ideal, upsell e itens a repensar
+4. **Padrões Operacionais** — horários de pico, melhores dias, sazonalidade
+5. **Alertas e Riscos** — concentrações, queda, anomalias
+6. **3 Ações Imediatas** — concretas, específicas e com impacto financeiro estimado
 
-Seja direto, use números reais dos dados, evite generalidades. Responda em português brasileiro.`;
+Seja direto, use os números reais, evite generalidades. Máximo 600 palavras.`;
+                // Add focus to prompt
+                const focusInstructions = {
+                    "geral": "Forneça uma análise completa e balanceada cobrindo todos os aspectos do negócio.",
+                    "produtos": "Foque principalmente na análise de mix de produtos, produtos estrela, oportunidades de upsell e itens que deveriam ser descontinuados.",
+                    "financeiro": "Foque em faturamento, ticket médio, crescimento, sazonalidade financeira e projeções.",
+                    "operacional": "Foque em horários de pico, dias mais fortes, dimensionamento de equipe e eficiência operacional."
+                };
+                const promptWithFocus = prompt + "\n\nFOCO DESTA ANÁLISE: " + (focusInstructions[aiFocus] || focusInstructions.geral);
                 try {
                     const response = await fetch("https://api.anthropic.com/v1/messages", {
                         method: "POST",
@@ -13218,26 +13228,30 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                         </div>
                         <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
                             ${lab ? `
-                            <div style="background:var(--amber-bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;display:flex;gap:12px;align-items:flex-start">
-                                <span style="color:var(--amber);font-size:16px;flex-shrink:0">🔑</span>
-                                <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-                                    <div style="font-size:12px;font-weight:600;color:var(--amber)">Chave de API Anthropic</div>
-                                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-                                        <input id="pastryAIKey" type="password" class="finput" placeholder="sk-ant-api03-..." style="flex:1;min-width:220px;font-family:monospace;font-size:12px" value="${localStorage.getItem('pastryAIKey')||''}" oninput="localStorage.setItem('pastryAIKey',this.value.trim())">
-                                    </div>
-                                    <div style="font-size:11px;color:var(--ink4)">Obtenha em <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--bk)">console.anthropic.com</a> · A chave fica salva só neste navegador.</div>
-                                </div>
-                            </div>
                             <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
                                 <div style="flex:1;min-width:200px">
                                     <div style="font-size:13px;color:var(--ink2);line-height:1.6">
-                                        A IA vai ler os <strong>${lab.files}</strong> XMLs importados (${labRangeLabel}) e gerar uma análise executiva com:
-                                        produtos estrela, padrões de horário, alertas de risco e <strong>3 ações imediatas</strong> para o seu negócio.
+                                        A IA vai analisar <strong>${lab.files} XMLs</strong> (${labRangeLabel}) e gerar uma análise executiva com:
+                                        pontos fortes, alertas de risco, padrões de venda e <strong>ações imediatas</strong> para o seu negócio.
+                                    </div>
+                                    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+                                        <label style="font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px;cursor:pointer">
+                                            <input type="radio" name="pastryAIFocus" value="geral" checked> Análise geral
+                                        </label>
+                                        <label style="font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px;cursor:pointer">
+                                            <input type="radio" name="pastryAIFocus" value="produtos"> Foco em produtos
+                                        </label>
+                                        <label style="font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px;cursor:pointer">
+                                            <input type="radio" name="pastryAIFocus" value="financeiro"> Foco financeiro
+                                        </label>
+                                        <label style="font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px;cursor:pointer">
+                                            <input type="radio" name="pastryAIFocus" value="operacional"> Foco operacional
+                                        </label>
                                     </div>
                                 </div>
                                 <div style="display:flex;flex-direction:column;gap:8px;min-width:180px;align-items:flex-end">
                                     <button id="pastryAIBtn" class="btn primary" style="background:var(--bk);border-color:var(--bk);min-width:180px;justify-content:center;font-size:13px;padding:10px 18px" onclick="generatePastryAIAnalysis()">
-                                        ✦ Gerar Análise IA
+                                        ✦ Analisar meu negócio
                                     </button>
                                     <div id="pastryAITimestamp" style="font-size:11px;color:var(--ink4);text-align:right"></div>
                                 </div>
