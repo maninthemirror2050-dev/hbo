@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.246</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.248</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.246</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.248</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.246</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.248</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.246"; // declared first — used throughout
+            const APP_VERSION = "1.248"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -3663,6 +3663,7 @@
                 pastryWeekdayFocus: null,
                 pastryMonthFocusKey: null,
                 pastryViewTab: "mensal",
+                pastryTopN: 5,
                 pastryForecastFocusDate: null,
                 pastryExplorerDateKey: null,
                 pastryExplorerProduct: "",
@@ -5468,7 +5469,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.246": [
+                "1.248": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -9872,7 +9873,7 @@
                 const padL = 64;
                 const padR = 22;
                 const padT = 28;
-                const padB = 50;
+                const padB = 56;
                 const plotW = w - padL - padR;
                 const plotH = h - padT - padB;
                 const maxRaw = Math.max(...rows.map((m) => Number(m.rawRevenue || m.revenue) || 0), 1);
@@ -9900,7 +9901,7 @@
                     const shortLabel = new Date(`${m.monthKey}-01T12:00:00`).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }).replace(".", "");
                     return `<g>
                         <line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${h - padB}" stroke="${isCurrent ? "rgba(79,110,247,.15)" : "rgba(43,32,20,.05)"}" stroke-dasharray="${isCurrent ? "3,3" : "none"}" />
-                        ${showLabel ? `<text x="${x.toFixed(1)}" y="${h - 18}" text-anchor="middle" font-size="10" fill="${active ? "#2b2014" : isCurrent ? "var(--bk2)" : "#9a8a78"}" font-weight="${active || isCurrent ? "700" : "400"}">${escHtml(shortLabel)}</text>` : ""}
+                        ${showLabel ? `<text x="${x.toFixed(1)}" y="${h - 18}" text-anchor="${idx >= rows.length - 2 ? "end" : idx === 0 ? "start" : "middle"}" font-size="10" fill="${active ? "#2b2014" : isCurrent ? "var(--bk2)" : "#9a8a78"}" font-weight="${active || isCurrent ? "700" : "400"}">${escHtml(shortLabel)}</text>` : ""}
                     </g>`;
                 }).join("");
                 const rawDots = rows.map((m, idx) => {
@@ -12210,7 +12211,8 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                         </div>
                         <div class="card-body">
                         ${(() => {
-                            if (!pastryPeriodRecords.length) return "<div style='color:var(--ink4);font-size:13px'>Sem dados para o período.</div>";
+                            const _hmRecordsCheck = (lab?.records || []).filter(r => (r.dateKey || "").slice(0,7) === _heatFocusKey);
+                            if (!_hmRecordsCheck.length && !pastryPeriodRecords.length) return "<div style='color:var(--ink4);font-size:13px'>Sem dados para o período.</div>";
                             // Use focus month or most recent month in data
                             const _heatFocusKey = S.pastryMonthFocusKey || 
                                 (lab?.monthly?.length ? lab.monthly[lab.monthly.length-1].month_key : new Date().toISOString().slice(0,7));
@@ -12238,7 +12240,12 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                                 const today = new Date().toISOString().slice(0,10);
                                 const dateKey = fy + "-" + String(fm).padStart(2,"0") + "-" + String(d).padStart(2,"0");
                                 const isToday = dateKey === today;
-                                cal += "<div style=\"text-align:center;padding:6px 2px;border-radius:4px;background:" + bg + ";color:" + color + ";font-size:11px;cursor:" + (val>0?"pointer":"default") + ";border:" + (isToday?"2px solid var(--bk2)":"1px solid transparent") + ";font-weight:" + (isToday?"700":"400") + "\" title=\"" + dateKey + (val>0?" · " + fmt(val):"") + "\" onclick=\"" + (val>0?"setPastryMonthFocus('" + S.pastryMonthFocusKey + "');S.pastryExplorerDateKey='" + dateKey + "';setPastryViewTab('consulta')":"") + "\">" + d + (val>0?"<br><span style=\"font-size:8px\">" + (val>=1000?(val/1000).toFixed(0)+"k":Math.round(val)) + "</span>":"") + "</div>";
+                                const valLabel = val>=1000 ? (val/1000).toFixed(0)+"k" : val>0 ? Math.round(val) : "";
+                                const valColor = intensity > 0.5 ? "rgba(255,255,255,0.85)" : "rgba(143,43,36,0.7)";
+                                cal += "<div style=\"text-align:center;padding:8px 2px;border-radius:4px;background:" + bg + ";color:" + color + ";font-size:13px;font-weight:600;cursor:" + (val>0?"pointer":"default") + ";border:" + (isToday?"2px solid var(--bk2)":"1px solid transparent") + "\" title=\"" + dateKey + (val>0?" · " + fmt(val):"") + "\" onclick=\"" + (val>0?"setPastryMonthFocus('" + S.pastryMonthFocusKey + "');S.pastryExplorerDateKey='" + dateKey + "';setPastryViewTab('consulta')":"") + "\">"
+                                    + d
+                                    + (val>0 ? "<br><span style=\"font-size:11px;font-weight:500;color:" + valColor + "\">" + valLabel + "</span>" : "")
+                                    + "</div>";
                             }
                             cal += "</div>";
                             cal += "<div style=\"display:flex;align-items:center;gap:8px;margin-top:10px;font-size:11px;color:var(--ink4)\"><span>Baixo</span>";
@@ -12770,9 +12777,15 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
 
                             <!-- linha 3: top 5 produtos do período com preço médio -->
                             <div>
-                                <div style="font-size:11px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Top produtos · ${escHtml(pastryPeriodLabel)} · faturamento e preço médio</div>
-                                ${periodProductsWithPrice.length ? `<div style="display:flex;flex-direction:column;gap:4px">
-                                    ${periodProductsWithPrice.slice(0, 5).map((p, i) => `<div style="display:grid;grid-template-columns:20px 1fr 100px 80px 120px;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:${i === 0 ? "#fdf9f0" : "var(--bg2)"};border:1px solid ${i === 0 ? "rgba(143,43,36,.12)" : "var(--border)"}">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                                    <div style="font-size:11px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em">Top produtos · ${escHtml(pastryPeriodLabel)} · faturamento e preço médio</div>
+                                    <div style="display:flex;gap:4px">
+                                        ${[5,10,15,20].map(n => `<button class="btn sm ${(S.pastryTopN||5)===n?"primary":"ghost"}" onclick="S.pastryTopN=${n};renderPastry()" style="min-width:32px">${n}</button>`).join("")}
+                                    </div>
+                                </div>
+                                ${periodProductsWithPrice.length ? `
+                                <div style="display:flex;flex-direction:column;gap:4px">
+                                    ${periodProductsWithPrice.slice(0, S.pastryTopN||5).map((p, i) => `<div style="display:grid;grid-template-columns:20px 1fr 100px 80px 120px;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:${i === 0 ? "#fdf9f0" : "var(--bg2)"};border:1px solid ${i === 0 ? "rgba(143,43,36,.12)" : "var(--border)"}">
                                         <div style="font-size:11px;color:var(--ink4);font-weight:600">${i + 1}</div>
                                         <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:${i === 0 ? "700" : "500"};font-size:13px">${escHtml(p.name)}</div>
                                         <div style="font-size:11px;color:var(--ink4);text-align:right">${Math.round(p.qty || 0)} un</div>
@@ -12786,6 +12799,13 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                                             </div>
                                         </div>
                                     </div>`).join("")}
+                                    <div style="display:grid;grid-template-columns:20px 1fr 100px 80px 120px;align-items:center;gap:10px;padding:6px 10px;border-top:1px solid var(--border);margin-top:4px">
+                                        <div></div>
+                                        <div style="font-size:11px;font-weight:700;color:var(--ink3)">Total Top ${S.pastryTopN||5}</div>
+                                        <div style="font-size:11px;text-align:right;color:var(--ink3)">${Math.round(periodProductsWithPrice.slice(0,S.pastryTopN||5).reduce((s,p)=>s+p.qty,0))} un</div>
+                                        <div></div>
+                                        <div style="font-size:11px;font-weight:700;color:var(--ink3);text-align:right">${fmt(periodProductsWithPrice.slice(0,S.pastryTopN||5).reduce((s,p)=>s+p.total,0))}</div>
+                                    </div>
                                 </div>` : `<div style="font-size:12px;color:var(--ink4)">Nenhum produto com item detalhado neste período. Reimporte com notas detalhadas.</div>`}
                             </div>
 
@@ -12923,9 +12943,9 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                                                     <td style="padding:6px 8px">
                                                         <div style="display:flex;align-items:center;gap:5px">
                                                             <div style="flex:1;height:5px;background:var(--bg3);border-radius:2px">
-                                                                <div style="height:100%;width:${Math.round(e.share*100)}%;background:${e.cls==="A"?"var(--green)":e.cls==="B"?"#d97706":"var(--ink4)"};opacity:.65;border-radius:2px"></div>
+                                                                <div style="height:100%;width:${Math.min(100, Math.round(e.pct))}%;background:${e.cls==="A"?"var(--green)":e.cls==="B"?"#d97706":"var(--ink4)"};opacity:.65;border-radius:2px"></div>
                                                             </div>
-                                                            <span style="font-size:10px;color:var(--ink4);min-width:30px">${Math.round(e.share*100)}%</span>
+                                                            <span style="font-size:10px;color:var(--ink4);min-width:30px">${e.pct.toFixed(1)}%</span>
                                                         </div>
                                                     </td>
                                                 </tr>`).join("")}
