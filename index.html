@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.256</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.257</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.256</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.257</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.256</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.257</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.256"; // declared first — used throughout
+            const APP_VERSION = "1.257"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5470,7 +5470,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.256": [
+                "1.257": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -16521,12 +16521,21 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
 
                     if (!labHasDetailedItems) h += "<div class=\"alert warn\"><span class=\"alert-ico\">!</span><div><b>Quantidade aproximada</b></div></div>";
 
-                    // Day cards
-                    const maxDayQty = Math.max(1, ...pastryWeeklyProductionForecast.days.map(function(d,i){
+                    // Day cards - use correct week's data
+                    const _displayDays = isPastWeek && weekData.ready
+                        ? weekData.days.map(function(dk, i) {
+                            const pf = buildPastryProductForecast(lab, dk);
+                            const items = (pf&&pf.items)||[];
+                            const totalQty = items.reduce(function(s,it){return s+(Number(it.forecastQty)||0);},0);
+                            const dow = new Date(dk+"T12:00:00").getDay();
+                            return { dateKey: dk, weekday: dow, totalQty: totalQty, totalRevenue: (pf&&pf.forecastRevenue)||0 };
+                          })
+                        : pastryWeeklyProductionForecast.days;
+                    const maxDayQty = Math.max(1, ..._displayDays.map(function(d,i){
                         return pastryProductionFilter ? pastryWeeklyRowsFiltered.reduce(function(s,r){return s+(Number(r.cells&&r.cells[i])||0);},0) : (d.totalQty||0);
                     }));
                     h += "<div style=\"display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px\">";
-                    pastryWeeklyProductionForecast.days.forEach(function(day, dayIndex) {
+                    _displayDays.forEach(function(day, dayIndex) {
                         const dayQty = pastryProductionFilter ? pastryWeeklyRowsFiltered.reduce(function(s,r){return s+(Number(r.cells&&r.cells[dayIndex])||0);},0) : (day.totalQty||0);
                         const isNext = day.dateKey === (pastryForecast&&pastryForecast.nextDate);
                         const barPct = Math.round((dayQty/maxDayQty)*100);
@@ -16553,7 +16562,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
 
                     // Product table
                     h += "<div class=\"tbl-wrap\" style=\"overflow:auto\"><table class=\"tbl narrow\" style=\"min-width:1100px\"><thead><tr><th style=\"min-width:220px\">Produto</th>";
-                    pastryWeeklyProductionForecast.days.forEach(function(day){
+                    _displayDays.forEach(function(day){
                         h += "<th class=\"c\">" + pastryWeekdayShortLabel(day.weekday) + "<div style=\"font-size:10px;color:var(--ink4);font-weight:400\">" + pastryDateLabel(day.dateKey) + "</div></th>";
                     });
                     h += "<th class=\"r\" style=\"min-width:80px\">Total</th></tr></thead><tbody>";
@@ -16561,7 +16570,7 @@ Retorne APENAS o JSON. Sem explicação, sem markdown.`,
                         const weekRow = isPastWeek && weekData.ready ? weekData.rows.find(function(r){return r.name===row.name;}) : null;
                         h += "<tr><td><strong>" + escHtml(row.name) + "</strong><div style=\"font-size:10px;color:var(--ink4);margin-top:2px\">" + Math.round(row.totalQty||0) + " un previstas</div></td>";
                         row.cells.forEach(function(qty, dayIndex) {
-                            const day = pastryWeeklyProductionForecast.days[dayIndex];
+                            const day = _displayDays[dayIndex];
                             const bg = qty ? pastryHeatColor(qty, pastryWeeklyProductionForecast.maxQty) : "rgba(0,0,0,.03)";
                             const color = qty ? pastryHeatTextColor(qty, pastryWeeklyProductionForecast.maxQty) : "var(--ink4)";
                             const actualQty = weekRow ? (weekRow.actual[dayIndex]||0) : null;
