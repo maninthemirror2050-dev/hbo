@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.257</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.258</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.257</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.258</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.257</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.258</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.257"; // declared first — used throughout
+            const APP_VERSION = "1.258"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5470,7 +5470,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.257": [
+                "1.258": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -10048,12 +10048,16 @@
                 // — compare last 14 vs prior 14 for short-term momentum factor
                 const prevKeys = dateKeys.slice(-28, -14);
                 const prevRevenue = prevKeys.map((dk) => days[dk].revenue);
-                const momentumFactor = prevRevenue.length >= 7
-                    ? Math.max(0.80, Math.min(1.20, ewmaRevenue / Math.max(1, pastryEWMA(prevRevenue, 0.25))))
+                // Momentum factor — dampened when weekday history is rich (avoid overreacting to recent noise)
+                const rawMomentum = prevRevenue.length >= 7
+                    ? ewmaRevenue / Math.max(1, pastryEWMA(prevRevenue, 0.25))
                     : 1;
+                const momentumDampen = weekdayRevenue.length >= 20 ? 0.3 : weekdayRevenue.length >= 10 ? 0.6 : 1.0;
+                const momentumFactor = Math.max(0.90, Math.min(1.10, 1 + (rawMomentum - 1) * momentumDampen));
 
                 // — blend: more weight on weekday base when we have a rich history
-                const weekdayWeight = Math.min(0.80, 0.40 + Math.min(0.40, weekdayRevenue.length * 0.025));
+                // With 76 mondays, weekday history is very reliable — give it 85% weight
+                const weekdayWeight = Math.min(0.90, 0.50 + Math.min(0.40, weekdayRevenue.length * 0.025));
                 const ewmaWeight = 1 - weekdayWeight;
                 const blendedRevenue = weekdayRevenue.length >= 2
                     ? weekdayBaseRevenue * weekdayWeight + ewmaRevenue * ewmaWeight
