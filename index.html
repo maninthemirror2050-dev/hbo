@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.250</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.252</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.250</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.252</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.250</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.252</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.250"; // declared first — used throughout
+            const APP_VERSION = "1.252"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5469,7 +5469,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.250": [
+                "1.252": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -12588,7 +12588,7 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                                     <div style="display:flex;gap:6px">
                                         <select class="fselect" style="flex:1" onchange="setPastryExplorerProduct(this.value)">
                                             <option value="">— Selecione um produto —</option>
-                                            ${pastryProductNames.slice(0, 200).map((name) => `<option value="${escHtml(name)}" ${pastryExplorerProduct===name?"selected":""}>${escHtml(name)}</option>`).join("")}
+                                            ${pastryProductNames.slice(0, 200).sort((a,b) => a.localeCompare(b, "pt-BR")).map((name) => `<option value="${escHtml(name)}" ${pastryExplorerProduct===name?"selected":""}>${escHtml(name)}</option>`).join("")}
                                         </select>
                                         ${pastryExplorerProduct ? `<button class="btn sm ghost" onclick="setPastryExplorerProduct('')" title="Limpar produto" style="padding:0 8px;flex-shrink:0">✕</button>` : ""}
                                     </div>
@@ -12821,6 +12821,51 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
 
                         </div>
                     </div>` : ""}
+
+                    <!-- Backtest: Real vs Previsto -->
+                    ${lab ? (() => {
+                        const backtest = buildPastryForecastBacktest(lab);
+                        if (!backtest.ready) return "";
+                        const rows = (backtest.days || []).slice().reverse().slice(0, 30);
+                        return `<div class="card" data-pastry-section="producao">
+                            <div class="card-head">
+                                <div>
+                                    <div class="card-title">📊 Previsão vs Real — histórico de acerto</div>
+                                    <div class="card-sub">${backtest.sampleDays} dias comparados · últimos 30 exibidos</div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+                                    <div class="kpi"><div class="kpi-lbl">Erro médio absoluto</div><div class="kpi-val">${fmt(backtest.mae)}</div><div class="kpi-sub">diferença média em R$</div></div>
+                                    <div class="kpi"><div class="kpi-lbl">Erro percentual</div><div class="kpi-val">${Math.round(backtest.mape)}%</div><div class="kpi-sub">média dos desvios</div></div>
+                                    <div class="kpi"><div class="kpi-lbl">Acurácia dentro de 20%</div><div class="kpi-val ${backtest.hitRate >= 70 ? "green" : backtest.hitRate >= 50 ? "" : "red"}">${backtest.hitRate}%</div><div class="kpi-sub">dias com boa aproximação</div></div>
+                                </div>
+                                <div class="tbl-wrap" style="max-height:320px;overflow:auto">
+                                    <table class="tbl narrow">
+                                        <thead><tr><th>Data</th><th>Dia</th><th class="r">Previsto</th><th class="r">Real</th><th class="r">Diferença</th><th class="r">% Erro</th></tr></thead>
+                                        <tbody>
+                                            ${rows.map(r => {
+                                                const diff = r.actual - r.predicted;
+                                                const errPct = r.predicted > 0 ? Math.abs(diff/r.predicted*100) : 0;
+                                                const ok = errPct <= 20;
+                                                return `<tr>
+                                                    <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${fmtDate(r.dateKey)}</td>
+                                                    <td><span style="font-size:10px;padding:1px 5px;background:var(--bg2);border-radius:3px">${pastryWeekdayShortLabel(new Date(r.dateKey+"T12:00:00").getDay())}</span></td>
+                                                    <td class="r mono" style="color:var(--ink3)">${fmt(r.predicted)}</td>
+                                                    <td class="r mono">${fmt(r.actual)}</td>
+                                                    <td class="r mono" style="color:${diff>=0?"var(--green)":"var(--red)"}">${diff>=0?"+":""}${fmt(diff)}</td>
+                                                    <td class="r" style="font-size:11px">
+                                                        <span style="padding:2px 6px;border-radius:4px;background:${ok?"rgba(45,110,74,.1)":"rgba(200,112,58,.1)"};color:${ok?"var(--green)":"var(--amber)"};font-weight:600">${errPct.toFixed(1)}%</span>
+                                                    </td>
+                                                </tr>`;
+                                            }).join("")}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>`;
+                    })() : ""}
+
                     ${lab ? `<div class="card" data-pastry-section="consulta producao">
                         <div class="card-head">
                             <div>
