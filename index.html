@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.249</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.250</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.249</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.250</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.249</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.250</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.249"; // declared first — used throughout
+            const APP_VERSION = "1.250"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5469,7 +5469,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.249": [
+                "1.250": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -11115,6 +11115,8 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
             }
             function setPastryExplorerDate(dateKey) {
                 S.pastryExplorerDateKey = String(dateKey || "");
+                // Clear product when date changes to avoid stale data
+                if (!dateKey) S.pastryExplorerProduct = "";
                 const lab = loadPastryLabSummary();
                 const breakdown = lab ? buildPastryDateProductBreakdown(lab, S.pastryExplorerDateKey) : null;
                 if (breakdown?.ready && breakdown.topProduct?.name) {
@@ -12575,13 +12577,21 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                             <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:flex-end;padding:0 0 14px;border-bottom:1px solid var(--border)">
                                 <div class="fg">
                                     <label class="flabel">Data</label>
-                                    <input class="finput" type="date" value="${escHtml(pastryExplorerDateKey)}" onchange="setPastryExplorerDate(this.value)">
+                                    <div style="display:flex;gap:6px">
+                                        <input class="finput" type="date" value="${escHtml(pastryExplorerDateKey)}" onchange="setPastryExplorerDate(this.value)" style="flex:1">
+                                        ${pastryExplorerDateKey ? `<button class="btn sm ghost" onclick="setPastryExplorerDate('')" title="Limpar data" style="padding:0 8px;flex-shrink:0">✕</button>` : ""}
+                                    </div>
                                     <div class="fhint">Mix de produtos vendidos neste dia</div>
                                 </div>
                                 <div class="fg">
                                     <label class="flabel">Produto</label>
-                                    <input class="finput" list="pastryProductOptions" value="${escHtml(pastryExplorerProduct)}" onchange="setPastryExplorerProduct(this.value)" placeholder="Digite ou escolha um produto">
-                                    <datalist id="pastryProductOptions">${pastryProductNames.slice(0, 120).map((name) => `<option value="${escHtml(name)}"></option>`).join("")}</datalist>
+                                    <div style="display:flex;gap:6px">
+                                        <select class="fselect" style="flex:1" onchange="setPastryExplorerProduct(this.value)">
+                                            <option value="">— Selecione um produto —</option>
+                                            ${pastryProductNames.slice(0, 200).map((name) => `<option value="${escHtml(name)}" ${pastryExplorerProduct===name?"selected":""}>${escHtml(name)}</option>`).join("")}
+                                        </select>
+                                        ${pastryExplorerProduct ? `<button class="btn sm ghost" onclick="setPastryExplorerProduct('')" title="Limpar produto" style="padding:0 8px;flex-shrink:0">✕</button>` : ""}
+                                    </div>
                                     <div class="fhint">Série histórica diária e semanal</div>
                                 </div>
                                 <div style="display:flex;flex-direction:column;gap:5px;padding-bottom:18px">
@@ -12819,14 +12829,26 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                             </div>
                         </div>
                         <div class="card-body">
-                            <div style="font-size:12px;color:var(--ink4);margin-bottom:10px;padding:8px 12px;background:var(--bg);border-radius:6px">
-                                📊 Mostra a <strong>média histórica</strong> de cada dia da semana ao longo de toda a base. Clique em um dia para ver os produtos mais vendidos naquele padrão.
-                            </div>
-                            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
-                                ${[0,1,2,3,4,5,6].map((wd) => `<button class="btn sm ${wd === pastryWeekdayFocus ? "primary" : "ghost"}" onclick="setPastryWeekdayFocus(${wd})" title="Explorar ${pastryWeekdayLongLabel(wd)}">${pastryWeekdayShortLabel(wd)}</button>`).join("")}
+                            <!-- Weekday summary cards -->
+                            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px">
+                                ${[0,1,2,3,4,5,6].map((wd) => {
+                                    const wdStats = lab ? buildPastryWeekdayProducts(lab, wd) : null;
+                                    const isActive = wd === pastryWeekdayFocus;
+                                    const avg = wdStats?.ready && wdStats.days > 0 ? wdStats.revenue / wdStats.days : 0;
+                                    return `<button onclick="setPastryWeekdayFocus(${wd})" style="border:2px solid ${isActive?"var(--bk2)":"var(--border)"};background:${isActive?"rgba(79,110,247,.06)":"var(--bg)"};border-radius:8px;padding:8px 4px;cursor:pointer;text-align:center">
+                                        <div style="font-size:11px;font-weight:700;color:${isActive?"var(--bk2)":"var(--ink3)"}">${pastryWeekdayShortLabel(wd)}</div>
+                                        <div style="font-size:12px;font-weight:600;color:var(--ink);margin-top:2px">${avg > 0 ? fmt(avg).replace("R$","") : "—"}</div>
+                                        <div style="font-size:9px;color:var(--ink4);margin-top:1px">${wdStats?.days || 0} dias</div>
+                                    </button>`;
+                                }).join("")}
                             </div>
                             ${pastryWeekdayStats?.ready ? `
-                                <div style="font-size:12px;color:var(--ink4);margin-bottom:8px">Agregado de ${pastryWeekdayStats.days || 0} ${pastryWeekdayStats.weekdayLabel.toLowerCase()}(s) da base · ${Math.round(pastryWeekdayStats.totalQty || 0)} un · ${fmt(pastryWeekdayStats.revenue)} · foco em unidades vendidas</div>
+                                <div style="font-size:12px;color:var(--ink4);margin-bottom:8px">
+                                    <strong>${pastryWeekdayStats.weekdayLabel}</strong> — média de ${fmt(pastryWeekdayStats.days > 0 ? pastryWeekdayStats.revenue/pastryWeekdayStats.days : 0)}/dia · 
+                                    ${pastryWeekdayStats.days} ocorrências na base · 
+                                    ${Math.round(pastryWeekdayStats.totalQty || 0)} un totais · 
+                                    ${fmt(pastryWeekdayStats.revenue)} acumulado
+                                </div>
                                 ${pastryWeekdayChart ? `<div style="margin-bottom:12px;border:1px solid var(--border);border-radius:12px;padding:10px 10px 6px;background:#fff">
                                     <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px">
                                         <div style="font-size:11px;color:var(--ink4);text-transform:uppercase;letter-spacing:.08em">Gráfico semanal</div>
