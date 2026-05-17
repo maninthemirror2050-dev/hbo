@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.243</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.245</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.243</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.245</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.243</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.245</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.243"; // declared first — used throughout
+            const APP_VERSION = "1.245"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5468,7 +5468,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.243": [
+                "1.245": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -5486,6 +5486,8 @@
                 if (lastSeen === APP_VERSION) return;
                 var notes = CHANGELOG[APP_VERSION];
                 if (!notes || !notes.length) return;
+                // Save immediately so it won't show again even if user closes without clicking "Entendido"
+                localStorage.setItem("nexum_changelog_seen", APP_VERSION);
                 var body = el("changelogBody");
                 if (body) {
                     body.innerHTML = "<div style=\"font-size:13px;color:var(--ink3);margin-bottom:16px\">Novidades da v" + APP_VERSION + ":</div>"
@@ -9931,6 +9933,7 @@
                         <div style="display:flex;gap:12px;align-items:center;font-size:11px;color:var(--ink4);flex-wrap:wrap">
                             <span style="display:flex;align-items:center;gap:6px"><i style="display:inline-block;width:20px;height:3px;background:#8f2b24;border-radius:999px"></i>Total mensal</span>
                             <span style="display:flex;align-items:center;gap:6px"><i style="display:inline-block;width:20px;height:3px;background:#d0aa3f;border-radius:999px"></i>Repique</span>
+                            <span style="display:flex;align-items:center;gap:6px"><i style="display:inline-block;width:20px;height:2px;background:#4f6ef7;border-radius:999px;opacity:.6;border-top:2px dashed #4f6ef7"></i>Ano anterior</span>
                             <span>Último mês: <strong>${escHtml(latest.label || "—")}</strong></span>
                         </div>
                     </div>
@@ -9941,6 +9944,18 @@
                             ${labels}
                             <polyline points="${rawPoints}" fill="none" stroke="#8f2b24" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"></polyline>
                             <polyline points="${repiquePoints}" fill="none" stroke="#d0aa3f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></polyline>
+                            ${(() => {
+                                // Same month previous year comparison line
+                                const prevYearRows = rows.map((m, idx) => {
+                                    const [y, mo] = m.monthKey.split("-").map(Number);
+                                    const prevKey = (y-1) + "-" + String(mo).padStart(2,"0");
+                                    const prev = rows.find(r => r.monthKey === prevKey);
+                                    return prev ? { idx, val: prev.rawRevenue || prev.revenue } : null;
+                                }).filter(Boolean);
+                                if (prevYearRows.length < 3) return "";
+                                const pts = prevYearRows.map(p => xFor(p.idx).toFixed(1) + "," + yFor(p.val).toFixed(1)).join(" ");
+                                return '<polyline points="' + pts + '" fill="none" stroke="#4f6ef7" stroke-width="2" stroke-dasharray="6,3" stroke-linejoin="round" stroke-linecap="round" opacity="0.5"></polyline>';
+                            })()}
                             ${rawDots}
                             ${repiqueDots}
                         </svg>
@@ -10875,6 +10890,16 @@
             function setPastryViewTab(tab) {
                 S.pastryViewTab = String(tab || "mensal");
                 renderPastry();
+            }
+
+            function navigatePastryMonth(dir) {
+                const lab = loadPastryLabSummary();
+                if (!lab?.monthly?.length) return;
+                const months = lab.monthly.map(m => m.month_key).sort();
+                const current = S.pastryMonthFocusKey || months[months.length - 1];
+                const idx = months.indexOf(current);
+                const newIdx = Math.max(0, Math.min(months.length - 1, idx + dir));
+                setPastryMonthFocus(months[newIdx]);
             }
             async function generatePastryAIAnalysis() {
                 const lab = loadPastryLabSummary();
@@ -12012,9 +12037,13 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                     <!-- Previsão vs Real -->
                     ${lab ? `<div class="card" data-pastry-section="mensal insights">
                         <div class="card-head">
-                            <div>
+                            <div style="flex:1">
                                 <div class="card-title">📈 Previsão vs Real — ${pastryPeriodLabel}</div>
-                                <div class="card-sub">Baseado na média histórica do período</div>
+                                <div class="card-sub">Baseado na média histórica · navegue pelos meses</div>
+                            </div>
+                            <div style="display:flex;gap:6px;align-items:center">
+                                <button class="btn sm ghost" onclick="navigatePastryMonth(-1)" title="Mês anterior">←</button>
+                                <button class="btn sm ghost" onclick="navigatePastryMonth(1)" title="Próximo mês">→</button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -12173,6 +12202,46 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                             ${renderPastryMonthlyRevenueChart(labMonthStats, pastryMonthFocusKey)}
                         </div>
                     </div>` : ""}
+                    ${lab ? `<div class="card" data-pastry-section="mensal">
+                        <div class="card-head">
+                            <div class="card-title">📅 Calendário de faturamento — ${pastryPeriodLabel}</div>
+                            <div class="card-sub" style="font-size:11px;color:var(--ink4)">cada célula = 1 dia · cor = intensidade do faturamento</div>
+                        </div>
+                        <div class="card-body">
+                        ${(() => {
+                            if (!pastryPeriodRecords.length) return "<div style='color:var(--ink4);font-size:13px'>Sem dados para o período.</div>";
+                            const [fy, fm] = (S.pastryMonthFocusKey || new Date().toISOString().slice(0,7)).split("-").map(Number);
+                            const daysInMonth = new Date(fy, fm, 0).getDate();
+                            const firstDow = new Date(fy, fm - 1, 1).getDay();
+                            const dayMap = {};
+                            pastryPeriodRecords.forEach(r => {
+                                const d = parseInt((r.dateKey || "").slice(8,10));
+                                if (d) dayMap[d] = Number(pastryOperationalRevenue(r).revenue) || 0;
+                            });
+                            const maxDay = Math.max(...Object.values(dayMap), 1);
+                            const weekDays = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+                            let cal = "<div style=\"display:grid;grid-template-columns:repeat(7,1fr);gap:3px\">";
+                            weekDays.forEach(d => { cal += "<div style=\"text-align:center;font-size:9px;color:var(--ink4);padding:2px;font-weight:600\">" + d + "</div>"; });
+                            for (let i = 0; i < firstDow; i++) cal += "<div></div>";
+                            for (let d = 1; d <= daysInMonth; d++) {
+                                const val = dayMap[d] || 0;
+                                const intensity = val > 0 ? Math.max(0.12, val / maxDay) : 0;
+                                const bg = val > 0 ? "rgba(143,43,36," + intensity.toFixed(2) + ")" : "var(--bg)";
+                                const color = intensity > 0.5 ? "#fff" : "var(--ink)";
+                                const today = new Date().toISOString().slice(0,10);
+                                const dateKey = fy + "-" + String(fm).padStart(2,"0") + "-" + String(d).padStart(2,"0");
+                                const isToday = dateKey === today;
+                                cal += "<div style=\"text-align:center;padding:6px 2px;border-radius:4px;background:" + bg + ";color:" + color + ";font-size:11px;cursor:" + (val>0?"pointer":"default") + ";border:" + (isToday?"2px solid var(--bk2)":"1px solid transparent") + ";font-weight:" + (isToday?"700":"400") + "\" title=\"" + dateKey + (val>0?" · " + fmt(val):"") + "\" onclick=\"" + (val>0?"setPastryMonthFocus('" + S.pastryMonthFocusKey + "');S.pastryExplorerDateKey='" + dateKey + "';setPastryViewTab('consulta')":"") + "\">" + d + (val>0?"<br><span style=\"font-size:8px\">" + (val>=1000?(val/1000).toFixed(0)+"k":Math.round(val)) + "</span>":"") + "</div>";
+                            }
+                            cal += "</div>";
+                            cal += "<div style=\"display:flex;align-items:center;gap:8px;margin-top:10px;font-size:11px;color:var(--ink4)\"><span>Baixo</span>";
+                            [0.1,0.3,0.5,0.7,0.9].forEach(i => { cal += "<div style=\"width:20px;height:12px;border-radius:2px;background:rgba(143,43,36," + i + ")\"></div>"; });
+                            cal += "<span>Alto · máx " + fmt(maxDay) + "</span></div>";
+                            return cal;
+                        })()}
+                        </div>
+                    </div>` : ""}
+
                     ${lab ? `<div class="card" data-pastry-section="mensal">
                         <div class="card-head"><div class="card-title">Meses importados</div><div class="card-sub">faturamento mensal · clique no mês para focar</div></div>
                         <div class="card-body">
@@ -13010,6 +13079,33 @@ Seja direto, use números reais dos dados, evite generalidades. Responda em port
                                         const peakHour = validHours[0];
                                         const worstHour = validHours[validHours.length - 1];
                                         alerts.push({ type: "info", icon: "🕐", title: `Pico de faturamento às ${peakHour[0]}h`, body: `O horário das ${peakHour[0]}h concentra o maior volume financeiro (${fmt(peakHour[1])}). Vale garantir equipe e estoque completos nesse turno. Horário mais fraco: ${worstHour[0]}h (${fmt(worstHour[1])}).` });
+                                    }
+
+                                    // Anomaly detection — days far from weekly average
+                                    const anomalies = pastryPeriodRecords.map(r => {
+                                        const dayRev = Number(pastryOperationalRevenue(r).revenue) || 0;
+                                        const dow = new Date((r.dateKey || r.dhEmi || "") + "T12:00:00").getDay();
+                                        // Compare with historical average for same day of week
+                                        const histForDow = (lab.records || []).filter(hr => {
+                                            const hd = new Date((hr.dateKey || hr.dhEmi || "") + "T12:00:00").getDay();
+                                            return hd === dow && (hr.dateKey || "").slice(0,7) !== S.pastryMonthFocusKey;
+                                        });
+                                        if (histForDow.length < 4) return null;
+                                        const histAvg = histForDow.reduce((s,hr) => s + (Number(pastryOperationalRevenue(hr).revenue)||0), 0) / histForDow.length;
+                                        const pct = histAvg > 0 ? Math.round(((dayRev - histAvg) / histAvg) * 100) : 0;
+                                        return Math.abs(pct) >= 30 ? { date: r.dateKey, pct, rev: dayRev, avg: histAvg } : null;
+                                    }).filter(Boolean).sort((a,b) => Math.abs(b.pct) - Math.abs(a.pct)).slice(0, 3);
+
+                                    if (anomalies.length > 0) {
+                                        const anomalyText = anomalies.map(a =>
+                                            fmtDate(a.date) + ": " + fmt(a.rev) + " (" + (a.pct > 0 ? "+" : "") + a.pct + "% vs média)"
+                                        ).join(" · ");
+                                        alerts.push({
+                                            type: anomalies[0].pct > 0 ? "success" : "warn",
+                                            icon: anomalies[0].pct > 0 ? "🚀" : "⚠",
+                                            title: `${anomalies.length} dia(s) com variação atípica`,
+                                            body: anomalyText
+                                        });
                                     }
                                     // Dia mais forte
                                     if (topWeekdayNum !== null) alerts.push({ type: "info", icon: "📅", title: `${pastryWeekdayLongLabel(topWeekdayNum)} é o dia mais rentável em ${escHtml(pastryPeriodLabel)}`, body: `Com ${fmt(topWeekdayEntry[1])} em ${escHtml(pastryPeriodLabel)}, é o dia que mais contribui para o caixa. Garanta mix completo e produção antecipada.` });
