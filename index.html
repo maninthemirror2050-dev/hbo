@@ -2280,7 +2280,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.270</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.271</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2351,10 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.270</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.271</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.270</div>
+                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.271</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -3302,7 +3302,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.270"; // declared first — used throughout
+            const APP_VERSION = "1.271"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5470,7 +5470,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.270": [
+                "1.271": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -11012,9 +11012,12 @@
                 if (statusEl) { statusEl.style.display = "flex"; }
                 if (result) result.innerHTML = "";
                 // Monthly trend
-                const monthly = (lab.monthly || []).slice(-6).map(m => 
-                    (m.month_key||"") + ": R$" + Math.round(m.operational||0).toLocaleString("pt-BR")
-                ).join(", ");
+                const _todayMonthKey = new Date().toISOString().slice(0,7);
+                const monthly = (lab.monthly || [])
+                    .filter(m => m.month_key < _todayMonthKey) // exclude current partial month
+                    .slice(-6)
+                    .map(m => (m.month_key||"") + ": R$" + Math.round(m.operational||0).toLocaleString("pt-BR"))
+                    .join(", ");
                 const topProducts = Object.entries(lab.products || {})
                     .sort((a, b) => (b[1].total || 0) - (a[1].total || 0))
                     .slice(0, 10)
@@ -11043,15 +11046,28 @@
                     weekdayTotals[wd] += Number(op.revenue)||0;
                 });
                 const weekdayStr = weekdayTotals.map((v,i) => `${weekdayNames[i]}: R$${v.toFixed(0)}`).join(", ");
+                const today = new Date();
+                const currentMonthKey = today.toISOString().slice(0,7);
+                const currentDay = today.getDate();
+                const daysInCurrentMonth = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
+                const lastMonthData = (lab.monthly||[]).slice(-1)[0];
+                const isCurrentMonthPartial = lastMonthData && lastMonthData.month_key === currentMonthKey;
+                const partialNote = isCurrentMonthPartial ? `ATENÇÃO: O mês mais recente (${currentMonthKey}) está INCOMPLETO — hoje é dia ${currentDay} de ${daysInCurrentMonth}. O faturamento parcial de R$${Math.round(lastMonthData.operational||0).toLocaleString("pt-BR")} representa apenas ${Math.round(currentDay/daysInCurrentMonth*100)}% do mês. NÃO compare com meses completos.` : "";
+
                 const prompt = `Você é um consultor de negócios especialista em padarias e confeitarias no Brasil. Analise os dados reais extraídos das NF-e/NFC-e desta unidade e forneça uma análise executiva em português com insights práticos e acionáveis para o dono do negócio.
 
-DADOS DA BÄCKEREI (PERÍODO: ${rangeLabel} · ${monthsCount} mês/meses · ${lab.files} XMLs):
-- Faturamento total dos produtos: R$${realTotal.toFixed(2)}
+CONTEXTO IMPORTANTE:
+- Estes dados são de NFC-e emitidas PELA própria loja para seus clientes finais (consumidores). NÃO são dados de fornecedores ou clientes B2B.
+- O CNPJ emissor é o da própria empresa — ignore análises de concentração de CNPJ.
+- Os "compradores" são consumidores finais anônimos no balcão.
+${partialNote ? "- " + partialNote : ""}
+
+DADOS DA BÄCKEREI (PERÍODO: ${rangeLabel} · ${monthsCount} meses · ${lab.files} XMLs):
+- Faturamento total: R$${realTotal.toFixed(2)}
 - Total de itens vendidos: ${realQty} unidades
 - Notas emitidas: ${lab.emitted || 0} | Canceladas: ${lab.canceled || 0}
-- CNPJs compradores únicos: ${cnpjCount}${topCnpjs ? "\n- Top compradores: " + topCnpjs : ""}
 
-TOP 10 PRODUTOS (faturamento):
+TOP 10 PRODUTOS (faturamento acumulado):
 ${topProducts || "sem dados"}
 
 FATURAMENTO POR HORÁRIO:
@@ -11060,17 +11076,15 @@ ${topHours || "sem dados"}
 FATURAMENTO POR DIA DA SEMANA:
 ${weekdayStr}
 
-TENDÊNCIA DOS ÚLTIMOS 6 MESES:
+TENDÊNCIA DOS ÚLTIMOS 6 MESES (apenas meses completos):
 ${monthly || "sem dados"}
 
-${Object.keys(lab.cst||{}).length ? "CÓDIGOS CST: " + Object.entries(lab.cst).slice(0,6).map(([k,v])=>`${k}(${v})`).join(", ") : ""}
-
 Forneça uma análise estruturada em português brasileiro com:
-1. **Resumo Executivo** — saúde geral, tendência e destaque principal
+1. **Resumo Executivo** — saúde geral e tendência de crescimento
 2. **Pontos Fortes** — o que está funcionando bem e deve ser mantido/ampliado
-3. **Produtos Estrela vs Cauda** — mix ideal, upsell e itens a repensar
+3. **Mix de Produtos** — estrelas, oportunidades de upsell, itens a repensar
 4. **Padrões Operacionais** — horários de pico, melhores dias, sazonalidade
-5. **Alertas e Riscos** — concentrações, queda, anomalias
+5. **Alertas** — quedas, anomalias, riscos reais (ignore concentração de CNPJ)
 6. **3 Ações Imediatas** — concretas, específicas e com impacto financeiro estimado
 
 Seja direto, use os números reais, evite generalidades. Máximo 600 palavras.`;
