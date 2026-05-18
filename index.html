@@ -2189,6 +2189,13 @@
             @media (max-width: 1480px) {
                 .tbl-wrap { overflow-x: auto; }
             }
+            .wizard-step { display:none; }
+            .wizard-step.active { display:block; }
+            .wizard-progress { display:flex; gap:6px; margin-bottom:24px; }
+            .wizard-dot { height:4px; flex:1; border-radius:2px; background:rgba(255,255,255,.25); transition:background .3s; }
+            .wizard-dot.done { background:#fff; }
+            .wizard-dot.active { background:rgba(255,255,255,.7); }
+
             ::-webkit-scrollbar {
                 width: 5px;
                 height: 5px;
@@ -2280,7 +2287,7 @@
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
                         <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.274</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.278</div>
                 </div>
             </div>
         </div>
@@ -2351,10 +2358,9 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.274</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.278</div>
                         </div>
                     </div>
-                    <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:1px;letter-spacing:.04em">v1.274</div>
                     <div class="sb-brand-user" id="sbUser"></div>
                 </div>
                 <div class="sb-nav">
@@ -2901,6 +2907,13 @@
             </div>
         </div>
 
+        <!-- ONBOARDING WIZARD MODAL -->
+        <div class="modal-overlay" id="onboardingWizard">
+            <div class="modal" style="max-width:560px;overflow:hidden;padding:0">
+                <div id="onboardingWizardInner"></div>
+            </div>
+        </div>
+
         <!-- CHANGELOG MODAL -->
         <div class="modal-overlay" id="changelogModal">
             <div class="modal sm" style="max-width:480px">
@@ -3302,7 +3315,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.274"; // declared first — used throughout
+            const APP_VERSION = "1.278"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -5471,7 +5484,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.274": [
+                "1.278": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -5649,6 +5662,7 @@
                 if (_ls) _ls.style.display = "none";
                 nav("overview");
                 setTimeout(showChangelogIfNew, 1200);
+                setTimeout(checkShowWizard, 2000);
             }
             function enterLocalLabMode() {
                 S.session = { email: "local@lab", role: "admin", name: "Modo Local" };
@@ -9114,6 +9128,10 @@
                         _syncedAt: new Date().toISOString(),
                         updatedAt: json?.meta?.updatedAt || json?.meta?.generated_at || new Date().toISOString()
                     };
+                    // Save sync time for both companies display
+                    if (!S.bkiSyncTimes) S.bkiSyncTimes = {};
+                    const _syncCompany = getBKIFile().includes("50820490000140") ? "Swiss" : "Bäckerei";
+                    S.bkiSyncTimes[_syncCompany] = enriched._syncedAt;
                     await writePastryLabSummaryToDb(enriched);
                     console.log("[BKI] Dados sincronizados do Supabase Storage:", getBKIFile());
                     return enriched;
@@ -9899,7 +9917,7 @@
                     const shortLabel = new Date(`${m.monthKey}-01T12:00:00`).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" }).replace(".", "");
                     return `<g>
                         <line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${h - padB}" stroke="${isCurrent ? "rgba(79,110,247,.15)" : "rgba(43,32,20,.05)"}" stroke-dasharray="${isCurrent ? "3,3" : "none"}" />
-                        ${showLabel ? `<text x="${x.toFixed(1)}" y="${h - 18}" text-anchor="${idx >= rows.length - 2 ? "end" : idx === 0 ? "start" : "middle"}" font-size="10" fill="${active ? "#2b2014" : isCurrent ? "var(--bk2)" : "#9a8a78"}" font-weight="${active || isCurrent ? "700" : "400"}">${escHtml(shortLabel)}</text>` : ""}
+                        ${showLabel ? `<text x="${x.toFixed(1)}" y="${h - 18}" text-anchor="${idx >= rows.length - 1 ? "end" : idx === 0 ? "start" : "middle"}" font-size="10" fill="${active ? "#2b2014" : isCurrent ? "var(--bk2)" : "#9a8a78"}" font-weight="${active || isCurrent ? "700" : "400"}">${escHtml(shortLabel)}</text>` : ""}
                     </g>`;
                 }).join("");
                 const rawDots = rows.map((m, idx) => {
@@ -9945,15 +9963,16 @@
                             <polyline points="${repiquePoints}" fill="none" stroke="#d0aa3f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></polyline>
                             ${(() => {
                                 // Same month previous year comparison line
-                                const prevYearRows = rows.map((m, idx) => {
+                                // Prev year line: for each month, show the value from 1 year ago
+                                // plotted at the CURRENT month's x position (aligned comparison)
+                                const prevYearPts = rows.map((m, idx) => {
                                     const [y, mo] = m.monthKey.split("-").map(Number);
                                     const prevKey = (y-1) + "-" + String(mo).padStart(2,"0");
                                     const prev = rows.find(r => r.monthKey === prevKey);
-                                    return prev ? { idx, val: prev.rawRevenue || prev.revenue } : null;
+                                    return prev ? xFor(idx).toFixed(1) + "," + yFor(prev.rawRevenue || prev.revenue).toFixed(1) : null;
                                 }).filter(Boolean);
-                                if (prevYearRows.length < 3) return "";
-                                const pts = prevYearRows.map(p => xFor(p.idx).toFixed(1) + "," + yFor(p.val).toFixed(1)).join(" ");
-                                return '<polyline points="' + pts + '" fill="none" stroke="#4f6ef7" stroke-width="2" stroke-dasharray="6,3" stroke-linejoin="round" stroke-linecap="round" opacity="0.5"></polyline>';
+                                if (prevYearPts.length < 3) return "";
+                                return '<polyline points="' + prevYearPts.join(" ") + '" fill="none" stroke="#4f6ef7" stroke-width="2" stroke-dasharray="6,3" stroke-linejoin="round" stroke-linecap="round" opacity="0.5"></polyline>';
                             })()}
                             ${rawDots}
                             ${repiqueDots}
@@ -12093,7 +12112,36 @@ Seja direto, use os números reais, evite generalidades. Máximo 600 palavras.`;
                         <div class="co-hdr-right">
                             <div class="co-hdr-lbl">Status</div>
                             <div class="co-hdr-val" style="font-size:20px;display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap">${isProcessing ? "Processando" : isErrored ? "Erro" : isLab ? "Importado" : "Protótipo"}${lab ? `<button class="btn sm ghost" onclick="openPastryAlertsModal()" title="Ver alertas da base" style="padding:5px 10px;min-width:0;background:#fff;color:#2b2014;border-color:rgba(43,32,20,.22);box-shadow:0 1px 0 rgba(43,32,20,.06);font-weight:600">🔔 ${pastryAlertCount}</button>` : ""}</div>
-                            <div style="font-size:11px;color:rgba(255,255,255,.45)">${isLab ? (lab._syncedAt ? `Último sync: ${fmtDateTime(lab._syncedAt)}` : "base real disponível") : "sem clientes externos nesta fase"}</div>
+                            ${isLab ? (() => {
+                                // Build sync status for both companies
+                                const syncLines = [];
+                                const companies = [
+                                    { name: "Bäckerei", key: "summary_bki_28746859000163" },
+                                    { name: "Swiss", key: "summary_bki_50820490000140" }
+                                ];
+                                // Use in-memory cache if available
+                                const bkSync = lab._syncedAt && getBKIFile().includes("28746859000163") ? lab._syncedAt : null;
+                                const swSync = lab._syncedAt && getBKIFile().includes("50820490000140") ? lab._syncedAt : null;
+                                
+                                // Show current company sync
+                                const currSync = lab._syncedAt;
+                                const currName = getBKIFile().includes("50820490000140") ? "Swiss" : "Bäckerei";
+                                const currAge = currSync ? Math.round((Date.now() - new Date(currSync).getTime()) / 60000) : null;
+                                const currOld = currAge !== null && currAge > 60;
+                                syncLines.push("<span style=\"color:" + (currOld?"#ff6b6b":"rgba(255,255,255,.7)") + ";font-weight:" + (currOld?"700":"400") + "\">"
+                                    + currName + ": " + (currSync ? fmtDateTime(currSync) + (currOld?" ⚠":"") : "—") + "</span>");
+                                
+                                // Also show other company sync from S.bkiSyncTimes if available
+                                const otherName = currName === "Bäckerei" ? "Swiss" : "Bäckerei";
+                                const otherSync = S.bkiSyncTimes && S.bkiSyncTimes[otherName];
+                                if (otherSync) {
+                                    const otherAge = Math.round((Date.now() - new Date(otherSync).getTime()) / 60000);
+                                    const otherOld = otherAge > 60;
+                                    syncLines.push("<span style=\"color:" + (otherOld?"#ff6b6b":"rgba(255,255,255,.5)") + ";font-weight:" + (otherOld?"700":"400") + "\">"
+                                        + otherName + ": " + fmtDateTime(otherSync) + (otherOld?" ⚠":"") + "</span>");
+                                }
+                                return "<div style=\"font-size:11px;display:flex;gap:12px;flex-wrap:wrap\">" + syncLines.join("") + "</div>";
+                            })() : "<div style=\"font-size:11px;color:rgba(255,255,255,.45)\">sem clientes externos nesta fase</div>"}
                         </div>
                     </div>
                     ${lab ? (() => {
@@ -13205,7 +13253,6 @@ Seja direto, use os números reais, evite generalidades. Máximo 600 palavras.`;
                                     const anomalies = pastryPeriodRecords.map(r => {
                                         const dayRev = Number(pastryOperationalRevenue(r).revenue) || 0;
                                         const dow = new Date((r.dateKey || r.dhEmi || "") + "T12:00:00").getDay();
-                                        // Compare with historical average for same day of week
                                         const histForDow = (lab.records || []).filter(hr => {
                                             const hd = new Date((hr.dateKey || hr.dhEmi || "") + "T12:00:00").getDay();
                                             return hd === dow && (hr.dateKey || "").slice(0,7) !== S.pastryMonthFocusKey;
@@ -13213,18 +13260,33 @@ Seja direto, use os números reais, evite generalidades. Máximo 600 palavras.`;
                                         if (histForDow.length < 4) return null;
                                         const histAvg = histForDow.reduce((s,hr) => s + (Number(pastryOperationalRevenue(hr).revenue)||0), 0) / histForDow.length;
                                         const pct = histAvg > 0 ? Math.round(((dayRev - histAvg) / histAvg) * 100) : 0;
-                                        return Math.abs(pct) >= 30 ? { date: r.dateKey, pct, rev: dayRev, avg: histAvg } : null;
-                                    }).filter(Boolean).sort((a,b) => Math.abs(b.pct) - Math.abs(a.pct)).slice(0, 3);
+                                        // Flag days with >50% drop OR suspicious values (<5% of average = likely sync failure)
+                                        const isSyncFail = histAvg > 1000 && dayRev < histAvg * 0.05;
+                                        return (Math.abs(pct) >= 30 || isSyncFail) ? { date: r.dateKey, pct, rev: dayRev, avg: histAvg, isSyncFail } : null;
+                                    }).filter(Boolean).sort((a,b) => Math.abs(b.pct) - Math.abs(a.pct)).slice(0, 5);
 
-                                    if (anomalies.length > 0) {
-                                        const anomalyText = anomalies.map(a =>
-                                            fmtDate(a.date) + ": " + fmt(a.rev) + " (" + (a.pct > 0 ? "+" : "") + a.pct + "% vs média)"
-                                        ).join(" · ");
+                                    // Separate sync failures from normal anomalies
+                                    const syncFails = anomalies.filter(a => a.isSyncFail);
+                                    const normalAnomalies = anomalies.filter(a => !a.isSyncFail);
+
+                                    if (syncFails.length > 0) {
                                         alerts.push({
-                                            type: anomalies[0].pct > 0 ? "success" : "warn",
-                                            icon: anomalies[0].pct > 0 ? "🚀" : "⚠",
-                                            title: `${anomalies.length} dia(s) com variação atípica`,
-                                            body: anomalyText
+                                            type: "warn",
+                                            icon: "🔴",
+                                            title: syncFails.length + " dia(s) com possível falha de sincronização",
+                                            body: syncFails.map(a =>
+                                                fmtDate(a.date) + ": " + fmt(a.rev) + " (esperado ~" + fmt(a.avg) + " · " + Math.round(a.pct) + "%)"
+                                            ).join(" · ") + " — Verifique o agente BKI."
+                                        });
+                                    }
+                                    if (normalAnomalies.length > 0) {
+                                        alerts.push({
+                                            type: normalAnomalies[0].pct > 0 ? "success" : "info",
+                                            icon: normalAnomalies[0].pct > 0 ? "🚀" : "📉",
+                                            title: normalAnomalies.length + " dia(s) com variação atípica",
+                                            body: normalAnomalies.map(a =>
+                                                fmtDate(a.date) + ": " + fmt(a.rev) + " (" + (a.pct > 0 ? "+" : "") + a.pct + "% vs média)"
+                                            ).join(" · ")
                                         });
                                     }
                                     // Dia mais forte
