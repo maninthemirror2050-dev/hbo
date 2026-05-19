@@ -3563,6 +3563,9 @@
                 if (!S.session) return;
                 console.log("[BKI] applySessionToUI — role:", S.session.role, "tenantId:", S.session.tenantId);
                 // Update version display
+                // Remove any duplicate sbVersion elements first
+                const allSbVer = document.querySelectorAll("#sbVersion");
+                allSbVer.forEach((el, i) => { if (i > 0) el.remove(); });
                 const sbVer = document.getElementById("sbVersion");
                 if (sbVer) sbVer.textContent = "v" + (typeof APP_VERSION !== "undefined" ? APP_VERSION : "—");
                 renderSidebarCompanies();
