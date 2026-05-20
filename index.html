@@ -5487,7 +5487,7 @@
             }
             // ── Changelog ──────────────────────────────────────────────────
             const CHANGELOG = {
-                "1.278": [
+                "1.279": [
                     "🔔 Badge de mensagens não lidas no menu lateral",
                     "📅 Dias úteis calculados automaticamente no VT — sem editar ficha todo mês",
                     "💾 Botão Salvar protegido contra duplo clique (evita duplicidade)",
@@ -6278,17 +6278,10 @@
             function isOverdue(s) {
                 return s && new Date(s + "T12:00:00") < new Date();
             }
-            function localDateStr(ts) {
-                // Returns local date as "YYYY-MM-DD" regardless of timezone
-                const d = new Date(ts);
-                return d.getFullYear() + "-"
-                    + String(d.getMonth() + 1).padStart(2, "0") + "-"
-                    + String(d.getDate()).padStart(2, "0");
-            }
             function getStatus(e) {
                 if (e.status === "paid") {
-                    // Check if paid late (paid_at after due date) — use local date to avoid UTC shift
-                    if (e.paid_at && e.date && localDateStr(e.paid_at) > e.date) return "late_paid";
+                    // Check if paid late (paid_at after due date)
+                    if (e.paid_at && e.date && e.paid_at.slice(0,10) > e.date) return "late_paid";
                     return "paid";
                 }
                 // "preview" tipo only applies to future entries, not overdue ones
@@ -6299,7 +6292,7 @@
             function stBadge(st, e) {
                 if (st === "late_paid") {
                     const days = e?.paid_at && e?.date
-                        ? Math.round((new Date(localDateStr(e.paid_at)) - new Date(e.date)) / 86400000)
+                        ? Math.round((new Date(e.paid_at.slice(0,10)) - new Date(e.date)) / 86400000)
                         : 0;
                     return '<span class="badge" style="background:rgba(186,117,23,.12);color:#7a4a00">⏰ ' + days + ' dia' + (days !== 1 ? "s" : "") + ' de atraso</span>';
                 }
@@ -7385,7 +7378,7 @@
                           : "";
                     const msgBell = msgCounts.open ? `<button class="btn sm ghost" onclick="nav('mensagens'); openMessageModal(${e.id})" title="Ver mensagem interna" style="margin-left:6px;padding:2px 6px;line-height:1">🔔</button>` : "";
                     const rhBadge = String(e.source_system || "") === "rh-vt" ? `<span class="badge blue" style="margin-left:6px;font-size:10px;padding:2px 6px">RH</span>` : "";
-                    h += `<tr class="${(st === "paid" || st === "late_paid") ? "paid-row" : ""}" data-status="${st}" data-entry-id="${e.id}">
+                    h += `<tr class="${st === "paid" ? "paid-row" : ""}" data-status="${st}" data-entry-id="${e.id}">
       <td class="mono">${fmtDate(e.date)}</td>
       <td>${copill(e.co)}</td>
       <td><div class="desc-txt" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">${escHtml(e.desc)}${rhBadge}${msgBadge}${msgBell}</div>${createdMeta(e)}${e.obs ? `<div style="font-size:10.5px;color:var(--ink4);margin-top:2px">${e.obs}</div>` : ""}</td>
@@ -8572,7 +8565,7 @@
                             : msgCounts.answered
                               ? `<span class="badge paid" style="margin-left:6px;font-size:10px;padding:2px 6px">Respondido</span>`
                               : "";
-                        h += `<tr class="${(st === "paid" || st === "late_paid") ? "paid-row" : ""}" data-txt="${e.desc.toLowerCase()} ${e.cat.toLowerCase()} ${CO[e.co].name.toLowerCase()}">
+                        h += `<tr class="${st === "paid" ? "paid-row" : ""}" data-txt="${e.desc.toLowerCase()} ${e.cat.toLowerCase()} ${CO[e.co].name.toLowerCase()}">
         <td class="mono">${fmtDate(e.date)}</td><td>${copill(e.co)}</td>
         <td><div class="desc-txt">${e.desc}${msgBadge}</div>${createdMeta(e)}${e.obs ? `<div style="font-size:10.5px;color:var(--ink4)">${e.obs}</div>` : ""}</td>
         <td>${recurrenceBadge(e)}</td>
@@ -8596,7 +8589,7 @@
                                 : msgCounts.answered
                                   ? `<span class="badge paid" style="margin-left:6px;font-size:10px;padding:2px 6px">Respondido</span>`
                                   : "";
-                            h += `<tr class="${(st === "paid" || st === "late_paid") ? "paid-row" : ""}" data-txt="${e.desc.toLowerCase()} ${CO[e.co].name.toLowerCase()}">
+                            h += `<tr class="${st === "paid" ? "paid-row" : ""}" data-txt="${e.desc.toLowerCase()} ${CO[e.co].name.toLowerCase()}">
           <td></td><td>${copill(e.co)}</td>
           <td><div class="desc-txt">${e.desc}${msgBadge}</div>${createdMeta(e)}${e.obs ? `<div style="font-size:10.5px;color:var(--ink4)">${e.obs}</div>` : ""}</td>
           <td>${recurrenceBadge(e)}</td>
@@ -8927,7 +8920,7 @@
                                 : msgCounts.answered
                                   ? `<span class="badge paid" style="margin-left:6px;font-size:10px;padding:2px 6px">Respondido</span>`
                                   : "";
-                            h += `<tr class="${(st === "paid" || st === "late_paid") ? "paid-row" : ""}">
+                            h += `<tr class="${st === "paid" ? "paid-row" : ""}">
         <td class="mono">${fmtDate(e.date)}</td>
         <td><div class="desc-txt">${e.desc}${msgBadge}</div>${createdMeta(e)}${e.obs ? `<div style="font-size:10.5px;color:var(--ink4)">${e.obs}</div>` : ""}</td>
         <td style="font-size:11.5px;color:var(--ink3)">${e.cat}</td>
@@ -11080,13 +11073,74 @@
                 const isCurrentMonthPartial = lastMonthData && lastMonthData.month_key === currentMonthKey;
                 const partialNote = isCurrentMonthPartial ? `ATENÇÃO: O mês mais recente (${currentMonthKey}) está INCOMPLETO — hoje é dia ${currentDay} de ${daysInCurrentMonth}. O faturamento parcial de R$${Math.round(lastMonthData.operational||0).toLocaleString("pt-BR")} representa apenas ${Math.round(currentDay/daysInCurrentMonth*100)}% do mês. NÃO compare com meses completos.` : "";
 
-                const prompt = `Você é um consultor de negócios especialista em padarias e confeitarias no Brasil. Analise os dados reais extraídos das NF-e/NFC-e desta unidade e forneça uma análise executiva em português com insights práticos e acionáveis para o dono do negócio.
+                // Benchmarks por segmento
+                const SEGMENT_BENCHMARKS = {
+                    "Padaria / Confeitaria": { nome: "Padaria / Confeitaria", fonte: "SEBRAE/PROPAN/ABIP",
+                        indicadores: [
+                            { nome: "CMV (matéria-prima)", ideal: "25–35%", alerta: ">40%" },
+                            { nome: "Folha + encargos", ideal: "20–28%", alerta: ">35%" },
+                            { nome: "Aluguel", ideal: "8–10%", alerta: ">12%" },
+                            { nome: "Energia + Gás + Utilidades", ideal: "3–5%", alerta: ">7%" },
+                            { nome: "Manutenção", ideal: "1–2%", alerta: ">3%" },
+                            { nome: "Marketing", ideal: "2–4%", alerta: ">6%" },
+                            { nome: "Impostos e taxas", ideal: "6–10%", alerta: ">12%" },
+                            { nome: "Lucro líquido", ideal: "5–10%", alerta: "<3%" },
+                        ]},
+                    "Restaurante": { nome: "Restaurante", fonte: "SEBRAE/ABRASEL",
+                        indicadores: [
+                            { nome: "CMV (alimentos e bebidas)", ideal: "28–35%", alerta: ">40%" },
+                            { nome: "Folha + encargos", ideal: "25–32%", alerta: ">38%" },
+                            { nome: "Aluguel", ideal: "6–10%", alerta: ">12%" },
+                            { nome: "Energia + Gás", ideal: "4–6%", alerta: ">8%" },
+                            { nome: "Lucro líquido", ideal: "8–15%", alerta: "<4%" },
+                        ]},
+                    "Varejo": { nome: "Varejo", fonte: "SEBRAE/CNC",
+                        indicadores: [
+                            { nome: "CMV (mercadorias)", ideal: "45–60%", alerta: ">65%" },
+                            { nome: "Folha + encargos", ideal: "12–18%", alerta: ">22%" },
+                            { nome: "Aluguel", ideal: "5–8%", alerta: ">10%" },
+                            { nome: "Lucro líquido", ideal: "4–8%", alerta: "<2%" },
+                        ]},
+                    "Serviços": { nome: "Serviços", fonte: "SEBRAE",
+                        indicadores: [
+                            { nome: "Custo de entrega", ideal: "30–45%", alerta: ">55%" },
+                            { nome: "Folha + encargos", ideal: "30–40%", alerta: ">50%" },
+                            { nome: "Aluguel", ideal: "3–6%", alerta: ">8%" },
+                            { nome: "Lucro líquido", ideal: "10–20%", alerta: "<5%" },
+                        ]},
+                };
+                const tenantSegment = S.session?.tenantSegment || S.session?.tenantPlan && "Padaria / Confeitaria";
+                const benchmarks = SEGMENT_BENCHMARKS[tenantSegment] || SEGMENT_BENCHMARKS["Padaria / Confeitaria"];
+                const benchmarkText = benchmarks.indicadores.map(b =>
+                    "  • " + b.nome + ": ideal " + b.ideal + (b.alerta ? " · alerta se " + b.alerta : "")
+                ).join("\n");
 
-CONTEXTO IMPORTANTE:
-- Estes dados são de NFC-e emitidas PELA própria loja para seus clientes finais (consumidores). NÃO são dados de fornecedores ou clientes B2B.
-- O CNPJ emissor é o da própria empresa — ignore análises de concentração de CNPJ.
-- Os "compradores" são consumidores finais anônimos no balcão.
+                // Expense breakdown by category
+                const categoryTotals = {};
+                (S.entries||[]).filter(e => {
+                    const d = e.date || e.due_date || "";
+                    return d >= rangeStart && d <= rangeEnd && Number(e.amount||0) < 0;
+                }).forEach(e => {
+                    const cat = (e.category || "Outros");
+                    const val = Math.abs(Number(e.amount)||0);
+                    if (!categoryTotals[cat]) categoryTotals[cat] = 0;
+                    categoryTotals[cat] += val;
+                });
+                const expenseBreakdown = Object.entries(categoryTotals)
+                    .sort((a,b) => b[1]-a[1]).slice(0,10)
+                    .map(([cat,val]) => "  " + cat + ": R$" + Math.round(val).toLocaleString("pt-BR") + " (" + (realTotal>0?Math.round(val/realTotal*100):0) + "% do fat.)")
+                    .join("\n") || "sem lançamentos de despesa no período";
+
+                const prompt = `Você é um consultor de negócios especialista em ${benchmarks.nome} no Brasil. Analise os dados reais das NF-e/NFC-e e forneça uma análise executiva com insights práticos e acionáveis.
+
+CONTEXTO:
+- NFC-e emitidas PELA própria loja para consumidores finais. Ignore concentração de CNPJ.
 ${partialNote ? "- " + partialNote : ""}
+
+BENCHMARKS DO SETOR — ${benchmarks.nome} (fonte: ${benchmarks.fonte}):
+${benchmarkText}
+
+Compare as despesas abaixo com os benchmarks. Use 🔴 se acima do limite de alerta, ✅ se dentro do ideal, ⚠️ se próximo do limite.
 
 DADOS DA BÄCKEREI (PERÍODO: ${rangeLabel} · ${monthsCount} meses · ${lab.files} XMLs):
 - Faturamento total: R$${realTotal.toFixed(2)}
@@ -11095,6 +11149,9 @@ DADOS DA BÄCKEREI (PERÍODO: ${rangeLabel} · ${monthsCount} meses · ${lab.fil
 
 TOP 10 PRODUTOS (faturamento acumulado):
 ${topProducts || "sem dados"}
+
+DESPESAS LANÇADAS NO PERÍODO (% do faturamento):
+${expenseBreakdown}
 
 FATURAMENTO POR HORÁRIO:
 ${topHours || "sem dados"}
@@ -11105,15 +11162,15 @@ ${weekdayStr}
 TENDÊNCIA DOS ÚLTIMOS 6 MESES (apenas meses completos):
 ${monthly || "sem dados"}
 
-Forneça uma análise estruturada em português brasileiro com:
-1. **Resumo Executivo** — saúde geral e tendência de crescimento
-2. **Pontos Fortes** — o que está funcionando bem e deve ser mantido/ampliado
-3. **Mix de Produtos** — estrelas, oportunidades de upsell, itens a repensar
-4. **Padrões Operacionais** — horários de pico, melhores dias, sazonalidade
-5. **Alertas** — quedas, anomalias, riscos reais (ignore concentração de CNPJ)
-6. **3 Ações Imediatas** — concretas, específicas e com impacto financeiro estimado
+Forneça análise estruturada em português brasileiro:
+1. **Resumo Executivo** — saúde geral e tendência
+2. **Custos vs Benchmarks do Setor** — para cada despesa lançada, compare com o benchmark. Use 🔴 acima do limite, ✅ dentro do ideal, ⚠️ próximo do limite. Calcule o % real sobre o faturamento.
+3. **Pontos Fortes** — o que está funcionando bem
+4. **Mix de Produtos** — estrelas, oportunidades, itens a repensar
+5. **Padrões Operacionais** — horários de pico, melhores dias
+6. **3 Ações Imediatas** — concretas, com impacto financeiro estimado
 
-Seja direto, use os números reais, evite generalidades. Máximo 600 palavras.`;
+Seja direto, use números reais. Máximo 700 palavras.`;
                 // Add focus to prompt
                 const focusInstructions = {
                     "geral": "Forneça uma análise completa e balanceada cobrindo todos os aspectos do negócio.",
