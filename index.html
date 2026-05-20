@@ -66,53 +66,193 @@
                 min-height: 100vh;
             }
 
-            /* LOGIN — split screen */
+            /* LOGIN — redesign v1.282 */
+            @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,400;1,9..144,200;1,9..144,300&family=Instrument+Sans:wght@400;500;600&display=swap');
+
             #loginPage {
                 position: fixed;
                 inset: 0;
                 display: flex;
                 z-index: 1000;
+                font-family: "Instrument Sans", sans-serif;
             }
             .login-left {
                 flex: 1;
-                background: linear-gradient(145deg, #1a1f36 0%, #0f1220 100%);
+                background: #0c0f1a;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
-                padding: 48px 52px;
+                padding: 52px 56px;
                 position: relative;
                 overflow: hidden;
-                clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
-                margin-right: -60px;
-                z-index: 1;
             }
+            /* noise overlay */
             .login-left::before {
                 content: "";
                 position: absolute;
-                top: -120px; right: -120px;
-                width: 500px; height: 500px;
-                background: radial-gradient(circle, rgba(79,110,247,.18) 0%, transparent 65%);
+                inset: 0;
+                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
                 pointer-events: none;
+                z-index: 0;
             }
+            /* soft glow top-right */
             .login-left::after {
                 content: "";
                 position: absolute;
-                bottom: -80px; left: -80px;
-                width: 380px; height: 380px;
-                background: radial-gradient(circle, rgba(232,201,106,.08) 0%, transparent 65%);
+                top: -160px; right: -100px;
+                width: 600px; height: 600px;
+                background: radial-gradient(circle at 60% 40%, rgba(79,110,247,.14) 0%, transparent 60%);
                 pointer-events: none;
+                z-index: 0;
             }
+            .login-left-inner {
+                position: relative;
+                z-index: 1;
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                justify-content: space-between;
+            }
+            .ln-logo-row {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                margin-bottom: 0;
+            }
+            .ln-logo-mark {
+                width: 42px; height: 42px;
+                background: linear-gradient(135deg, #4f6ef7 0%, #3a52c4 100%);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 4px 16px rgba(79,110,247,.35);
+            }
+            .ln-logo-word {
+                font-family: "Fraunces", serif;
+                font-weight: 300;
+                font-size: 28px;
+                color: #fff;
+                letter-spacing: -.5px;
+                line-height: 1;
+            }
+            .ln-logo-sub {
+                font-size: 9px;
+                color: rgba(255,255,255,.28);
+                letter-spacing: .2em;
+                text-transform: uppercase;
+                margin-top: 3px;
+            }
+            .ln-headline {
+                margin-top: 52px;
+            }
+            .ln-headline h2 {
+                font-family: "Fraunces", serif;
+                font-weight: 200;
+                font-style: italic;
+                font-size: 42px;
+                color: #fff;
+                line-height: 1.12;
+                letter-spacing: -.5px;
+                margin: 0 0 14px;
+                max-width: 400px;
+            }
+            .ln-headline h2 em {
+                font-style: normal;
+                color: #e8c96a;
+            }
+            .ln-headline p {
+                font-size: 14px;
+                color: rgba(255,255,255,.42);
+                line-height: 1.7;
+                max-width: 360px;
+                margin: 0;
+            }
+            /* feature pills */
+            .ln-pills {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 36px;
+            }
+            .ln-pill {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                background: rgba(255,255,255,.05);
+                border: 0.5px solid rgba(255,255,255,.1);
+                border-radius: 100px;
+                padding: 7px 14px;
+                font-size: 12px;
+                color: rgba(255,255,255,.65);
+                transition: background .2s, border-color .2s;
+            }
+            .ln-pill:hover {
+                background: rgba(255,255,255,.09);
+                border-color: rgba(255,255,255,.18);
+            }
+            .ln-pill-ico {
+                font-size: 13px;
+                line-height: 1;
+            }
+            /* metrics strip */
+            .ln-metrics {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1px;
+                background: rgba(255,255,255,.07);
+                border: 0.5px solid rgba(255,255,255,.07);
+                border-radius: 14px;
+                overflow: hidden;
+                margin-top: 44px;
+            }
+            .ln-metric {
+                background: rgba(255,255,255,.03);
+                padding: 20px 22px;
+                transition: background .2s;
+            }
+            .ln-metric:hover { background: rgba(255,255,255,.06); }
+            .ln-metric-val {
+                font-family: "Fraunces", serif;
+                font-weight: 200;
+                font-size: 28px;
+                color: #fff;
+                letter-spacing: -.5px;
+                line-height: 1;
+            }
+            .ln-metric-label {
+                font-size: 10.5px;
+                color: rgba(255,255,255,.38);
+                margin-top: 5px;
+                line-height: 1.4;
+            }
+            .ln-metric-accent { color: #e8c96a; }
+            .ln-footer {
+                font-size: 10.5px;
+                color: rgba(255,255,255,.16);
+                letter-spacing: .03em;
+            }
+            /* glow bottom-left decoration */
+            .ln-glow-bl {
+                position: absolute;
+                bottom: -100px; left: -80px;
+                width: 400px; height: 400px;
+                background: radial-gradient(circle, rgba(232,201,106,.07) 0%, transparent 60%);
+                pointer-events: none;
+                z-index: 0;
+            }
+            /* right panel */
             .login-right {
-                width: 440px;
+                width: 460px;
                 background: #fff;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                padding: 52px 48px;
-                padding-left: 72px;
+                padding: 60px 52px;
                 position: relative;
-                z-index: 0;
+                z-index: 1;
+                box-shadow: -8px 0 48px rgba(0,0,0,.18);
             }
             .login-card {
                 background: transparent;
@@ -121,169 +261,103 @@
                 width: 100%;
                 box-shadow: none;
             }
-            .login-stat-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 14px;
-                margin-top: 32px;
-            }
-            .login-stat {
-                background: rgba(255,255,255,.06);
-                border: 0.5px solid rgba(255,255,255,.1);
-                border-radius: 12px;
-                padding: 18px 20px;
-            }
-            .login-stat-lbl {
-                font-size: 10px;
-                text-transform: uppercase;
-                letter-spacing: .1em;
-                color: rgba(255,255,255,.4);
-                margin-bottom: 8px;
-            }
-            .login-stat-val {
+            .ln-form-title {
                 font-family: "Fraunces", serif;
-                font-size: 26px;
                 font-weight: 300;
-                color: #fff;
-                letter-spacing: -.5px;
-                line-height: 1;
-            }
-            .login-stat-sub {
-                font-size: 11px;
-                color: rgba(255,255,255,.3);
-                margin-top: 4px;
-            }
-            .login-features {
-                margin-top: 36px;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-            .login-feature {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-size: 13px;
-                color: rgba(255,255,255,.6);
-            }
-            .login-feature-dot {
-                width: 6px; height: 6px;
-                border-radius: 50%;
-                background: #4f6ef7;
-                flex-shrink: 0;
-            }
-            @media (max-width: 768px) {
-                .login-left { display: none; }
-                .login-right {
-                    width: 100%;
-                    padding: 40px 28px;
-                    background: linear-gradient(145deg, #1a1f36, #0f1220);
-                }
-                .login-card { background: #fff; border-radius: 16px; padding: 32px; }
-            }
-            .login-logo {
-                font-family: "Fraunces", serif;
-                font-size: 22px;
+                font-size: 28px;
                 color: var(--ink);
-                margin-bottom: 4px;
+                letter-spacing: -.4px;
+                margin: 0 0 4px;
             }
-            .login-sub {
-                font-size: 11px;
+            .ln-form-sub {
+                font-size: 13px;
                 color: var(--ink4);
-                letter-spacing: 2px;
-                text-transform: uppercase;
-                margin-bottom: 30px;
+                margin: 0 0 32px;
             }
-            .login-form-group {
-                margin-bottom: 16px;
-            }
+            .login-stat-grid { display: none; } /* legacy - hidden */
+            .login-stat { display: none; }
+            .login-features { display: none; }
+            .login-form-group { margin-bottom: 16px; }
             .login-label {
-                font-size: 10px;
-                letter-spacing: 1.5px;
-                text-transform: uppercase;
-                color: var(--ink3);
-                font-weight: 500;
                 display: block;
-                margin-bottom: 5px;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--ink3);
+                margin-bottom: 6px;
+                letter-spacing: .02em;
             }
             .login-input {
                 width: 100%;
-                background: var(--bg2);
-                border: 1px solid var(--border2);
-                border-radius: var(--r-sm);
-                padding: 10px 13px;
+                padding: 11px 14px;
+                border: 1.5px solid var(--border);
+                border-radius: 8px;
+                font-size: 14px;
                 font-family: "Instrument Sans", sans-serif;
-                font-size: 13px;
                 color: var(--ink);
-                transition: border 0.15s;
+                background: var(--bg);
+                box-sizing: border-box;
+                transition: border-color .2s, box-shadow .2s;
+                outline: none;
             }
             .login-input:focus {
-                outline: none;
-                border-color: var(--ink3);
-                background: var(--white);
+                border-color: #4f6ef7;
+                box-shadow: 0 0 0 3px rgba(79,110,247,.12);
+                background: #fff;
             }
             .login-btn {
                 width: 100%;
-                background: #1a1f36;
-                color: white;
+                padding: 13px;
+                background: linear-gradient(135deg, #4f6ef7, #3a52c4);
+                color: #fff;
                 border: none;
-                padding: 12px;
-                border-radius: var(--r-sm);
-                font-family: "Instrument Sans", sans-serif;
+                border-radius: 10px;
                 font-size: 14px;
-                font-weight: 500;
+                font-weight: 600;
+                font-family: "Instrument Sans", sans-serif;
                 cursor: pointer;
-                margin-top: 8px;
-                transition: background 0.2s;
+                margin-top: 6px;
+                box-shadow: 0 4px 14px rgba(79,110,247,.35);
+                transition: opacity .2s, box-shadow .2s, transform .1s;
+                letter-spacing: .02em;
             }
             .login-btn:hover {
-                background: var(--ink2);
+                opacity: .92;
+                box-shadow: 0 6px 20px rgba(79,110,247,.45);
+                transform: translateY(-1px);
             }
+            .login-btn:active { transform: translateY(0); }
             .login-err {
+                display: none;
                 color: var(--red);
                 font-size: 12px;
                 margin-top: 8px;
-                display: none;
+                text-align: center;
             }
-            .login-hint {
-                margin-top: 20px;
-                padding: 12px;
-                background: var(--bg2);
-                border-radius: var(--r-sm);
-                font-size: 11px;
-                color: var(--ink4);
-            }
-            .login-hint strong {
-                color: var(--ink3);
-                display: block;
-                margin-bottom: 4px;
-            }
-            #signupPage {
-                position: fixed;
-                inset: 0;
+            .login-err.visible { display: block; }
+            .ln-trust {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background: var(--bg);
-                z-index: 100;
-                overflow-y: auto;
-                padding: 24px 16px;
+                gap: 20px;
+                margin-top: 28px;
+                padding-top: 20px;
+                border-top: 1px solid var(--border);
             }
-
-            .pro-badge {
-                display: inline-block;
-                background: rgba(208,170,63,.2);
-                color: #7a5c00;
-                font-size: 9px;
-                font-weight: 700;
-                letter-spacing: .06em;
-                padding: 1px 5px;
-                border-radius: 4px;
-                margin-left: auto;
-                vertical-align: middle;
+            .ln-trust-item {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 11px;
+                color: var(--ink4);
             }
-            @keyframes spin { to { transform: rotate(360deg); } }
+            @media (max-width: 900px) {
+                .login-left { display: none; }
+                .login-right { width: 100%; padding: 40px 28px; }
+                #loginPage { background: linear-gradient(145deg, #1a1f36, #0f1220); }
+                .login-card { background: #fff; border-radius: 16px; padding: 32px; }
+            }
             /* ── Onboarding ── */
+
             .onboarding-bar {
                 background: linear-gradient(135deg, #1a1f36 0%, #2d3454 100%);
                 border-radius: var(--r);
@@ -2216,59 +2290,67 @@
 
         <!-- LOGIN -->
         <div id="loginPage">
-            <!-- LEFT PANEL -->
+            <!-- LEFT PANEL — landing -->
             <div class="login-left">
-                <div style="position:relative;z-index:1">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
-                        <svg width="40" height="40" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
-                        <div>
-                            <div style="font-family:'Fraunces',serif;font-weight:300;font-size:30px;color:#fff;letter-spacing:-0.5px;line-height:1">Nexum</div>
-                            <div style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.15em;text-transform:uppercase;margin-top:3px">gestão inteligente</div>
+                <div class="ln-glow-bl"></div>
+                <div class="login-left-inner">
+                    <!-- top: logo -->
+                    <div>
+                        <div class="ln-logo-row">
+                            <div class="ln-logo-mark">
+                                <svg width="22" height="22" viewBox="0 0 80 80" fill="none"><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="rgba(79,110,247,.6)" stroke-width="2.5"/></svg>
+                            </div>
+                            <div>
+                                <div class="ln-logo-word">Nexum</div>
+                                <div class="ln-logo-sub">gestão inteligente</div>
+                            </div>
+                        </div>
+
+                        <!-- headline -->
+                        <div class="ln-headline">
+                            <h2>Gestão que <em>conecta</em><br>receita, despesas<br>e pessoas.</h2>
+                            <p>Pagamentos, RH, contratos e inteligência de vendas por NF-e — tudo integrado, para Bäckerei, Swiss e DBK.</p>
+                        </div>
+
+                        <!-- feature pills -->
+                        <div class="ln-pills">
+                            <div class="ln-pill"><span class="ln-pill-ico">💳</span>Pagamentos & Boletos</div>
+                            <div class="ln-pill"><span class="ln-pill-ico">📊</span>DRE Simplificado</div>
+                            <div class="ln-pill"><span class="ln-pill-ico">▣</span>Bäckerei Intelligence</div>
+                            <div class="ln-pill"><span class="ln-pill-ico">👥</span>Gestão de RH</div>
+                            <div class="ln-pill"><span class="ln-pill-ico">📄</span>Contratos</div>
+                            <div class="ln-pill"><span class="ln-pill-ico">📬</span>Alertas por e-mail</div>
+                            <div class="ln-pill"><span class="ln-pill-ico">🧾</span>NF-e &amp; NFC-e</div>
+                            <div class="ln-pill"><span class="ln-pill-ico">📎</span>Comprovantes anexos</div>
                         </div>
                     </div>
-                    <div style="margin-top:28px">
-                        <div style="font-size:26px;font-weight:300;color:#fff;line-height:1.3;max-width:360px">Controle financeiro completo para o seu negócio</div>
-                        <div style="font-size:14px;color:rgba(255,255,255,.45);margin-top:12px;max-width:340px;line-height:1.6">Lançamentos, pagamentos, RH e inteligência de vendas — tudo em um lugar.</div>
-                    </div>
-                    <div class="login-stat-grid">
-                        <div class="login-stat">
-                            <div class="login-stat-lbl">Controle de Caixa</div>
-                            <div class="login-stat-val">Real-time</div>
-                            <div class="login-stat-sub">A pagar, vencidos e pagos</div>
+
+                    <!-- metrics strip -->
+                    <div>
+                        <div class="ln-metrics">
+                            <div class="ln-metric">
+                                <div class="ln-metric-val">3</div>
+                                <div class="ln-metric-label">Empresas<br>integradas</div>
+                            </div>
+                            <div class="ln-metric">
+                                <div class="ln-metric-val ln-metric-accent">NF-e</div>
+                                <div class="ln-metric-label">Análise de vendas<br>por XML</div>
+                            </div>
+                            <div class="ln-metric">
+                                <div class="ln-metric-val">DRE</div>
+                                <div class="ln-metric-label">Receita vs despesas<br>mês a mês</div>
+                            </div>
                         </div>
-                        <div class="login-stat">
-                            <div class="login-stat-lbl">Inteligência NF-e</div>
-                            <div class="login-stat-val">BKI</div>
-                            <div class="login-stat-sub">Análise de vendas por XML</div>
-                        </div>
-                        <div class="login-stat">
-                            <div class="login-stat-lbl">Multi-empresa</div>
-                            <div class="login-stat-val">Multi-CNPJ</div>
-                            <div class="login-stat-sub">Uma conta, tudo integrado</div>
-                        </div>
-                        <div class="login-stat">
-                            <div class="login-stat-lbl">Notificações</div>
-                            <div class="login-stat-val">Email</div>
-                            <div class="login-stat-sub">Alertas automáticos diários</div>
-                        </div>
-                    </div>
-                    <div class="login-features">
-                        <div class="login-feature"><div class="login-feature-dot"></div>Lançamentos com código de barras e anexos</div>
-                        <div class="login-feature"><div class="login-feature-dot"></div>Alertas de vencimento e atraso por email</div>
-                        <div class="login-feature"><div class="login-feature-dot"></div>Análise de vendas via NF-e (Bäckerei Intelligence)</div>
-                        <div class="login-feature"><div class="login-feature-dot"></div>Gestão de RH integrada</div>
+                        <div class="ln-footer" style="margin-top:20px">© 2026 Nexum · nexum.uniwares.net</div>
                     </div>
                 </div>
-                <div style="position:relative;z-index:1;font-size:11px;color:rgba(255,255,255,.2)">© 2026 Nexum · nexum.uniwares.net</div>
             </div>
 
-            <!-- RIGHT PANEL -->
+            <!-- RIGHT PANEL — form -->
             <div class="login-right">
                 <div class="login-card">
-                    <div style="margin-bottom:28px">
-                        <div style="font-family:'Fraunces',serif;font-weight:300;font-size:26px;color:var(--ink);letter-spacing:-0.5px;line-height:1">Bom te ver de volta</div>
-                        <div style="font-size:13px;color:var(--ink4);margin-top:6px">Acesse sua conta para continuar</div>
-                    </div>
+                    <p class="ln-form-title">Bom te ver de volta</p>
+                    <p class="ln-form-sub">Acesse sua conta para continuar</p>
                     <div class="login-form-group">
                         <label class="login-label">E-mail</label>
                         <input class="login-input" type="email" id="loginEmail" placeholder="email@empresa.com" onkeydown="if(event.key==='Enter')doLogin();" />
@@ -2281,13 +2363,14 @@
                     <div class="login-err" id="loginErr">E-mail ou senha incorretos.</div>
                     <div style="text-align:center;margin-top:20px">
                         <span style="font-size:12px;color:var(--ink4)">Ainda não tem conta?</span>
-                        <button onclick="showSignup()" style="background:none;border:none;color:var(--bk2);font-size:12px;font-weight:600;cursor:pointer;margin-left:4px">Criar conta grátis</button>
+                        <button onclick="showSignup()" style="background:none;border:none;color:#4f6ef7;font-size:12px;font-weight:600;cursor:pointer;margin-left:4px">Criar conta grátis →</button>
                     </div>
-                    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:28px;padding-top:20px;border-top:1px solid var(--border)">
-                        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
-                        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink4)"><span>✓</span> Compatível com NF-e e NFC-e</div>
+                    <div class="ln-trust">
+                        <div class="ln-trust-item"><span style="color:var(--green)">🔒</span> Dados criptografados</div>
+                        <div class="ln-trust-item"><span style="color:var(--ink3)">✓</span> NF-e &amp; NFC-e</div>
+                        <div class="ln-trust-item"><span style="color:var(--ink3)">✓</span> Multi-empresa</div>
                     </div>
-                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:12px;opacity:.5">v1.281</div>
+                    <div id="loginVersion" style="text-align:center;font-size:10px;color:var(--ink4);margin-top:16px;opacity:.4">v1.282</div>
                 </div>
             </div>
         </div>
@@ -2358,7 +2441,7 @@
                         <svg width="26" height="26" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" rx="18" fill="#4f6ef7"/><path d="M18 60 L18 20 L45 60 L45 20" stroke="white" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31.5" cy="40" r="6" fill="#e8c96a" stroke="#4f6ef7" stroke-width="2.5"/></svg>
                         <div>
                             <div class="sb-brand-name">Nexum</div>
-                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.281</div>
+                            <div id="sbVersion" style="font-size:9px;color:var(--ink4);margin-top:0;letter-spacing:.04em">v1.282</div>
                         </div>
                     </div>
                     <div class="sb-brand-user" id="sbUser"></div>
@@ -3315,7 +3398,7 @@
 
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
                 <script>
-            const APP_VERSION = "1.281"; // declared first — used throughout
+            const APP_VERSION = "1.282"; // declared first — used throughout
             const SUPABASE_URL = "https://zinbuxrwslbtddikwdau.supabase.co";
             const SUPABASE_KEY = "sb_publishable_R79U3OifB9s-EuJ1ES17zw_V5Zigkfw";
             const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
